@@ -8,11 +8,14 @@
 
 First, install SubQuery CLI globally on your terminal by using NPM `npm install -g @subql/cli`
 
-Después de esto hay 2 caminos
 
-You can either clone this GitHub repo, or use the `subql` CLI to bootstrap a clean project in the network of your choosing by running `subql init` and following the prompts.
+You can either clone this GitHub repo:
+´´´
+git clone https://github.com/PrincesoDan/subql-soroswap.git
+´´´
 
-o puedes hacerlo clonando lo siguiente: 
+
+Also can use the `subql` CLI to bootstrap a clean project in the network of your choosing by running `subql init` and following the prompts.
 
 
 Don't forget to install dependencies with `npm install` or `yarn install`!
@@ -35,7 +38,7 @@ The simplest way to run your project is by running `yarn dev` or `npm run-script
 
 1.  `yarn codegen` - Generates types from the GraphQL schema definition and contract ABIs and saves them in the `/src/types` directory. This must be done after each change to the `schema.graphql` file or the contract ABIs
 2.  `yarn build` - Builds and packages the SubQuery project into the `/dist` directory
-3.  `docker-compose pull && docker-compose up` - Runs a Docker container with an indexer, PostgeSQL DB, and a query service. This requires [Docker to be installed](https://docs.docker.com/engine/install) and running locally. The configuration for this container is set from your `docker-compose.yml`
+3.  
 
 You can observe the three services start, and once all are running (it may take a few minutes on your first start), please open your browser and head to [http://localhost:3000](http://localhost:3000) - you should see a GraphQL playground showing with the schemas ready to query. [Read the docs for more information](https://academy.subquery.network/run_publish/run.html) or [explore the possible service configuration for running SubQuery](https://academy.subquery.network/run_publish/references.html).
 
