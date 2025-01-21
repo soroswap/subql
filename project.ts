@@ -22,6 +22,9 @@ const project: StellarProject = {
   runner: {
     node: {
       name: "@subql/node-stellar",
+      options: {
+        unsafe: true
+      },
       version: "*",
     },
     query: {

@@ -10,9 +10,9 @@ First, install SubQuery CLI globally on your terminal by using NPM `npm install 
 
 
 You can either clone this GitHub repo:
-´´´
+``` bash
 git clone https://github.com/PrincesoDan/subql-soroswap.git
-´´´
+```
 
 
 Also can use the `subql` CLI to bootstrap a clean project in the network of your choosing by running `subql init` and following the prompts.
