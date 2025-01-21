@@ -4,16 +4,115 @@
 
 **The example project indexes all soroban transfer events on Stellar's Testnet. It also indexes all account payments including credits and debits**
 
-## Start
+## QuickStart
 
 First, install SubQuery CLI globally on your terminal by using NPM `npm install -g @subql/cli`
-
 
 You can either clone this GitHub repo:
 ``` bash
 git clone https://github.com/PrincesoDan/subql-soroswap.git
 ```
 
+```bash
+yarn install
+```
+Config your proyect:
+there are 3 files important.
+schema.graphql, proyect.ts and mapping.ts. You can check details in the last readme.
+
+Check Startblock in proyect.ts 
+
+```bash
+yarn codegen
+```
+check src/types/models.
+
+```bash
+yarn build
+```
+check proyect.yaml.
+
+```bash
+yarn start:docker
+```
+Next, let's query our project. Follow these three simple steps to query your SubQuery project:
+
+    Open your browser and head to http://localhost:3000.
+
+    You will see a GraphQL playground in the browser and the schemas which are ready to query.
+
+    Find the Docs tab on the right side of the playground which should open a documentation drawer. This documentation is automatically generated and it helps you find what entities and methods you can query.
+
+Try the following queries to understand how it works for your new SubQuery starter project. Don’t forget to learn more about the GraphQL Query language.
+
+query {
+  credits {
+    totalCount
+    nodes {
+      id
+      amount
+      accountId
+    }
+  }
+  debits {
+    totalCount
+    nodes {
+      id
+      amount
+      accountId
+    }
+  }
+}
+
+You will see the result similar to below:
+
+{
+  "data": {
+    "query": {
+      "debits": {
+        "totalCount": 1,
+        "nodes": [
+          {
+            "id": "0002576954607800321-0000000002",
+            "amount": "10000.0000000",
+            "accountId": "GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR"
+          }
+        ]
+      },
+      "credits": {
+        "totalCount": 1,
+        "nodes": [
+          {
+            "id": "0002576924543029249-0000000002",
+            "amount": "9999.9999900",
+            "accountId": "GAIH3ULLFQ4DGSECF2AR555KZ4KNDGEKN4AFI4SU2M7B43MGK3QJZNSR"
+          }
+        ]
+      }
+    }
+  }
+}
+
+
+### **if need reset** indexing:
+navigate to root.
+
+removed cache data
+```bash
+sudo rm -rf .data
+```
+stop containers
+```bash
+docker compose stop
+```
+removed containers
+```bash
+docker compose down -v
+```
+
+
+
+## Start 
 
 Also can use the `subql` CLI to bootstrap a clean project in the network of your choosing by running `subql init` and following the prompts.
 
@@ -24,9 +123,33 @@ Don't forget to install dependencies with `npm install` or `yarn install`!
 
 Although this is a working example SubQuery project, you can edit the SubQuery project by changing the following files:
 
-- The project manifest in `project.yaml` defines the key project configuration and mapping handler filters
 - The GraphQL Schema (`schema.graphql`) defines the shape of the resulting data that you are using SubQuery to index
+- The project manifest in `project.yaml` defines the key project configuration and mapping handler filters
 - The Mapping functions in `src/mappings/` directory are typescript functions that handle transformation logic
+
+The **schema.graphql** file determines the shape of your data from SubQuery due to the mechanism of the GraphQL query language. Hence, updating the GraphQL Schema file is the perfect place to start. It allows you to define your end goal right at the start.
+
+**proyect.ts:** The Project Manifest file is an entry point to your project. It defines most of the details on how SubQuery will index and transform the chain data.
+
+For Stellar, there are several types of mapping handlers (and you can have more than one in each project):
+
+    BlockHandler: On each and every block, run a mapping function
+    TransactionHandlers: On each and every Stellar/Soroban transaction that matches optional filter criteria, run a mapping function
+    OperationHandler: On each and every Stellar operation action that matches optional filter criteria, run a mapping function
+    EffectHandler: On each and every Stellar effect action that matches optional filter criteria, run a mapping function
+    EventHandler: On each and every Soroban event action that matches optional filter criteria, run a mapping function
+
+Note that the manifest file has already been set up correctly and doesn’t require significant changes, but you need to update the datasource handlers.
+
+**mapping.ts:**
+
+Navigate to the default mapping function in the src/mappings directory.
+
+There are different classes of mapping functions for Stellar; Block handlers, Operation Handlers, and Effect Handlers.
+
+Soroban has two classes of mapping functions; Transaction Handlers, and Event Handlers.
+
+
 
 SubQuery supports various layer-1 blockchain networks and provides [dedicated quick start guides](https://academy.subquery.network/quickstart/quickstart.html) as well as [detailed technical documentation](https://academy.subquery.network/build/introduction.html) for each of them.
 
@@ -38,7 +161,7 @@ The simplest way to run your project is by running `yarn dev` or `npm run-script
 
 1.  `yarn codegen` - Generates types from the GraphQL schema definition and contract ABIs and saves them in the `/src/types` directory. This must be done after each change to the `schema.graphql` file or the contract ABIs
 2.  `yarn build` - Builds and packages the SubQuery project into the `/dist` directory
-3.  
+3.  `yarn start:docker`- start.
 
 You can observe the three services start, and once all are running (it may take a few minutes on your first start), please open your browser and head to [http://localhost:3000](http://localhost:3000) - you should see a GraphQL playground showing with the schemas ready to query. [Read the docs for more information](https://academy.subquery.network/run_publish/run.html) or [explore the possible service configuration for running SubQuery](https://academy.subquery.network/run_publish/references.html).
 
@@ -135,22 +258,6 @@ Results:
 
 You can explore the different possible queries and entities to help you with GraphQL using the documentation draw on the right.
 
-## Publish your project
-
-SubQuery is open-source, meaning you have the freedom to run it in the following three ways:
-
-- Locally on your own computer (or a cloud provider of your choosing), [view the instructions on how to run SubQuery Locally](https://academy.subquery.network/run_publish/run.html)
-- By publishing it to our enterprise-level [Managed Service](https://managedservice.subquery.network), where we'll host your SubQuery project in production ready services for mission critical data with zero-downtime blue/green deployments. We even have a generous free tier. [Find out how](https://academy.subquery.network/run_publish/publish.html)
-- [Coming Soon] By publishing it to the decentralised [SubQuery Network](https://subquery.network/network), the most open, performant, reliable, and scalable data service for dApp developers. The SubQuery Network indexes and services data to the global community in an incentivised and verifiable way
-
-## What Next?
-
-Take a look at some of our advanced features to take your project to the next level!
-
-- [**Multi-chain indexing support**](https://academy.subquery.network/build/multi-chain.html) - SubQuery allows you to index data from across different layer-1 networks into the same database, this allows you to query a single endpoint to get data for all supported networks.
-- [**Dynamic Data Sources**](https://academy.subquery.network/build/dynamicdatasources.html) - When you want to index factory contracts, for example on a DEX or generative NFT project.
-- [**Project Optimisation Advice**](https://academy.subquery.network/build/optimisation.html) - Some common tips on how to tweak your project to maximise performance.
-- [**GraphQL Subscriptions**](https://academy.subquery.network/run_publish/subscription.html) - Build more reactive front end applications that subscribe to changes in your SubQuery project.
 
 ## Need Help?
 
