@@ -50,6 +50,28 @@ yarn start:docker
 
 The GraphQL playground will be available at `http://localhost:3000`.
 
+```graphql
+query {
+  credits {
+    totalCount
+    nodes {
+      id
+      amount
+      accountId
+    }
+  }
+  debits {
+    totalCount
+    nodes {
+      id
+      amount
+      accountId
+    }
+  }
+}
+```
+
+
 ### Option 2: Manual Setup and Configuration
 
 If you need to customize the implementation, follow these steps:
