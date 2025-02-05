@@ -61,7 +61,7 @@ const project: StellarProject = {
     {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
-      startBlock: 600000,
+      startBlock: 900000,
       mapping: {
         file: "./dist/index.js",
         handlers: [
