@@ -55,13 +55,14 @@ const project: StellarProject = {
     endpoint: process.env.ENDPOINT!?.split(',') as string[] | string,
     /* This is a specific Soroban endpoint
       It is only required when you are using a soroban/EventHandler */
-    sorobanEndpoint: "https://soroban-testnet.stellar.org",
+    sorobanEndpoint: "https://mainnet.stellar.validationcloud.io/v1/qeL7PnqAked5yWlf6KjhZuMPb_9xxaoNw4OXZCQgeAc",
   },
   dataSources: [
     {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
-      startBlock: 900000,
+      startBlock: 55633014, //900000 testnet 55622532 mainnet
+      // startBlock:900000,
       mapping: {
         file: "./dist/index.js",
         handlers: [
@@ -90,10 +91,19 @@ const project: StellarProject = {
             handler: "handleEvent",
             kind: StellarHandlerKind.Event,
             filter: {
-              /* You can optionally specify a smart contract address here
-                contractId: "" */
+              /* You can optionally specify a smart contract address here */
+              // contractId: "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA", 
               topics: [
-                "transfer", // Topic signature(s) for the events, there can be up to 4
+                 "transfer",// Topic signature(s) for the events, there can be up to 4
+              ],
+            },
+          },
+          {
+            handler: "handleEventSync",
+            kind: StellarHandlerKind.Event,
+            filter: {
+              topics: [
+                "sync" // Topic para el evento sync
               ],
             },
           },

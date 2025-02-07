@@ -80,3 +80,12 @@ type Debit @entity {
   account: Account!
   amount: String!
 }
+
+type Sync @entity {
+  id: ID! 
+  ledger: Int!
+  date: Date!
+  contract: String!
+  newReserve0: BigInt!
+  newReserve1: BigInt! 
+}

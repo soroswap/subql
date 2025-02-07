@@ -1,4 +1,4 @@
-import { Account, Credit, Debit, Payment, Transfer } from "../types";
+import { Account, Credit, Debit, Payment, Transfer, Sync } from "../types";
 import {
   StellarOperation,
   StellarEffect,
@@ -8,7 +8,7 @@ import {
   AccountCredited,
   AccountDebited,
 } from "@stellar/stellar-sdk/lib/horizon/types/effects";
-import { Horizon } from "@stellar/stellar-sdk";
+import { Horizon, scValToNative } from "@stellar/stellar-sdk";
 import { Address, xdr } from "@stellar/stellar-sdk";
 
 export async function handleOperation(
@@ -79,7 +79,7 @@ export async function handleEvent(event: SorobanEvent): Promise<void> {
 
   // Get data from the event
   // The transfer event has the following payload \[env, from, to\]
-  // logger.info(JSON.stringify(event));
+  logger.info(JSON.stringify(event));
   const {
     topic: [env, from, to],
   } = event;
@@ -108,12 +108,36 @@ export async function handleEvent(event: SorobanEvent): Promise<void> {
     contract: event.contractId?.contractId().toString()!,
     fromId: fromAccount.id,
     toId: toAccount.id,
-    value: BigInt(1000),
+    value: BigInt(scValToNative(event.value)),
   });
 
   fromAccount.lastSeenLedger = event.ledger.sequence;
   toAccount.lastSeenLedger = event.ledger.sequence;
   await Promise.all([fromAccount.save(), toAccount.save(), transfer.save()]);
+}
+
+export async function handleEventSync(event: SorobanEvent): Promise<void> {
+  logger.info(
+    `New sync event found at block ${event.ledger.sequence.toString()}`
+  );
+
+  // Extraer los datos del evento
+  logger.info(JSON.stringify(event));
+  
+  const eventData = scValToNative(event.value);
+
+  logger.info(JSON.stringify(eventData));
+  // Crear la nueva entidad sync
+  const sync = Sync.create({
+    id: event.id,
+    ledger: event.ledger.sequence,
+    date: new Date(event.ledgerClosedAt),
+    contract: event.contractId?.contractId().toString()!,
+    newReserve0: BigInt(eventData.new_reserve_0),
+    newReserve1: BigInt(eventData.new_reserve_1)
+  });
+
+  await sync.save();
 }
 
 async function checkAndGetAccount(
