@@ -61,32 +61,11 @@ const project: StellarProject = {
     {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
-      startBlock: 55633014, //900000 testnet 55622532 mainnet
+      startBlock: 55634163, //900000 testnet 55622532 mainnet
       // startBlock:900000,
       mapping: {
         file: "./dist/index.js",
-        handlers: [
-          {
-            handler: "handleOperation",
-            kind: StellarHandlerKind.Operation,
-            filter: {
-              type: Horizon.HorizonApi.OperationResponseType.payment,
-            },
-          },
-          {
-            handler: "handleCredit",
-            kind: StellarHandlerKind.Effects,
-            filter: {
-              type: "account_credited",
-            },
-          },
-          {
-            handler: "handleDebit",
-            kind: StellarHandlerKind.Effects,
-            filter: {
-              type: "account_debited",
-            },
-          },
+        handlers: [      
           {
             handler: "handleEvent",
             kind: StellarHandlerKind.Event,
@@ -103,7 +82,7 @@ const project: StellarProject = {
             kind: StellarHandlerKind.Event,
             filter: {
               topics: [
-                "sync" // Topic para el evento sync
+                "SoroswapPair" // Topic para el evento sync
               ],
             },
           },

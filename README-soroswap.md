@@ -81,32 +81,45 @@ yarn start:docker
 
 ### Query Transfers and Accounts
 ```graphql
-{
-  query {
-    transfers(first: 5, orderBy: VALUE_DESC) {
-      totalCount
-      nodes {
+query SinContract {
+  credits {
+    totalCount
+    nodes {
+      id
+      amount
+      accountId
+    }
+  }
+  debits {
+    totalCount
+    nodes {
+      id
+      amount
+      accountId
+    }
+  }
+}
+
+
+# Para mantener las consultas anteriores de credits y debits
+query TransactionHistory {
+  credits {
+    totalCount
+    nodes {
+      id
+      amount
+      account {
         id
-        date
-        ledger
-        toId
-        fromId
-        value
       }
     }
-    accounts(first: 5, orderBy: SENT_TRANSFERS_COUNT_DESC) {
-      nodes {
+  }
+  debits {
+    totalCount
+    nodes {
+      id
+      amount
+      account {
         id
-        sentTransfers(first: 5, orderBy: LEDGER_DESC) {
-          totalCount
-          nodes {
-            id
-            toId
-            value
-          }
-        }
-        firstSeenLedger
-        lastSeenLedger
       }
     }
   }
