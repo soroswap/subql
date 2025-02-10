@@ -133,7 +133,7 @@ Results:
 ### Reset Indexing
 If you need to reset the indexing:
 
-``bash
+```bash
 yarn reset
 ```
 
