@@ -55,7 +55,7 @@ const project: StellarProject = {
     endpoint: process.env.ENDPOINT!?.split(',') as string[] | string,
     /* This is a specific Soroban endpoint
       It is only required when you are using a soroban/EventHandler */
-    sorobanEndpoint: "https://mainnet.stellar.validationcloud.io/v1/qeL7PnqAked5yWlf6KjhZuMPb_9xxaoNw4OXZCQgeAc",
+    sorobanEndpoint: process.env.SOROBAN_ENDPOINT!,
   },
   dataSources: [
     {
@@ -81,6 +81,7 @@ const project: StellarProject = {
             handler: "handleEventSync",
             kind: StellarHandlerKind.Event,
             filter: {
+              contractId: "CDJDRGUCHANJDXALZVJ5IZVB76HX4MWCON5SHF4DE5HB64CBBR7W2ZCD",
               topics: [
                 "SoroswapPair" // Topic para el evento sync
               ],

@@ -18,8 +18,13 @@ This project indexes Soroban transfer events and account payments (credits/debit
 git clone https://github.com/PricesoDan/subql-soroswap.git
 cd subql-soroswap
 ```
+1.1 Config .env:
 
-
+```.env Mainnet
+ENDPOINT=https://horizon.stellar.org
+CHAIN_ID="Public Global Stellar Network ; September 2015"
+SOROBAN_ENDPOINT=https://mainnet.stellar.validationcloud.io......
+```
 **Check Startblock in proyect.ts** 
 
 2. Install dependencies:
@@ -47,49 +52,91 @@ check proyect.yaml.
 ```bash
 yarn start:docker
 ```
+Dev Mod
+```bash
+yarn start:docker | tee -a "logs_$(date +%Y%m%d_%H%M%S).txt"
+```
 
 The GraphQL playground will be available at `http://localhost:3000`.
 
+### Option 2: Manual Setup and Configuration
+
+If you need to customize the implementation, follow these steps:
+
+1. Follow steps 1-2 from Option 1
+
+2. Generate types from schema:
+```bash
+yarn codegen
+```
+
+3. Build the project:
+```bash
+yarn build
+```
+
+4. Start the services:
+```bash
+yarn start:docker
+```
+
+#### Key Configuration Files
+
+- **schema.graphql**: Defines the data structure
+- **project.ts**: Contains project configuration and mapping handlers
+- **mapping.ts**: Contains the transformation logic
+
+## Sample Queries
+
+### Query Transfers and Accounts
 ```graphql
-query {
-  credits {
+query EventSync {
+  syncs(first: 10, orderBy: DATE_DESC) {
     totalCount
-    nodes {
-      id
-      amount
-      accountId
-    }
-  }
-  debits {
-    totalCount
-    nodes {
-      id
-      amount
-      accountId
+    nodes { 
+    	id
+    	ledger
+    	date
+    	contract
+    	newReserve0
+    	newReserve1
     }
   }
 }
+
+
+query EventTransfer {
+  transfers(first: 10, orderBy: DATE_DESC) {
+    totalCount
+    nodes {
+      id
+      ledger
+      date
+      contract
+      from {
+        id
+      }
+      to {
+        id
+      }
+      value
+    }
+  }
+}
+
 ```
+Results:
+
 
 ## Maintenance
 
 ### Reset Indexing
 If you need to reset the indexing:
 
-1. Remove cached data:
-```bash
-sudo rm -rf .data
+``bash
+yarn reset
 ```
 
-2. Stop containers:
-```bash
-docker compose stop
-```
-
-3. Remove containers:
-```bash
-docker compose down -v
-```
 
 ## Advanced Configuration
 
@@ -105,6 +152,27 @@ The project supports various types of handlers for both Stellar and Soroban:
 **Soroban Handlers:**
 - TransactionHandler
 - EventHandler
+
+### Example Event
+```
+// SYNC EVENT
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SyncEvent {
+    pub new_reserve_0: i128,
+    pub new_reserve_1: i128,
+}
+
+pub(crate) fn sync(e: &Env, new_reserve_0: i128, new_reserve_1: i128) {
+    let event: SyncEvent = SyncEvent {
+        new_reserve_0: new_reserve_0,
+        new_reserve_1: new_reserve_1,
+    };
+    e.events().publish(("SoroswapPair", symbol_short!("sync")), event);
+}
+```
+### Example Contract Mainnet: [CDJDRGUCHANJDXALZVJ5IZVB76HX4MWCON5SHF4DE5HB64CBBR7W2ZCD](https://stellar.expert/explorer/public/contract/CDJDRGUCHANJDXALZVJ5IZVB76HX4MWCON5SHF4DE5HB64CBBR7W2ZCD)
 
 ### Customization
 To customize the implementation:
