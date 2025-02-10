@@ -124,6 +124,39 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
    logger.info("EVENT" + JSON.stringify(event));
    logger.info("VALUE" + JSON.stringify(event.value));
 
+  // Option 1
+  // function extractReserves(scvMap: any): { reserve0: bigint, reserve1: bigint } {
+  //   // Asumimos que el mapa tiene la estructura correcta
+  //   const entries = scvMap._value;
+    
+  //   let reserve0 = BigInt(0);
+  //   let reserve1 = BigInt(0);
+    
+  //   entries.forEach((entry: any) => {
+  //     // Convertir el Buffer a string para identificar qué reserva es
+  //     const keyBuffer = entry._attributes.key._value.data;
+  //     const keyString = Buffer.from(keyBuffer).toString();
+      
+  //     // Obtener el valor de lo
+  //     const value = BigInt(entry._attributes.val._value._attributes.lo._value);
+      
+  //     if (keyString === 'new_reserve_0') {
+  //       reserve0 = value;
+  //     } else if (keyString === 'new_reserve_1') {
+  //       reserve1 = value;
+  //     }
+  //   });
+    
+  //   return { reserve0, reserve1 };
+  // }
+  
+  // // Uso:
+  // const reserves = extractReserves(event.value);
+  // console.log(`Reserve0: ${reserves.reserve0}`);
+  // console.log(`Reserve1: ${reserves.reserve1}`);
+
+
+  // Option 2
   //  const scValMap = event.value as any;
   //  let newReserve0 = BigInt(0);
   //  let newReserve1 = BigInt(0);
