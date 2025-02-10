@@ -120,28 +120,43 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
   logger.info(
     `New sync event found at block ${event.ledger.sequence.toString()}`
   );
+   // Log para debug
+   logger.info("EVENT" + JSON.stringify(event));
+   logger.info("VALUE" + JSON.stringify(event.value));
 
-  // Registrar el evento completo para debugging
-  logger.info("AQUI" + JSON.stringify(event));
-  
-  // Extraer los topics del evento
+  //  const scValMap = event.value as any;
+  //  let newReserve0 = BigInt(0);
+  //  let newReserve1 = BigInt(0);
 
-  // Extraer los datos del evento
-  // El SyncEvent contiene {new_reserve_0: i128, new_reserve_1: i128}
-  // const eventData = scValToNative(event.value);
-  // logger.info(eventData.toString());
-  // Crear la nueva entidad sync
-  const sync = Sync.create({
-    id: "0238946906331807744-0000000000",                                     // ID único del evento
-    ledger: 1000,                    // Número del ledger
-    date: new Date(),            // Timestamp del ledger
-    contract: "CAM7DY53G63XA4AJRS24Z6VFYAFSSF76C3RZ45BE5YU3FQS5255OOABP", // Dirección del contrato
-    newReserve0: BigInt(1000),    // Nuevo reserve0 como BigInt
-    newReserve1: BigInt(10001)     // Nuevo reserve1 como BigInt
-  });
+  // try {
+  //   // Convertir el ScVal map a un objeto JavaScript
+  //   const nativeValue = scValToNative(event.value);
+  //   logger.info("Converted value: " + nativeValue);
 
-  // Guardar la entidad en la base de datos
-  await sync.save();
+  // //   // Extraer los valores del mapa convertido
+  // //   const newReserve0 = BigInt(nativeValue.new_reserve_0 ?? 0);
+  // //   const newReserve1 = BigInt(nativeValue.new_reserve_1 ?? 0);
+
+  //   logger.info(`Final values - Reserve0: ${newReserve0}, Reserve1: ${newReserve1}`);
+
+    // Crear la nueva entidad sync
+    const sync = Sync.create({
+      id: `${event.id}-${event.ledger.sequence}`,
+      ledger: event.ledger.sequence,
+      date: new Date(event.ledgerClosedAt),
+      contract: event.contractId?.contractId().toString()!,
+      newReserve0: BigInt(0),
+      newReserve1: BigInt(0)
+    });
+
+    await sync.save();
+    logger.info(`Saved sync entity with id: ${sync.id}`);
+    
+  // } catch (error) {
+  //   logger.error("Error processing sync event: " + error);
+  //   logger.error("Event value: " + JSON.stringify(event.value));
+  //   throw error;
+  // }
 }
 
 async function checkAndGetAccount(
