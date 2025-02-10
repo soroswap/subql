@@ -81,104 +81,43 @@ yarn start:docker
 
 ### Query Transfers and Accounts
 ```graphql
-query SinContract {
-  credits {
+query EventSync {
+  syncs(first: 10, orderBy: DATE_DESC) {
     totalCount
-    nodes {
-      id
-      amount
-      accountId
-    }
-  }
-  debits {
-    totalCount
-    nodes {
-      id
-      amount
-      accountId
+    nodes { 
+    	id
+    	ledger
+    	date
+    	contract
+    	newReserve0
+    	newReserve1
     }
   }
 }
 
 
-# Para mantener las consultas anteriores de credits y debits
-query TransactionHistory {
-  credits {
+query EventTransfer {
+  transfers(first: 10, orderBy: DATE_DESC) {
     totalCount
     nodes {
       id
-      amount
-      account {
+      ledger
+      date
+      contract
+      from {
         id
       }
-    }
-  }
-  debits {
-    totalCount
-    nodes {
-      id
-      amount
-      account {
+      to {
         id
       }
+      value
     }
   }
 }
+
 ```
 Results:
 
-```
-{
-  "data": {
-    "query": {
-      "transfers": {
-        "totalCount": 0,
-        "nodes": []
-      },
-      "accounts": {
-        "nodes": [
-          {
-            "id": "gbtbdklzbabdgnpvdygchqzxqxkjfu73ayhls44j7u26ti6lzvlzfg5a",
-            "sentTransfers": {
-              "totalCount": 0,
-              "nodes": []
-            },
-            "firstSeenLedger": 1700000,
-            "lastSeenLedger": 1700000
-          },
-          {
-            "id": "gdea4efymx2vcx7hduurwvuy6de36qihe6faouhuzaldgul4ooq5euvu",
-            "sentTransfers": {
-              "totalCount": 0,
-              "nodes": []
-            },
-            "firstSeenLedger": 1700000,
-            "lastSeenLedger": 1700000
-          },
-          {
-            "id": "gcbwgcat2nhokpnr2toy6o3qdky22lzzeydwh4azhdyyl57qfu53ugzr",
-            "sentTransfers": {
-              "totalCount": 0,
-              "nodes": []
-            },
-            "firstSeenLedger": 1700000,
-            "lastSeenLedger": 1700000
-          },
-          {
-            "id": "gb7yga2xmamr6wqb2z5c4l6s2imudrqzu7zxdpr4df2dewcxpxhmzjy5",
-            "sentTransfers": {
-              "totalCount": 0,
-              "nodes": []
-            },
-            "firstSeenLedger": 1700000,
-            "lastSeenLedger": 1700000
-          }
-        ]
-      }
-    }
-  }
-}
-```
 
 ## Maintenance
 
@@ -215,6 +154,25 @@ The project supports various types of handlers for both Stellar and Soroban:
 - TransactionHandler
 - EventHandler
 
+Example Event
+```
+// SYNC EVENT
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SyncEvent {
+    pub new_reserve_0: i128,
+    pub new_reserve_1: i128,
+}
+
+pub(crate) fn sync(e: &Env, new_reserve_0: i128, new_reserve_1: i128) {
+    let event: SyncEvent = SyncEvent {
+        new_reserve_0: new_reserve_0,
+        new_reserve_1: new_reserve_1,
+    };
+    e.events().publish(("SoroswapPair", symbol_short!("sync")), event);
+}
+```
 ### Customization
 To customize the implementation:
 
