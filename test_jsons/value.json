@@ -1,0 +1,84 @@
+{
+    "_switch": {
+      "name": "scvMap",
+      "value": 17
+    },
+    "_arm": "map",
+    "_armType": {
+      "_childType": {
+        "_maxLength": 2147483647
+      }
+    },
+    "_value": [
+      {
+        "_attributes": {
+          "key": {
+            "_switch": {
+              "name": "scvSymbol",
+              "value": 15
+            },
+            "_arm": "sym",
+            "_armType": {
+              "_maxLength": 32
+            },
+            "_value": {
+              "type": "Buffer",
+              "data": [110,101,119,95,114,101,115,101,114,118,101,95,48]
+            }
+          },
+          "val": {
+            "_switch": {
+              "name": "scvI128",
+              "value": 10
+            },
+            "_arm": "i128",
+            "_value": {
+              "_attributes": {
+                "hi": {
+                  "_value": "0"
+                },
+                "lo": {
+                  "_value": "26258195523567"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "_attributes": {
+          "key": {
+            "_switch": {
+              "name": "scvSymbol",
+              "value": 15
+            },
+            "_arm": "sym",
+            "_armType": {
+              "_maxLength": 32
+            },
+            "_value": {
+              "type": "Buffer",
+              "data": [110,101,119,95,114,101,115,101,114,118,101,95,49]
+            }
+          },
+          "val": {
+            "_switch": {
+              "name": "scvI128",
+              "value": 10
+            },
+            "_arm": "i128",
+            "_value": {
+              "_attributes": {
+                "hi": {
+                  "_value": "0"
+                },
+                "lo": {
+                  "_value": "8510610608395"
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }

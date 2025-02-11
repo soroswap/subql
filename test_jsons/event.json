@@ -1,0 +1,40 @@
+{
+    "type": "contract",
+    "ledger": {
+      "_links": {
+        "self": {
+          "href": "https://horizon.stellar.org/ledgers/55634169"
+        },
+        "transactions": {
+          "href": "https://horizon.stellar.org/ledgers/55634169/transactions{?cursor,limit,order}",
+          "templated": true
+        },
+        "operations": {
+          "href": "https://horizon.stellar.org/ledgers/55634169/operations{?cursor,limit,order}",
+          "templated": true
+        },
+        "payments": {
+          "href": "https://horizon.stellar.org/ledgers/55634169/payments{?cursor,limit,order}",
+          "templated": true
+        },
+        "effects": {
+          "href": "https://horizon.stellar.org/ledgers/55634169/effects{?cursor,limit,order}",
+          "templated": true
+        }
+      },
+      "id": "ecbc5ba738875eb14307490c31f873b7b03522d3739d8df59f8f145974a919f4",
+      "paging_token": "238946936395137024",
+      "hash": "ecbc5ba738875eb14307490c31f873b7b03522d3739d8df59f8f145974a919f4",
+      "prev_hash": "71bafabcec5559acf3821981fefa63f4199684c75fbe7a3d4a9a7b99f4f6af25",
+      "sequence": 55634169,
+      "successful_transaction_count": 181,
+      "failed_transaction_count": 83,
+      "operation_count": 615,
+      "tx_set_operation_count": 713,
+      "closed_at": "2025-02-07T22:14:35Z",
+      "total_coins": "105443902087.3472865",
+      "fee_pool": "5220772.9440072",
+      "base_fee_in_stroops": 100,
+      "base_reserve_in_stroops": 5000000
+    }
+  }
