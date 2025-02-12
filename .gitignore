@@ -19,6 +19,7 @@ package-lock.json
 
 # Log files
 *.log
+logs_*
 
 # Package files
 *.jar
@@ -56,6 +57,7 @@ Thumbs.db
 
 .data
 .eslintcache
+apuntes.json
 
 # ENV local files
 .env.local
