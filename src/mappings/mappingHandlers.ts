@@ -67,24 +67,27 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
     `New sync event found at block ${event.ledger.sequence.toString()}`
   );
    // Log para debug
-   logger.info("############ EVENT ###########################" + JSON.stringify(event));
-   logger.info("############ VALUE ###########################" + JSON.stringify(event.value));
-   // saveEventToFile(event);
-  
-   // Helper extractReserves or scvaltonative
-    // Extract event data with scvaltonative simple
-    logger.info("event: " + event);
-    logger.info("event.value: " + event.value);
-    logger.info("event.value.value(): " + event.value.value());
+    
+    logger.info("🔵")
+    // logger.info("🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣")
+    let eventJson = JSON.stringify(event);
+    // logger.info("eventJson: " + eventJson);
+    // logger.info("🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣")
+    logger.info("🔵🔵")
+    let eventParse = JSON.parse(eventJson);
+    logger.info("eventParse: " + eventParse);
+    // logger.info("event.value.value(): " + JSON.stringify(event.value.value()));
+    // logger.info("event.ledger.txhash: " + event.ledger.txHash)
 
-    // const eventData = scValToNative(event.value);
-    // console.log("eventData: " + eventData);
+    // const scvalue = scValToNative(event.value);
+    // console.log("eventData: " + scvalue);
 
   logger.info("🔴🔴🔴🔴")
+
   try {
-    // Extraer las reservas usando la nueva función
-    const { reserve0, reserve1 } = extractReserves(event);
-    logger.info("🟣")
+    // Extraer las reservas usando la función
+    const { reserve0, reserve1 } = extractReserves(eventParse);
+    logger.info("🟣 Reservas extraídas");
 
     // Crear la nueva entidad sync
     const sync = Sync.create({
@@ -95,7 +98,7 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
       newReserve0: reserve0,
       newReserve1: reserve1
     });
-    logger.info("🟢")
+    logger.info("🟢 Entidad sync creada");
 
     await sync.save();
     logger.info(`Saved sync entity with id: ${sync.id}`);
@@ -133,83 +136,79 @@ function decodeAddress(scVal: xdr.ScVal): string {
     return Address.contract(scVal.address().contractId()).toString();
   }
 }
-// function saveEventToFile(event: SorobanEvent): void {
-//   try {
-//     const dirPath = path.join(process.cwd(), 'test_jsons');
-//     if (!fs.existsSync(dirPath)) {
-//         fs.mkdirSync(dirPath, { recursive: true });
-//     }
+interface ReservesResult {
+    reserve0: bigint;
+    reserve1: bigint;
+}
 
-//     // Guardar el evento completo
-//     fs.writeFileSync(
-//         path.join(dirPath, 'event.json'),
-//         JSON.stringify(event, null, 2)
-//     );
-
-//     // Guardar solo el valor del evento
-//     if (event.value) {
-//         fs.writeFileSync(
-//             path.join(dirPath, 'value.json'),
-//             JSON.stringify(event.value, null, 2)
-//         );
-//     }
-// } catch (error) {
-//     console.error('Error al guardar el evento:', error);
-// }
-
-function extractReserves(event: any): { reserve0: bigint, reserve1: bigint } {
+function extractReserves(event: any): ReservesResult {
     let reserve0 = BigInt(0);
     let reserve1 = BigInt(0);
 
     // Verificar si tenemos la estructura correcta
-    const values = event?.value?._value
-    logger.info("############ VALUES #######################" + JSON.stringify(values));
-    logger.info("🟢🔵value.value json"+ JSON.stringify(event.value.value()))
-    const values2 = event.value.value()
-    for (const value of values2) {
-        logger.info("🟢value.value"+ JSON.stringify(value))
-    }
+    const values = event?.value?._value;
     if (!Array.isArray(values)) {
         logger.error('No se encontró el array de valores');
-        return { reserve0, reserve1 };
+        return { 
+            reserve0, 
+            reserve1 
+        };
     }
 
-    // Recorrer los valores buscando las reservas
+    logger.info("\n🟣🟣🟣🟣 Procesando reservas:");
     values.forEach((entry: any) => {
-        logger.info("🟢🟢🟢🟢" + JSON.stringify(entry))
-        logger.info("🟢🟢" + entry)
         try {
-            // Obtener la key (nombre) del valor
+            logger.info("\n--- Procesando entrada ---");
+            
+            // Mostrar entrada completa
+            logger.info("🔵🔵 entry separado:");
+            logger.info(JSON.stringify(entry));
+            logger.info("entry a secas:" + entry)
+            logger.info(entry)
+            logger.info("🔵🔵🔵")
+            logger.info(entry._attributes.val._value)
+
+            // Obtener y mostrar la key como buffer y texto
             const keyBuffer = entry?._attributes?.key?._value?.data;
-            if (!keyBuffer) 
-              {logger.error('No se encontró el buffer de la key');
-              return;}
+            if (!keyBuffer) {
+                logger.info("❌ No se encontró keyBuffer");
+                return;
+            }
+            const keyText = Buffer.from(keyBuffer).toString();
+            logger.info('Key (Buffer):', JSON.stringify(entry._attributes.key));
+            logger.info('Key (Text):', keyText);
 
-            // Convertir el buffer a string
-            const keyString = Buffer.from(keyBuffer).toString();
-            logger.debug('Key encontrada:', keyString);
-
-            // Obtener el valor numérico
+            // Obtener y mostrar el valor completo y sus detalles
+            logger.info('Val completo:', JSON.stringify(entry._attributes.val));
             const value = entry?._attributes?.val?._value?._attributes?.lo?._value;
-            if (!value) return;
+            logger.info('Val lo details:', JSON.stringify(entry._attributes.val._value._attributes.lo));
+            
+            if (!value) {
+                logger.info("❌ No se encontró valor");
+                return;
+            }
 
-            logger.debug('Valor encontrado para', keyString + ':', value);
+            logger.info('✅ Valor final encontrado:', value);
 
             // Asignar el valor según la key
-            if (keyString === 'new_reserve_0') {
+            if (keyText === 'new_reserve_0') {
                 reserve0 = BigInt(value);
-            } else if (keyString === 'new_reserve_1') {
+                logger.info('→ Actualizado reserve0:', reserve0.toString());
+            } else if (keyText === 'new_reserve_1') {
                 reserve1 = BigInt(value);
+                logger.info('→ Actualizado reserve1:', reserve1.toString());
             }
         } catch (error) {
-            logger.warn('Error procesando entrada:', error);
+            logger.warn('❌ Error procesando entrada:', error);
         }
     });
 
-        logger.info('Reservas extraídas:', {
-        reserve0: reserve0.toString(),
-        reserve1: reserve1.toString()
-    });
+    logger.info('\n🟣🟣🟣🟣 Resultado final:');
+    logger.info(`reserve0: ${reserve0.toString()}`);
+    logger.info(`reserve1: ${reserve1.toString()}`);
 
-    return { reserve0, reserve1 };
+    return {
+        reserve0,
+        reserve1
+    };
 }

@@ -61,7 +61,7 @@ const project: StellarProject = {
     {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
-      startBlock: 55634163, //900000 testnet 55622532 mainnet
+      startBlock: 55634164, //900000 testnet 55622532 mainnet
       // startBlock:900000,
       mapping: {
         file: "./dist/index.js",
@@ -83,7 +83,8 @@ const project: StellarProject = {
             filter: {
               contractId: "CDJDRGUCHANJDXALZVJ5IZVB76HX4MWCON5SHF4DE5HB64CBBR7W2ZCD",
               topics: [
-                "SoroswapPair" // Topic para el evento sync
+                "SoroswapPair",
+                "sync" // Topic para el evento sync
               ],
             },
           },

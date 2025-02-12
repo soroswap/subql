@@ -24,6 +24,7 @@
   "author": "PrincesoDan",
   "license": "MIT",
   "dependencies": {
+    "@stellar/stellar-sdk": "^13.1.0",
     "@subql/common": "latest",
     "@subql/types-stellar": "latest"
   },
