@@ -10,67 +10,8 @@ import {
 } from "@stellar/stellar-sdk/lib/horizon/types/effects";
 import { Horizon, scValToNative } from "@stellar/stellar-sdk";
 import { Address, xdr } from "@stellar/stellar-sdk";
-
-// export async function handleOperation(
-//   op: StellarOperation<Horizon.HorizonApi.PaymentOperationResponse>
-// ): Promise<void> {
-//   logger.info(`Indexing operation ${op.id}, type: ${op.type}`);
-
-//   const fromAccount = await checkAndGetAccount(op.from, op.ledger.sequence);
-//   const toAccount = await checkAndGetAccount(op.to, op.ledger.sequence);
-
-//   const payment = Payment.create({
-//     id: op.id,
-//     fromId: fromAccount.id,
-//     toId: toAccount.id,
-//     txHash: op.transaction_hash,
-//     amount: op.amount,
-//   });
-
-//   fromAccount.lastSeenLedger = op.ledger.sequence;
-//   toAccount.lastSeenLedger = op.ledger.sequence;
-//   await Promise.all([fromAccount.save(), toAccount.save(), payment.save()]);
-// }
-
-// export async function handleCredit(
-//   effect: StellarEffect<AccountCredited>
-// ): Promise<void> {
-//   logger.info(`Indexing effect ${effect.id}, type: ${effect.type}`);
-
-//   const account = await checkAndGetAccount(
-//     effect.account,
-//     effect.ledger.sequence
-//   );
-
-//   const credit = Credit.create({
-//     id: effect.id,
-//     accountId: account.id,
-//     amount: effect.amount,
-//   });
-
-//   account.lastSeenLedger = effect.ledger.sequence;
-//   await Promise.all([account.save(), credit.save()]);
-// }
-
-// export async function handleDebit(
-//   effect: StellarEffect<AccountDebited>
-// ): Promise<void> {
-//   logger.info(`Indexing effect ${effect.id}, type: ${effect.type}`);
-
-//   const account = await checkAndGetAccount(
-//     effect.account,
-//     effect.ledger.sequence
-//   );
-
-//   const debit = Debit.create({
-//     id: effect.id,
-//     accountId: account.id,
-//     amount: effect.amount,
-//   });
-
-//   account.lastSeenLedger = effect.ledger.sequence;
-//   await Promise.all([account.save(), debit.save()]);
-// }
+import * as fs from 'fs';
+import * as path from 'path';
 
 export async function handleEvent(event: SorobanEvent): Promise<void> {
   logger.info(
@@ -79,7 +20,7 @@ export async function handleEvent(event: SorobanEvent): Promise<void> {
 
   // Get data from the event
   // The transfer event has the following payload \[env, from, to\]
-  logger.info(JSON.stringify(event));
+  // logger.info(JSON.stringify(event));
   const {
     topic: [env, from, to],
   } = event;
@@ -116,61 +57,34 @@ export async function handleEvent(event: SorobanEvent): Promise<void> {
   await Promise.all([fromAccount.save(), toAccount.save(), transfer.save()]);
 }
 
+
+
+// SYNC EVENTS
+
+
 export async function handleEventSync(event: SorobanEvent): Promise<void> {
   logger.info(
     `New sync event found at block ${event.ledger.sequence.toString()}`
   );
    // Log para debug
-   logger.info("EVENT" + JSON.stringify(event));
-   logger.info("VALUE" + JSON.stringify(event.value));
-
-  // Option 1
-  // function extractReserves(scvMap: any): { reserve0: bigint, reserve1: bigint } {
-  //   // Asumimos que el mapa tiene la estructura correcta
-  //   const entries = scvMap._value;
-    
-  //   let reserve0 = BigInt(0);
-  //   let reserve1 = BigInt(0);
-    
-  //   entries.forEach((entry: any) => {
-  //     // Convertir el Buffer a string para identificar qué reserva es
-  //     const keyBuffer = entry._attributes.key._value.data;
-  //     const keyString = Buffer.from(keyBuffer).toString();
-      
-  //     // Obtener el valor de lo
-  //     const value = BigInt(entry._attributes.val._value._attributes.lo._value);
-      
-  //     if (keyString === 'new_reserve_0') {
-  //       reserve0 = value;
-  //     } else if (keyString === 'new_reserve_1') {
-  //       reserve1 = value;
-  //     }
-  //   });
-    
-  //   return { reserve0, reserve1 };
-  // }
+   logger.info("############ EVENT ###########################" + JSON.stringify(event));
+   logger.info("############ VALUE ###########################" + JSON.stringify(event.value));
+   // saveEventToFile(event);
   
-  // // Uso:
-  // const reserves = extractReserves(event.value);
-  // console.log(`Reserve0: ${reserves.reserve0}`);
-  // console.log(`Reserve1: ${reserves.reserve1}`);
+   // Helper extractReserves or scvaltonative
+    // Extract event data with scvaltonative simple
+    logger.info("event: " + event);
+    logger.info("event.value: " + event.value);
+    logger.info("event.value.value(): " + event.value.value());
 
+    // const eventData = scValToNative(event.value);
+    // console.log("eventData: " + eventData);
 
-  // Option 2
-  //  const scValMap = event.value as any;
-  //  let newReserve0 = BigInt(0);
-  //  let newReserve1 = BigInt(0);
-
-  // try {
-  //   // Convertir el ScVal map a un objeto JavaScript
-  //   const nativeValue = scValToNative(event.value);
-  //   logger.info("Converted value: " + nativeValue);
-
-  // //   // Extraer los valores del mapa convertido
-  // //   const newReserve0 = BigInt(nativeValue.new_reserve_0 ?? 0);
-  // //   const newReserve1 = BigInt(nativeValue.new_reserve_1 ?? 0);
-
-  //   logger.info(`Final values - Reserve0: ${newReserve0}, Reserve1: ${newReserve1}`);
+  logger.info("🔴🔴🔴🔴")
+  try {
+    // Extraer las reservas usando la nueva función
+    const { reserve0, reserve1 } = extractReserves(event);
+    logger.info("🟣")
 
     // Crear la nueva entidad sync
     const sync = Sync.create({
@@ -178,19 +92,23 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
       ledger: event.ledger.sequence,
       date: new Date(event.ledgerClosedAt),
       contract: event.contractId?.contractId().toString()!,
-      newReserve0: BigInt(0),
-      newReserve1: BigInt(0)
+      newReserve0: reserve0,
+      newReserve1: reserve1
     });
+    logger.info("🟢")
 
     await sync.save();
     logger.info(`Saved sync entity with id: ${sync.id}`);
     
-  // } catch (error) {
-  //   logger.error("Error processing sync event: " + error);
-  //   logger.error("Event value: " + JSON.stringify(event.value));
-  //   throw error;
-  // }
+  } catch (error) {
+    logger.error("Error processing sync event: " + error);
+    logger.error("Event value: " + JSON.stringify(event.value));
+    throw error;
+  }
 }
+
+// HELPERS
+
 
 async function checkAndGetAccount(
   id: string,
@@ -214,4 +132,84 @@ function decodeAddress(scVal: xdr.ScVal): string {
   } catch (e) {
     return Address.contract(scVal.address().contractId()).toString();
   }
+}
+// function saveEventToFile(event: SorobanEvent): void {
+//   try {
+//     const dirPath = path.join(process.cwd(), 'test_jsons');
+//     if (!fs.existsSync(dirPath)) {
+//         fs.mkdirSync(dirPath, { recursive: true });
+//     }
+
+//     // Guardar el evento completo
+//     fs.writeFileSync(
+//         path.join(dirPath, 'event.json'),
+//         JSON.stringify(event, null, 2)
+//     );
+
+//     // Guardar solo el valor del evento
+//     if (event.value) {
+//         fs.writeFileSync(
+//             path.join(dirPath, 'value.json'),
+//             JSON.stringify(event.value, null, 2)
+//         );
+//     }
+// } catch (error) {
+//     console.error('Error al guardar el evento:', error);
+// }
+
+function extractReserves(event: any): { reserve0: bigint, reserve1: bigint } {
+    let reserve0 = BigInt(0);
+    let reserve1 = BigInt(0);
+
+    // Verificar si tenemos la estructura correcta
+    const values = event?.value?._value
+    logger.info("############ VALUES #######################" + JSON.stringify(values));
+    logger.info("🟢🔵value.value json"+ JSON.stringify(event.value.value()))
+    const values2 = event.value.value()
+    for (const value of values2) {
+        logger.info("🟢value.value"+ JSON.stringify(value))
+    }
+    if (!Array.isArray(values)) {
+        logger.error('No se encontró el array de valores');
+        return { reserve0, reserve1 };
+    }
+
+    // Recorrer los valores buscando las reservas
+    values.forEach((entry: any) => {
+        logger.info("🟢🟢🟢🟢" + JSON.stringify(entry))
+        logger.info("🟢🟢" + entry)
+        try {
+            // Obtener la key (nombre) del valor
+            const keyBuffer = entry?._attributes?.key?._value?.data;
+            if (!keyBuffer) 
+              {logger.error('No se encontró el buffer de la key');
+              return;}
+
+            // Convertir el buffer a string
+            const keyString = Buffer.from(keyBuffer).toString();
+            logger.debug('Key encontrada:', keyString);
+
+            // Obtener el valor numérico
+            const value = entry?._attributes?.val?._value?._attributes?.lo?._value;
+            if (!value) return;
+
+            logger.debug('Valor encontrado para', keyString + ':', value);
+
+            // Asignar el valor según la key
+            if (keyString === 'new_reserve_0') {
+                reserve0 = BigInt(value);
+            } else if (keyString === 'new_reserve_1') {
+                reserve1 = BigInt(value);
+            }
+        } catch (error) {
+            logger.warn('Error procesando entrada:', error);
+        }
+    });
+
+        logger.info('Reservas extraídas:', {
+        reserve0: reserve0.toString(),
+        reserve1: reserve1.toString()
+    });
+
+    return { reserve0, reserve1 };
 }
