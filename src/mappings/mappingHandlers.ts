@@ -1,132 +1,89 @@
-import { Account, Transfer, Sync } from "../types";
+import { Sync } from "../types";
 import {
-  StellarOperation,
-  StellarEffect,
   SorobanEvent,
 } from "@subql/types-stellar";
-import {
-  AccountCredited,
-  AccountDebited,
-} from "@stellar/stellar-sdk/lib/horizon/types/effects";
-import { Horizon, scValToNative } from "@stellar/stellar-sdk";
 import { Address, xdr } from "@stellar/stellar-sdk";
 import * as fs from 'fs';
 import * as path from 'path';
-
-export async function handleEvent(event: SorobanEvent): Promise<void> {
-  logger.info(
-    `New transfer event found at block ${event.ledger.sequence.toString()}`
-  );
-
-  // Get data from the event
-  // The transfer event has the following payload \[env, from, to\]
-  // logger.info(JSON.stringify(event));
-  const {
-    topic: [env, from, to],
-  } = event;
-
-  try {
-    decodeAddress(from);
-    decodeAddress(to);
-  } catch (e) {
-    logger.info(`decode address failed`);
-  }
-
-  const fromAccount = await checkAndGetAccount(
-    decodeAddress(from),
-    event.ledger.sequence
-  );
-  const toAccount = await checkAndGetAccount(
-    decodeAddress(to),
-    event.ledger.sequence
-  );
-
-  // Create the new transfer entity
-  const transfer = Transfer.create({
-    id: event.id,
-    ledger: event.ledger.sequence,
-    date: new Date(event.ledgerClosedAt),
-    contract: event.contractId?.contractId().toString()!,
-    fromId: fromAccount.id,
-    toId: toAccount.id,
-    value: BigInt(scValToNative(event.value)),
-  });
-
-  fromAccount.lastSeenLedger = event.ledger.sequence;
-  toAccount.lastSeenLedger = event.ledger.sequence;
-  await Promise.all([fromAccount.save(), toAccount.save(), transfer.save()]);
-}
-
-
+import { tokenList } from "./tokenlist";
 
 // SYNC EVENTS
-
-
 export async function handleEventSync(event: SorobanEvent): Promise<void> {
   logger.info(
     `New sync event found at block ${event.ledger.sequence.toString()}`
   );
    // Log para debug
     
-    logger.info("🔵")
-    // logger.info("🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣")
+    logger.info("🔵 Entrando al event sync")
     let eventJson = JSON.stringify(event);
     // logger.info("eventJson: " + eventJson);
-    // logger.info("🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣🟣")
     logger.info("🔵🔵")
     let eventParse = JSON.parse(eventJson);
     logger.info("eventParse: " + eventParse);
-    // logger.info("event.value.value(): " + JSON.stringify(event.value.value()));
-    // logger.info("event.ledger.txhash: " + event.ledger.txHash)
 
-    // const scvalue = scValToNative(event.value);
-    // console.log("eventData: " + scvalue);
 
-  logger.info("🔴🔴🔴🔴")
+  logger.info("🔴🔴")
 
-  try {
-    // Extraer las reservas usando la función
-    const { reserve0, reserve1 } = extractReserves(eventParse);
-    logger.info("🟣 Reservas extraídas");
+  // Verificar si el contrato está en la lista de tokens
+  const contractId = event.contractId?.contractId().toString();
+  if (!contractId || !tokenList.includes(contractId)) {
+    logger.info(`🔴🔴 Error: Contrato ${contractId} no está en la lista de tokens permitidos`);
+    return;
+  }
 
-    // Crear la nueva entidad sync
-    const sync = Sync.create({
-      id: `${event.id}-${event.ledger.sequence}`,
-      ledger: event.ledger.sequence,
-      date: new Date(event.ledgerClosedAt),
-      contract: event.contractId?.contractId().toString()!,
-      newReserve0: reserve0,
-      newReserve1: reserve1
-    });
-    logger.info("🟢 Entidad sync creada");
-
-    await sync.save();
-    logger.info(`Saved sync entity with id: ${sync.id}`);
+  try { 
+    // Buscar sync existente para este contrato
+    const existingSync = await getLastSyncByContract(contractId);
+    
+    // Extraer las reservas
+    const { reserve0, reserve1 } = extractReserves(JSON.parse(JSON.stringify(event)));
+    if (existingSync) {
+      // Actualizar el sync existente
+      existingSync.ledger = event.ledger.sequence;
+      existingSync.date = new Date(event.ledgerClosedAt);
+      existingSync.newReserve0 = reserve0;
+      existingSync.newReserve1 = reserve1;
+      
+      await existingSync.save();
+      logger.info(`📝 Actualizado sync existente para contrato ${contractId}`);
+    } else {
+      // Crear nuevo sync
+      const sync = Sync.create({
+        id: contractId, // Usar contractId como id para asegurar un único registro por contrato
+        ledger: event.ledger.sequence,
+        date: new Date(event.ledgerClosedAt),
+        contract: contractId,
+        newReserve0: reserve0,
+        newReserve1: reserve1
+      });
+      
+      await sync.save();
+      logger.info(`✨ Creado nuevo sync para contrato ${contractId}`);
+    }
     
   } catch (error) {
-    logger.error("Error processing sync event: " + error);
-    logger.error("Event value: " + JSON.stringify(event.value));
+    logger.error(`❌ Error procesando sync event: ${error}`);
     throw error;
   }
 }
 
-// HELPERS
+//######################### HELPERS #########################
 
 
-async function checkAndGetAccount(
-  id: string,
-  ledgerSequence: number
-): Promise<Account> {
-  let account = await Account.get(id.toLowerCase());
-  if (!account) {
-    // We couldn't find the account
-    account = Account.create({
-      id: id.toLowerCase(),
-      firstSeenLedger: ledgerSequence,
-    });
-  }
-  return account;
-}
+// async function checkAndGetAccount(
+//   id: string,
+//   ledgerSequence: number
+// ): Promise<Account> {
+//   let account = await Account.get(id.toLowerCase());
+//   if (!account) {
+//     // We couldn't find the account
+//     account = Account.create({
+//       id: id.toLowerCase(),
+//       firstSeenLedger: ledgerSequence,
+//     });
+//   }
+//   return account;
+// }
 
 // scValToNative not works, temp solution
 function decodeAddress(scVal: xdr.ScVal): string {
@@ -155,18 +112,14 @@ function extractReserves(event: any): ReservesResult {
         };
     }
 
-    logger.info("\n🟣🟣🟣🟣 Procesando reservas:");
+    logger.info("\n🟣🟣🟣🟣 Procesando reservas en extractReseves:");
     values.forEach((entry: any) => {
         try {
             logger.info("\n--- Procesando entrada ---");
             
             // Mostrar entrada completa
-            logger.info("🔵🔵 entry separado:");
+            logger.info("🔵🔵🔵 entry separado:");
             logger.info(JSON.stringify(entry));
-            logger.info("entry a secas:" + entry)
-            logger.info(entry)
-            logger.info("🔵🔵🔵")
-            logger.info(entry._attributes.val._value)
 
             // Obtener y mostrar la key como buffer y texto
             const keyBuffer = entry?._attributes?.key?._value?.data;
@@ -175,28 +128,27 @@ function extractReserves(event: any): ReservesResult {
                 return;
             }
             const keyText = Buffer.from(keyBuffer).toString();
-            logger.info('Key (Buffer):', JSON.stringify(entry._attributes.key));
-            logger.info('Key (Text):', keyText);
+            logger.info('Key (Buffer):'+ JSON.stringify(entry._attributes.key));
+            logger.info('Key (Text):' + keyText);
 
             // Obtener y mostrar el valor completo y sus detalles
-            logger.info('Val completo:', JSON.stringify(entry._attributes.val));
             const value = entry?._attributes?.val?._value?._attributes?.lo?._value;
-            logger.info('Val lo details:', JSON.stringify(entry._attributes.val._value._attributes.lo));
+            logger.info('Val lo details:'+ JSON.stringify(entry._attributes.val._value._attributes.lo));
             
             if (!value) {
                 logger.info("❌ No se encontró valor");
                 return;
             }
 
-            logger.info('✅ Valor final encontrado:', value);
+            logger.info('✅ Valor final encontrado:' + value);
 
             // Asignar el valor según la key
             if (keyText === 'new_reserve_0') {
                 reserve0 = BigInt(value);
-                logger.info('→ Actualizado reserve0:', reserve0.toString());
+                logger.info('→ Actualizado reserve0:' + reserve0.toString());
             } else if (keyText === 'new_reserve_1') {
                 reserve1 = BigInt(value);
-                logger.info('→ Actualizado reserve1:', reserve1.toString());
+                logger.info('→ Actualizado reserve1:' + reserve1.toString());
             }
         } catch (error) {
             logger.warn('❌ Error procesando entrada:', error);
@@ -211,4 +163,24 @@ function extractReserves(event: any): ReservesResult {
         reserve0,
         reserve1
     };
+}
+
+async function getLastSyncByContract(contractId: string): Promise<Sync | undefined> {
+  try {
+    logger.info(`🔍 Buscando último sync para contrato ${contractId}`);
+    
+    // Buscar el sync existente para este contrato
+    const existingSync = await Sync.get(contractId);
+    
+    if (existingSync) {
+      logger.info(`✅ Sync encontrado para contrato ${contractId}: Ledger ${existingSync.ledger}`);
+      return existingSync;
+    }
+
+    logger.info(`ℹ️ No se encontraron syncs previos para el contrato ${contractId}`);
+    return undefined;
+  } catch (error) {
+    logger.error(`❌ Error al buscar último sync para contrato ${contractId}: ${error}`);
+    return undefined;
+  }
 }

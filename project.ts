@@ -61,29 +61,18 @@ const project: StellarProject = {
     {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
-      // startBlock: 55634164, // mainnet
+      startBlock: 55634164, // mainnet
       // startBlock:900000, // testnet
       //startBlock:55150935, // soroswapFactory New pair
-      startBlock:55714094, // soroswapFactory all_pairs_lenght
+      // startBlock:55714094, // soroswapFactory all_pairs_lenght
       mapping: {
         file: "./dist/index.js",
         handlers: [      
           {
-            handler: "handleEvent",
-            kind: StellarHandlerKind.Event,
-            filter: {
-              /* You can optionally specify a smart contract address here */
-              // contractId: "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA", 
-              topics: [
-                 "transfer",// Topic signature(s) for the events, there can be up to 4
-              ],
-            },
-          },
-          {
             handler: "handleEventSync",
             kind: StellarHandlerKind.Event,
             filter: {
-              contractId: "CDJDRGUCHANJDXALZVJ5IZVB76HX4MWCON5SHF4DE5HB64CBBR7W2ZCD",
+              //contractId: "CDJDRGUCHANJDXALZVJ5IZVB76HX4MWCON5SHF4DE5HB64CBBR7W2ZCD",
               topics: [
                 "SoroswapPair",
                 "sync" // Topic para el evento sync
