@@ -1,4 +1,3 @@
-version: "3"
 
 services:
   postgres:
@@ -66,3 +65,15 @@ services:
       - --name=app
       - --playground
       - --indexer=http://subquery-node:3000
+
+  work-subql:
+    build:
+      context: .
+      dockerfile: docker/work-subql.Dockerfile
+    volumes:
+      - .:/workspace
+    environment:
+      - SOROBAN_ENDPOINT=${SOROBAN_ENDPOINT}
+      - SECRET_KEY_SWAPMAKER=${SECRET_KEY_SWAPMAKER}
+      - STELLAR_NETWORK_PASSPHRASE=${CHAIN_ID}
+    working_dir: /workspace

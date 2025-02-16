@@ -5,7 +5,7 @@ import {
 import { Address, xdr } from "@stellar/stellar-sdk";
 import * as fs from 'fs';
 import * as path from 'path';
-import { tokenList } from "./tokenlist";
+import { poolsList } from "./poolsList";
 
 // SYNC EVENTS
 export async function handleEventSync(event: SorobanEvent): Promise<void> {
@@ -26,7 +26,7 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
 
   // Verificar si el contrato está en la lista de tokens
   const contractId = event.contractId?.contractId().toString();
-  if (!contractId || !tokenList.includes(contractId)) {
+  if (!contractId || !poolsList.includes(contractId)) {
     logger.info(`🔴🔴 Error: Contrato ${contractId} no está en la lista de tokens permitidos`);
     return;
   }
