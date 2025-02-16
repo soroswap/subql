@@ -1,7 +1,11 @@
+import { config } from 'dotenv';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { poolsList } from "../src/mappings/poolsList";
 import { Client } from 'pg';
+
+// Cargar variables de entorno al inicio del script
+config();
 
 const execAsync = promisify(exec);
 
@@ -45,21 +49,33 @@ async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
         return [BigInt(0), BigInt(0)];
     }
 }
+// principal function
 
 async function setUpInitialPools(): Promise<void> {
-    const client = new Client({
-        host: 'localhost',
-        port: 5432,
-        database: 'postgres',
-        user: 'postgres',
-        password: 'postgres',
-        connectionTimeoutMillis: 5000
-    });
-
+    let client: Client | null = null;
     const failedPools: string[] = [];
     
     try {
-        await retry(() => client.connect());
+        // Crear nuevo cliente
+        client = new Client({
+            host: 'localhost',
+            port: 5432,
+            database: 'postgres',
+            user: 'postgres',
+            password: 'postgres',
+            connectionTimeoutMillis: 5000
+        });
+
+        // Intentar conectar una sola vez con retry
+        await retry(async () => {
+            try {
+                await client!.connect();
+            } catch (error) {
+                console.error("Error conectando a PostgreSQL:", error);
+                throw error;
+            }
+        });
+
         console.log("🚀 Iniciando configuración de pools iniciales...");
         
         for (const [index, contract] of poolsList.entries()) {
@@ -91,7 +107,6 @@ async function setUpInitialPools(): Promise<void> {
                 await client.query(query, values);
                 console.log(`✅ Pool guardado: ${contract}`);
                 
-                // Delay entre llamadas
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
             } catch (error) {
@@ -100,10 +115,14 @@ async function setUpInitialPools(): Promise<void> {
                 continue;
             }
         }
+    } catch (error) {
+        console.error("❌ Error general:", error);
+        throw error;
     } finally {
-        await client.end();
+        if (client) {
+            await client.end();
+        }
         
-        // Resumen final
         console.log("\n📊 Resumen de la ejecución:");
         console.log(`✅ Pools procesados exitosamente: ${poolsList.length - failedPools.length}`);
         if (failedPools.length > 0) {
@@ -125,6 +144,7 @@ if (!process.env.SOROBAN_ENDPOINT || !process.env.SECRET_KEY_SWAPMAKER) {
 setUpInitialPools()
     .then(() => {
         console.log("✨ Configuración de pools completada exitosamente");
+        process.exit(0);
     })
     .catch((error) => {
         console.error("❌ Error en la configuración de pools:", error);

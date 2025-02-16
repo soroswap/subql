@@ -61,10 +61,9 @@ const project: StellarProject = {
     {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
-      startBlock: 55634164, // mainnet
-      // startBlock:900000, // testnet
-      //startBlock:55150935, // soroswapFactory New pair
-      // startBlock:55714094, // soroswapFactory all_pairs_lenght
+      startBlock: 55735792,
+      // startBlock:900000, // testnet     
+      // startBlock:55722947, // sync 55660216
       mapping: {
         file: "./dist/index.js",
         handlers: [      
