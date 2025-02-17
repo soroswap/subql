@@ -61,7 +61,7 @@ const project: StellarProject = {
     {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
-      startBlock: 55735792,
+      startBlock: parseInt(process.env.STARBLOCK!) || 55735792,
       // startBlock:900000, // testnet     
       // startBlock:55722947, // sync 55660216
       mapping: {

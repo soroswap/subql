@@ -32,7 +32,7 @@ async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
         const command = `docker-compose run --rm work-subql soroban contract invoke \
             --id "${contractId}" \
             --network mainnet \
-            --source "${process.env.SECRET_KEY_SWAPMAKER}" \
+            --source "${process.env.SECRET_KEY_HELPER}" \
             --rpc-url "${process.env.SOROBAN_ENDPOINT}" \
             -- get_reserves`;
 
@@ -133,8 +133,8 @@ async function setUpInitialPools(): Promise<void> {
 }
 
 // Verificar variables de entorno
-if (!process.env.SOROBAN_ENDPOINT || !process.env.SECRET_KEY_SWAPMAKER) {
-    console.error("❌ Error: Variables de entorno SOROBAN_ENDPOINT y SECRET_KEY_SWAPMAKER son requeridas");
+if (!process.env.SOROBAN_ENDPOINT || !process.env.SECRET_KEY_HELPER) {
+    console.error("❌ Error: Variables de entorno SOROBAN_ENDPOINT y SECRET_KEY_HELPER son requeridas");
     process.exit(1);
 }
 

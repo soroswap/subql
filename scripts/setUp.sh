@@ -23,11 +23,18 @@ done
 echo "⏳ Esperando a que subquery-node inicialice el esquema..."
 sleep 30  # Dar tiempo para que subquery-node cree las tablas
 
+echo "⏸️ Deteniendo subquery-node temporalmente..."
+docker-compose stop subquery-node
+
 echo "🌱 Ejecutando script de inicialización de pools..."
 yarn setup-pools
 
 if [ $? -eq 0 ]; then
     echo "✅ Inicialización de pools completada exitosamente"
+    
+    echo "🔄 Reiniciando subquery-node"
+    docker-compose up -d subquery-node
+    
     echo "📊 Puedes acceder al playground GraphQL en http://localhost:3000"
     
     echo "📝 Mostrando logs de los contenedores..."
