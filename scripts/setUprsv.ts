@@ -3,7 +3,10 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { poolsList } from "../src/mappings/poolsList";
 import { Client } from 'pg';
-
+import { invokeCustomContract, createToolkit } from 'soroban-toolkit';
+import { Keypair, scValToNative } from '@stellar/stellar-sdk';
+import { Sync } from '../src/types';
+//import { SorobanToolkit } from 'soroban-toolkit/dist/config/toolkit';
 // Cargar variables de entorno al inicio del script
 config();
 
@@ -29,18 +32,53 @@ async function retry<T>(
 // Función para obtener las reservas usando el CLI de Soroban
 async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
     try {
-        const command = `docker-compose run --rm work-subql soroban contract invoke \
-            --id "${contractId}" \
-            --network mainnet \
-            --source "${process.env.SECRET_KEY_HELPER}" \
-            --rpc-url "${process.env.SOROBAN_ENDPOINT}" \
-            -- get_reserves`;
+        // const command = `docker-compose run --rm work-subql soroban contract invoke \
+        //     --id "${contractId}" \
+        //     --network mainnet \
+        //     --source "${process.env.SECRET_KEY_HELPER}" \
+        //     --rpc-url "${process.env.SOROBAN_ENDPOINT}" \
+        //     -- get_reserves`;
 
-        // Usar la función de reintento
-        const { stdout } = await retry(() => execAsync(command));
-        const jsonOutput = stdout.trim().split('\n').pop() || '[]';
-        const [reserve0, reserve1] = JSON.parse(jsonOutput);
+        // // Usar la función de reintento
+        // const { stdout } = await retry(() => execAsync(command));
+        // const jsonOutput = stdout.trim().split('\n').pop() || '[]';
+        // const [reserve0, reserve1] = JSON.parse(jsonOutput);
         
+        // return [BigInt(reserve0), BigInt(reserve1)];
+        const mainnet = {
+            network: "mainnet",
+            friendbotUrl: "",
+            horizonRpcUrl: process.env.ENDPOINT as string,
+            sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
+            networkPassphrase: process.env.CHAIN_ID as string
+        }    
+
+        const sorobanToolkitRsv = createToolkit({
+            adminSecret: process.env.SECRET_KEY_HELPER as string,
+            contractPaths: {},
+            addressBookPath: "",
+            customNetworks: [mainnet],
+            verbose: "full"
+        });
+            
+
+        const result = await invokeCustomContract(
+            sorobanToolkitRsv.getNetworkToolkit("mainnet"),
+            contractId,
+            'get_reserves',
+            [],
+            true,
+            Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+        );
+
+        const [reserve0, reserve1] = scValToNative(result.result.retval);
+        console.log("RESULT 🔴🟣🟢🔵")
+        console.log(scValToNative(result.result.retval));
+        console.log("🔴🟣")
+        console.log(reserve0);
+        console.log("🔴🟣")
+        console.log(reserve1);
+        console.log("🔴🟣🟢🔵")
         return [BigInt(reserve0), BigInt(reserve1)];
     } catch (error) {
         console.error(`❌ Error obteniendo reservas para ${contractId}:`, error);

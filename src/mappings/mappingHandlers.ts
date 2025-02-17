@@ -32,34 +32,44 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
   }
 
   try { 
-    // Buscar sync existente para este contrato
-    const existingSync = await getLastSyncByContract(contractId);
-    
-    // Extraer las reservas
+    // Extraer las reservas primero
     const { reserve0, reserve1 } = extractReserves(JSON.parse(JSON.stringify(event)));
-    if (existingSync) {
-      // Actualizar el sync existente
-      existingSync.ledger = event.ledger.sequence;
-      existingSync.date = new Date(event.ledgerClosedAt);
-      existingSync.newReserve0 = reserve0;
-      existingSync.newReserve1 = reserve1;
+    
+    // Buscar todos los syncs existentes para este contrato
+    const existingSyncs = await Sync.get(contractId);
+
+    logger.info("existingSyncs: " + existingSyncs);
+    
+    const currentDate = new Date(event.ledgerClosedAt);
+    
+    // Crear el nuevo sync
+    const newSync = Sync.create({
+      id: contractId,
+      ledger: event.ledger.sequence,
+      date: currentDate,
+      contract: contractId,
+      newReserve0: reserve0,
+      newReserve1: reserve1
+    });
+    
+    // Primero verificamos si hay registros más antiguos antes de guardar el nuevo
+    if (existingSyncs) {
+          const oldDate = new Date(existingSyncs.date);
+          
+          if (oldDate < currentDate) {
+            logger.info(`🗑️ Eliminando sync antiguo del contrato ${existingSyncs.id} con fecha ${oldDate}`);
+            await Sync.remove(existingSyncs.id);
+          } else {
+            logger.info(`⏭️ El sync existente es más reciente (${oldDate}), no se actualiza`);
+            return; // Salimos sin guardar el nuevo sync
+          }
+        }
       
-      await existingSync.save();
-      logger.info(`📝 Actualizado sync existente para contrato ${contractId}`);
-    } else {
-      // Crear nuevo sync
-      const sync = Sync.create({
-        id: contractId, // Usar contractId como id para asegurar un único registro por contrato
-        ledger: event.ledger.sequence,
-        date: new Date(event.ledgerClosedAt),
-        contract: contractId,
-        newReserve0: reserve0,
-        newReserve1: reserve1
-      });
-      
-      await sync.save();
-      logger.info(`✨ Creado nuevo sync para contrato ${contractId}`);
-    }
+    
+    
+    // Si llegamos aquí, guardamos el nuevo sync
+    await newSync.save();
+    logger.info(`✨ Actualizado sync para contrato ${contractId} con fecha ${currentDate}`);
     
   } catch (error) {
     logger.error(`❌ Error procesando sync event: ${error}`);
@@ -163,24 +173,4 @@ function extractReserves(event: any): ReservesResult {
         reserve0,
         reserve1
     };
-}
-
-async function getLastSyncByContract(contractId: string): Promise<Sync | undefined> {
-  try {
-    logger.info(`🔍 Buscando último sync para contrato ${contractId}`);
-    
-    // Buscar el sync existente para este contrato
-    const existingSync = await Sync.get(contractId);
-    
-    if (existingSync) {
-      logger.info(`✅ Sync encontrado para contrato ${contractId}: Ledger ${existingSync.ledger}`);
-      return existingSync;
-    }
-
-    logger.info(`ℹ️ No se encontraron syncs previos para el contrato ${contractId}`);
-    return undefined;
-  } catch (error) {
-    logger.error(`❌ Error al buscar último sync para contrato ${contractId}: ${error}`);
-    return undefined;
-  }
 }
