@@ -1,4 +1,15 @@
 services:
+  app:
+      image: node:20  # Official Node.js 20 image
+      container_name: node-subql-app
+      working_dir: /app
+      volumes:
+        - .:/app  # Mount project directory
+      env_file:
+        - .env  # Load environment variables
+      depends_on: subquery-node
+      stdin_open: true  
+      tty: true
   postgres:
     container_name: postgres
     build:

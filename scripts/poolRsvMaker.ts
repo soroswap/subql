@@ -31,7 +31,7 @@ async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
         const mainnet = {
             network: "mainnet",
             friendbotUrl: "",
-            horizonRpcUrl: process.env.ENDPOINT as string,
+            horizonRpcUrl: process.env.HORIZON_ENDPOINT as string,
             sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
             networkPassphrase: process.env.CHAIN_ID as string
         }    

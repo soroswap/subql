@@ -32,7 +32,7 @@ async function getAllPairsLength(): Promise<number> {
         const mainnet = {
             network: "mainnet",
             friendbotUrl: "",
-            horizonRpcUrl: process.env.ENDPOINT as string,
+            horizonRpcUrl: process.env.HORIZON_ENDPOINT as string,
             sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
             networkPassphrase: process.env.CHAIN_ID as string
         }    
@@ -66,7 +66,7 @@ async function getPairAddress(index: number): Promise<string> {
         const mainnet = {
             network: "mainnet",
             friendbotUrl: "",
-            horizonRpcUrl: process.env.ENDPOINT as string,
+            horizonRpcUrl: process.env.HORIZON_ENDPOINT as string,
             sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
             networkPassphrase: process.env.CHAIN_ID as string
         }    
@@ -100,7 +100,7 @@ async function getToken(pairAddress: string, method: 'token_0' | 'token_1'): Pro
         const mainnet = {
             network: "mainnet",
             friendbotUrl: "",
-            horizonRpcUrl: process.env.ENDPOINT as string,
+            horizonRpcUrl: process.env.HORIZON_ENDPOINT as string,
             sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
             networkPassphrase: process.env.CHAIN_ID as string
         }    
@@ -134,7 +134,7 @@ async function getPairReserves(pairAddress: string): Promise<[bigint, bigint]> {
         const mainnet = {
             network: "mainnet",
             friendbotUrl: "",
-            horizonRpcUrl: process.env.ENDPOINT as string,
+            horizonRpcUrl: process.env.HORIZON_ENDPOINT as string,
             sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
             networkPassphrase: process.env.CHAIN_ID as string
         }    

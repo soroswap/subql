@@ -21,7 +21,7 @@ cd subql-soroswap
 1.1 Config .env:
 
 ```.env Mainnet
-ENDPOINT=https://horizon.stellar.org
+HORIZON_ENDPOINT=https://horizon.stellar.org
 CHAIN_ID="Public Global Stellar Network ; September 2015"
 SOROBAN_ENDPOINT=https://mainnet.stellar.validationcloud.io......
 ```

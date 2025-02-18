@@ -35,11 +35,11 @@ There are 3 files:
 - **mapping.ts**: Contains the transformation logic
 
 ```
+source .env
 docker compose down -v && sudo rm -rf .data && sudo rm -rf dist
 yarn pool-rsv
 yarn pairs-rsv
 yarn dev
-
 ```
 
 

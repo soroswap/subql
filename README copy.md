@@ -12,12 +12,13 @@ A [SubQuery](https://subquery.network) indexer implementation for the Soroswap p
 1. Clone the repository:
 ```bash
 git clone https://github.com/PricesoDan/subql.git
+cp .env.example .env
 cd subql
 ```
 1.1 Config .env:
 
 ```.env Mainnet
-ENDPOINT=https://horizon.stellar.org
+HORIZON_ENDPOINT=https://horizon.stellar.org
 CHAIN_ID="Public Global Stellar Network ; September 2015"
 SOROBAN_ENDPOINT=https://mainnet.stellar.validationcloud.io......
 ```
