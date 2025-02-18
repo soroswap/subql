@@ -1,6 +1,6 @@
 import { config } from 'dotenv';
 import { invokeCustomContract, createToolkit } from 'soroban-toolkit';
-import { Keypair, scValToNative } from '@stellar/stellar-sdk';
+import { Keypair, scValToNative, xdr } from '@stellar/stellar-sdk';
 import { poolsList } from "../src/mappings/poolsList";
 import * as fs from 'fs';
 import * as path from 'path';
@@ -25,8 +25,9 @@ async function retry<T>(
     }
 }
 
-// Función para obtener las reservas usando el CLI de Soroban
-async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
+const FACTORY_CONTRACT = 'CA4HEQTL2WPEUYKYKCDOHCDNIV4QHNJ7EL4J4NQ6VADP7SYHVRYZ7AW2';
+
+async function getAllPairsLength(): Promise<number> {
     try {
         const mainnet = {
             network: "mainnet",
@@ -36,7 +37,7 @@ async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
             networkPassphrase: process.env.CHAIN_ID as string
         }    
 
-        const sorobanToolkitRsv = createToolkit({
+        const sorobanToolkit = createToolkit({
             adminSecret: process.env.SECRET_KEY_HELPER as string,
             contractPaths: {},
             addressBookPath: "",
@@ -45,8 +46,110 @@ async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
         });
             
         const result = await invokeCustomContract(
-            sorobanToolkitRsv.getNetworkToolkit("mainnet"),
-            contractId,
+            sorobanToolkit.getNetworkToolkit("mainnet"),
+            FACTORY_CONTRACT,
+            'all_pairs_length',
+            [],
+            true,
+            Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+        );
+
+        return Number(scValToNative(result.result.retval));
+    } catch (error) {
+        console.error('❌ Error obteniendo el número total de pairs:', error);
+        throw error;
+    }
+}
+
+async function getPairAddress(index: number): Promise<string> {
+    try {
+        const mainnet = {
+            network: "mainnet",
+            friendbotUrl: "",
+            horizonRpcUrl: process.env.ENDPOINT as string,
+            sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
+            networkPassphrase: process.env.CHAIN_ID as string
+        }    
+
+        const sorobanToolkit = createToolkit({
+            adminSecret: process.env.SECRET_KEY_HELPER as string,
+            contractPaths: {},
+            addressBookPath: "",
+            customNetworks: [mainnet],
+            verbose: "full"
+        });
+            
+        const result = await invokeCustomContract(
+            sorobanToolkit.getNetworkToolkit("mainnet"),
+            FACTORY_CONTRACT,
+            'all_pairs',
+            [xdr.ScVal.scvU32(index)],
+            true,
+            Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+        );
+
+        return scValToNative(result.result.retval);
+    } catch (error) {
+        console.error(`❌ Error obteniendo la dirección del pair ${index}:`, error);
+        throw error;
+    }
+}
+
+async function getToken(pairAddress: string, method: 'token_0' | 'token_1'): Promise<string> {
+    try {
+        const mainnet = {
+            network: "mainnet",
+            friendbotUrl: "",
+            horizonRpcUrl: process.env.ENDPOINT as string,
+            sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
+            networkPassphrase: process.env.CHAIN_ID as string
+        }    
+
+        const sorobanToolkit = createToolkit({
+            adminSecret: process.env.SECRET_KEY_HELPER as string,
+            contractPaths: {},
+            addressBookPath: "",
+            customNetworks: [mainnet],
+            verbose: "full"
+        });
+            
+        const result = await invokeCustomContract(
+            sorobanToolkit.getNetworkToolkit("mainnet"),
+            pairAddress,
+            method,
+            [],
+            true,
+            Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+        );
+
+        return scValToNative(result.result.retval);
+    } catch (error) {
+        console.error(`❌ Error obteniendo el token (${method}) para el pair ${pairAddress}:`, error);
+        throw error;
+    }
+}
+
+async function getPairReserves(pairAddress: string): Promise<[bigint, bigint]> {
+    try {
+        const mainnet = {
+            network: "mainnet",
+            friendbotUrl: "",
+            horizonRpcUrl: process.env.ENDPOINT as string,
+            sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
+            networkPassphrase: process.env.CHAIN_ID as string
+        }    
+
+        const sorobanToolkit = createToolkit({
+            adminSecret: process.env.SECRET_KEY_HELPER as string,
+            contractPaths: {},
+            addressBookPath: "",
+            customNetworks: [mainnet],
+            verbose: "full"
+        });
+            
+        const result = await invokeCustomContract(
+            sorobanToolkit.getNetworkToolkit("mainnet"),
+            pairAddress,
             'get_reserves',
             [],
             true,
@@ -54,73 +157,86 @@ async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
         );
 
         const [reserve0, reserve1] = scValToNative(result.result.retval);
-        console.log("RESULT 🔴🟣🟢🔵")
-        console.log(scValToNative(result.result.retval));
         return [BigInt(reserve0), BigInt(reserve1)];
     } catch (error) {
-        console.error(`❌ Error obteniendo reservas para ${contractId}:`, error);
-        console.warn(`⚠️ Usando valores por defecto para el pool ${contractId}`);
+        console.error(`❌ Error obteniendo reservas para ${pairAddress}:`, error);
         return [BigInt(0), BigInt(0)];
     }
 }
 
-async function generatePoolReservesList(): Promise<void> {
-    const poolReserves: { contract: string; reserve0: string; reserve1: string; }[] = [];
-    const failedPools: string[] = [];
-    
+async function generatePairTokenReservesList(): Promise<void> {
+    const pairTokenReserves: {
+        address: string;
+        token_a: string;
+        token_b: string;
+        reserve_a: string;
+        reserve_b: string;
+    }[] = [];
+    const failedPairs: string[] = [];
+    const totalPairs = await getAllPairsLength();
+        console.log(`📊 Total de pairs encontrados: ${totalPairs}`);
     try {
-        console.log("🚀 Obteniendo reservas de pools...");
+        console.log("🚀 Obteniendo información de pairs...");
         
-        for (const [index, contract] of poolsList.entries()) {
+        
+        
+        for (let i = 0; i < totalPairs; i++) {
             try {
-                console.log(`📊 Procesando pool ${index + 1}/${poolsList.length}: ${contract}`);
+                console.log(`📊 Procesando pair ${i + 1}/${totalPairs}`);
                 
-                const [reserve0, reserve1] = await retry(() => getPoolReserves(contract));
+                const pairAddress = await retry(() => getPairAddress(i));
+                const token_a = await retry(() => getToken(pairAddress, 'token_0'));
+                const token_b = await retry(() => getToken(pairAddress, 'token_1'));
+                const [reserve_a, reserve_b] = await retry(() => getPairReserves(pairAddress));
                 
-                poolReserves.push({
-                    contract,
-                    reserve0: reserve0.toString(),
-                    reserve1: reserve1.toString()
+                pairTokenReserves.push({
+                    address: pairAddress,
+                    token_a,
+                    token_b,
+                    reserve_a: reserve_a.toString(),
+                    reserve_b: reserve_b.toString()
                 });
                 
-                console.log(`✅ Reservas obtenidas para: ${contract}`);
+                console.log(`✅ Información obtenida para pair: ${pairAddress}`);
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
             } catch (error) {
-                console.error(`❌ Error procesando pool ${contract}:`, error);
-                failedPools.push(contract);
+                console.error(`❌ Error procesando pair ${i}:`, error);
+                failedPairs.push(`Pair índice ${i}`);
                 continue;
             }
         }
 
         // Generar el contenido del archivo
         const fileContent = `
-// Este archivo es generado automáticamente por poolRsvMaker.ts
+// Este archivo es generado automáticamente por pairsTokensMaker.ts
 // No modificar manualmente
 
-export interface PoolReserves {
-    contract: string;
-    reserve0: string;
-    reserve1: string;
+export interface PairTokenReserves {
+    address: string;
+    token_a: string;
+    token_b: string;
+    reserve_a: string;
+    reserve_b: string;
 }
 
-export const poolReservesList: PoolReserves[] = ${JSON.stringify(poolReserves, null, 2)};
+export const pairTokenReservesList: PairTokenReserves[] = ${JSON.stringify(pairTokenReserves, null, 2)};
 `;
 
         // Escribir el archivo
-        const filePath = path.join(__dirname, '../src/mappings/poolRsvList.ts');
+        const filePath = path.join(__dirname, '../src/mappings/pairTokenRsv.ts');
         fs.writeFileSync(filePath, fileContent);
-        console.log(`✅ Archivo poolRsvList.ts generado exitosamente`);
+        console.log(`✅ Archivo pairTokenRsv.ts generado exitosamente`);
 
     } catch (error) {
         console.error("❌ Error general:", error);
         throw error;
     } finally {
         console.log("\n📊 Resumen de la ejecución:");
-        console.log(`✅ Pools procesados exitosamente: ${poolsList.length - failedPools.length}`);
-        if (failedPools.length > 0) {
-            console.log(`❌ Pools con errores (${failedPools.length}):`);
-            failedPools.forEach(pool => console.log(`   - ${pool}`));
+        console.log(`✅ Pairs procesados exitosamente: ${pairTokenReserves.length}`);
+        if (failedPairs.length > 0) {
+            console.log(`❌ Pairs con errores (${failedPairs.length}):`);
+            failedPairs.forEach(pair => console.log(`   - ${pair}`));
         }
     }
 }
@@ -131,12 +247,12 @@ if (!process.env.SOROBAN_ENDPOINT || !process.env.SECRET_KEY_HELPER) {
     process.exit(1);
 }
 
-generatePoolReservesList()
+generatePairTokenReservesList()
     .then(() => {
-        console.log("✨ Lista de reservas de pools generada exitosamente");
+        console.log("✨ Lista de pairs, tokens y reservas generada exitosamente");
         process.exit(0);
     })
     .catch((error) => {
-        console.error("❌ Error generando lista de reservas:", error);
+        console.error("❌ Error generando lista:", error);
         process.exit(1);
     });

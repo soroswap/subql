@@ -10,3 +10,13 @@ type Sync @entity {
   newReserve0: BigInt!
   newReserve1: BigInt!
 }
+
+type NewPair @entity {
+  id: ID! # Este será el hash del evento
+  ledger: Int!
+  date: Date!
+  token0: String! @index
+  token1: String! @index
+  pair: String! @index
+  newPairsLength: Int!
+}

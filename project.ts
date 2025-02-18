@@ -78,6 +78,17 @@ const project: StellarProject = {
               ],
             },
           },
+          {
+            handler: "handleEventNewPair",
+            kind: StellarHandlerKind.Event,
+            filter: {
+              contractId: "CA4HEQTL2WPEUYKYKCDOHCDNIV4QHNJ7EL4J4NQ6VADP7SYHVRYZ7AW2",
+              topics: [
+                "SoroswapFactory",
+                "new_pair"
+              ],
+            },
+          },
         ],
       },
     },

@@ -25,7 +25,7 @@ ENDPOINT=https://horizon.stellar.org
 CHAIN_ID="Public Global Stellar Network ; September 2015"
 SOROBAN_ENDPOINT=https://mainnet.stellar.validationcloud.io......
 ```
-**Check Startblock in proyect.ts** 
+**Check .env_example** 
 
 2. Install dependencies:
 
@@ -37,7 +37,11 @@ There are 3 files:
 - **schema.graphql**: Defines the data structure
 - **project.ts**: Contains project configuration and mapping handlers
 - **mapping.ts**: Contains the transformation logic
-
+Initialize data and project:
+```bash
+bash ./scripts/init.sh
+```
+Customizer
 ```bash
 yarn codegen
 ```
@@ -91,39 +95,32 @@ yarn start:docker
 ### Query Transfers and Accounts
 ```graphql
 query EventSync {
-  syncs(first: 10, orderBy: DATE_DESC) {
+  syncs(orderBy: DATE_DESC) {
     totalCount
-    nodes { 
-    	id
-    	ledger
-    	date
-    	contract
-    	newReserve0
-    	newReserve1
+    nodes {
+      contract
+      newReserve0
+      newReserve1
     }
   }
 }
 
-
-query EventTransfer {
-  transfers(first: 10, orderBy: DATE_DESC) {
+query SyncDebug {
+  syncs(
+    filter: {contract: {equalTo: "CDJDRGUCHANJDXALZVJ5IZVB76HX4MWCON5SHF4DE5HB64CBBR7W2ZCD"}}
+    orderBy: DATE_DESC
+  ) {
     totalCount
     nodes {
       id
-      ledger
-      date
       contract
-      from {
-        id
-      }
-      to {
-        id
-      }
-      value
+      date
+      ledger
+      newReserve0
+      newReserve1
     }
   }
 }
-
 ```
 Results:
 

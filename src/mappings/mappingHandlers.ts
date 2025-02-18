@@ -5,6 +5,7 @@ import {
 import { poolsList } from "./poolsList";
 import { config } from 'dotenv';
 import { poolReservesList } from "./poolRsvList";
+import { NewPair } from "../types";
 
 config();
 
@@ -85,6 +86,77 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
     logger.error(`❌ Error procesando sync event: ${error}`);
     throw error;
   }
+}
+
+export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
+    logger.info(
+        `Nuevo evento NewPair encontrado en el bloque ${event.ledger.sequence.toString()}`
+    );
+
+    try {
+        // Extraer los datos del evento
+        const eventJson = JSON.stringify(event);
+        const eventParse = JSON.parse(eventJson);
+        const values = eventParse?.value?._value;
+
+        if (!Array.isArray(values)) {
+            logger.error('❌ No se encontró el array de valores en el evento NewPair');
+            return;
+        }
+
+        let token0 = '';
+        let token1 = '';
+        let pair = '';
+        let newPairsLength = 0;
+
+        // Procesar cada valor del evento
+        values.forEach((entry: any) => {
+            const keyBuffer = entry?._attributes?.key?._value?.data;
+            if (!keyBuffer) return;
+
+            const keyText = Buffer.from(keyBuffer).toString();
+            const value = entry?._attributes?.val?._value;
+
+            switch(keyText) {
+                case 'token_0':
+                    token0 = value?.toString() || '';
+                    break;
+                case 'token_1':
+                    token1 = value?.toString() || '';
+                    break;
+                case 'pair':
+                    pair = value?.toString() || '';
+                    break;
+                case 'new_pairs_length':
+                    newPairsLength = parseInt(value?._attributes?.lo?._value || '0');
+                    break;
+            }
+        });
+
+        // Verificar que tenemos todos los datos necesarios
+        if (!token0 || !token1 || !pair || !newPairsLength) {
+            logger.error('❌ Datos incompletos en el evento NewPair');
+            return;
+        }
+
+        // Crear el nuevo registro
+        const newPairEvent = NewPair.create({
+            id: event.id,
+            ledger: event.ledger.sequence,
+            date: new Date(event.ledgerClosedAt),
+            token0: token0,
+            token1: token1,
+            pair: pair,
+            newPairsLength: newPairsLength
+        });
+
+        await newPairEvent.save();
+        logger.info(`✅ Nuevo par guardado: ${pair} (${token0} - ${token1})`);
+
+    } catch (error) {
+        logger.error(`❌ Error procesando evento NewPair: ${error}`);
+        throw error;
+    }
 }
 
 //######################### HELPERS #########################
