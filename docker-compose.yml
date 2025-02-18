@@ -54,8 +54,8 @@ services:
       - ${SUB_COMMAND:-} # set SUB_COMMAND env variable to "test" to run tests
       - -f=/app
       - --db-schema=app
-      - --workers=1 # The more the faster
-      - --batch-size=5 # The higher the faster, set low to avoid rate limit on SDF endpoint
+      - --workers=4 # The more the faster
+      - --batch-size=10 # The higher the faster, set low to avoid rate limit on SDF endpoint
     healthcheck:
       test: ["CMD", "curl", "-f", "http://subquery-node:3000/ready"]
       interval: 3s
