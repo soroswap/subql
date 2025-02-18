@@ -7,10 +7,9 @@ services:
         - .:/app  # Mount project directory
       env_file:
         - .env  # Load environment variables
-      depends_on: 
-        - subquery-node
       stdin_open: true  
       tty: true
+      command: ["/bin/sh", "-c", "yarn install && yarn codegen && yarn build && tail -f /dev/null"]
   postgres:
     container_name: postgres
     build:
@@ -31,8 +30,10 @@ services:
   subquery-node:
     image: subquerynetwork/subql-node-stellar:latest
     depends_on:
-      "postgres":
+      postgres:
         condition: service_healthy
+      app:
+        condition: service_started
     restart: unless-stopped
     environment:
       DB_USER: ${POSTGRES_USER}
@@ -62,9 +63,9 @@ services:
     ports:
       - 3000:3000
     depends_on:
-      "postgres":
+      postgres:
         condition: service_healthy
-      "subquery-node":
+      subquery-node:
         condition: service_healthy
     restart: always
     environment:
@@ -78,14 +79,3 @@ services:
       - --playground
       - --indexer=http://subquery-node:3000
 
-  work-subql:
-    build:
-      context: .
-      dockerfile: docker/work-subql.Dockerfile
-    volumes:
-      - .:/workspace
-    environment:
-      - SOROBAN_ENDPOINT=${SOROBAN_ENDPOINT}
-      - SECRET_KEY_HELPER=${SECRET_KEY_HELPER}
-      - STELLAR_NETWORK_PASSPHRASE=${CHAIN_ID}
-    working_dir: /workspace

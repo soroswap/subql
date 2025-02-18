@@ -31,6 +31,8 @@ POSTGRES_PORT=5432
 
 ```bash
 yarn install
+yarn codegen
+yarn build
 ```
 3. Config and build the proyect:
 There are 3 files: 
@@ -45,7 +47,6 @@ yarn pool-rsv
 yarn pairs-rsv
 yarn dev
 ```
-
 
 Initialize data and project:
 ```bash
