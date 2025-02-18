@@ -1,8 +1,9 @@
 import { config } from 'dotenv';
-import { Sync } from '../src/types';
 import { invokeCustomContract, createToolkit } from 'soroban-toolkit';
 import { Keypair, scValToNative } from '@stellar/stellar-sdk';
 import { poolsList } from "../src/mappings/poolsList";
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Cargar variables de entorno al inicio del script
 config();
@@ -63,36 +64,26 @@ async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
     }
 }
 
-// Función principal
-async function setUpInitialPools(): Promise<void> {
+async function generatePoolReservesList(): Promise<void> {
+    const poolReserves: { contract: string; reserve0: string; reserve1: string; }[] = [];
     const failedPools: string[] = [];
     
     try {
-        console.log("🚀 Iniciando configuración de pools iniciales...");
+        console.log("🚀 Obteniendo reservas de pools...");
         
         for (const [index, contract] of poolsList.entries()) {
             try {
                 console.log(`📊 Procesando pool ${index + 1}/${poolsList.length}: ${contract}`);
                 
-                const [reserve0, reserve1] = await getPoolReserves(contract);
+                const [reserve0, reserve1] = await retry(() => getPoolReserves(contract));
                 
-                if (reserve0 === BigInt(0) && reserve1 === BigInt(0)) {
-                    failedPools.push(contract);
-                }
-                
-                // Crear nuevo Sync usando SubQuery
-                const newSync = Sync.create({
-                    id: contract,
-                    ledger: 55735990 + index,
-                    date: new Date(Date.now() - index * 60000),
-                    contract: contract,
-                    newReserve0: reserve0,
-                    newReserve1: reserve1
+                poolReserves.push({
+                    contract,
+                    reserve0: reserve0.toString(),
+                    reserve1: reserve1.toString()
                 });
-
-                await newSync.save();
-                console.log(`✅ Pool guardado: ${contract}`);
                 
+                console.log(`✅ Reservas obtenidas para: ${contract}`);
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
             } catch (error) {
@@ -101,6 +92,26 @@ async function setUpInitialPools(): Promise<void> {
                 continue;
             }
         }
+
+        // Generar el contenido del archivo
+        const fileContent = `
+// Este archivo es generado automáticamente por poolRsvMaker.ts
+// No modificar manualmente
+
+export interface PoolReserves {
+    contract: string;
+    reserve0: string;
+    reserve1: string;
+}
+
+export const poolReservesList: PoolReserves[] = ${JSON.stringify(poolReserves, null, 2)};
+`;
+
+        // Escribir el archivo
+        const filePath = path.join(__dirname, '../src/mappings/poolRsvList.ts');
+        fs.writeFileSync(filePath, fileContent);
+        console.log(`✅ Archivo poolRsvList.ts generado exitosamente`);
+
     } catch (error) {
         console.error("❌ Error general:", error);
         throw error;
@@ -120,12 +131,12 @@ if (!process.env.SOROBAN_ENDPOINT || !process.env.SECRET_KEY_HELPER) {
     process.exit(1);
 }
 
-setUpInitialPools()
+generatePoolReservesList()
     .then(() => {
-        console.log("✨ Configuración de pools completada exitosamente");
+        console.log("✨ Lista de reservas de pools generada exitosamente");
         process.exit(0);
     })
     .catch((error) => {
-        console.error("❌ Error en la configuración de pools:", error);
+        console.error("❌ Error generando lista de reservas:", error);
         process.exit(1);
     });
