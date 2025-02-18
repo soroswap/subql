@@ -21,6 +21,10 @@ cp .env.example .env
 SOROBAN_ENDPOINT=https://mainnet.stellar.validationcloud.io/v1/...
 SECRET_KEY_HELPER=S...
 STARBLOCK=55791918
+POSTGRES_PASSWORD=password
+POSTGRES_USER=user
+POSTGRES_DB=mydb
+POSTGRES_PORT=5432
 ```
 
 2. Install dependencies:

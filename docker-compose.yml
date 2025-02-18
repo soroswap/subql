@@ -7,7 +7,8 @@ services:
         - .:/app  # Mount project directory
       env_file:
         - .env  # Load environment variables
-      depends_on: subquery-node
+      depends_on: 
+        - subquery-node
       stdin_open: true  
       tty: true
   postgres:
@@ -56,7 +57,7 @@ services:
       - 8.8.8.8
       - 8.8.4.4
 
-  graphql-engine:
+  graphql-engine: 
     image: subquerynetwork/subql-query:latest
     ports:
       - 3000:3000
