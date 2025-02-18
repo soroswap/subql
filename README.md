@@ -1,5 +1,14 @@
 # Soroswap SubQuery Project
 
+```
+sudo rm -R .data
+docker compose down -v
+docker compose up -d
+bash run
+```
+
+
+
 A [SubQuery](https://subquery.network) indexer implementation for the Soroswap project on Stellar Soroban. SubQuery is a fast, flexible, and reliable open-source data indexer that provides custom APIs for web3 projects.
 
 ### Prerequisites

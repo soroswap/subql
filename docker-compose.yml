@@ -12,6 +12,9 @@ services:
       command: ["/bin/sh", "-c", "yarn install && yarn codegen && yarn build && tail -f /dev/null"]
   postgres:
     container_name: postgres
+    depends_on:
+      app:
+        condition: service_started
     build:
       context: .
       dockerfile: ./docker/pg-Dockerfile
@@ -19,6 +22,8 @@ services:
       - ${POSTGRES_PORT}:5432
     volumes:
       - .data/postgres:/var/lib/postgresql/data
+    env_file:
+        - .env  # Load environment variables
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     healthcheck:
@@ -35,6 +40,8 @@ services:
       app:
         condition: service_started
     restart: unless-stopped
+    env_file:
+      - .env  # Load environment variables
     environment:
       DB_USER: ${POSTGRES_USER}
       DB_PASS: ${POSTGRES_PASSWORD}
@@ -68,6 +75,8 @@ services:
       subquery-node:
         condition: service_healthy
     restart: always
+    env_file:
+      - .env  # Load environment variables
     environment:
       DB_USER: ${POSTGRES_USER}
       DB_PASS: ${POSTGRES_PASSWORD}
