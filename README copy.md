@@ -13,15 +13,15 @@ A [SubQuery](https://subquery.network) indexer implementation for the Soroswap p
 ```bash
 git clone https://github.com/PricesoDan/subql.git
 cd subql
-cp .env.example .env
 ```
 1.1 Config .env:
 
 ```.env Mainnet
-SOROBAN_ENDPOINT=https://mainnet.stellar.validationcloud.io/v1/...
-SECRET_KEY_HELPER=S...
-STARBLOCK=55791918
+ENDPOINT=https://horizon.stellar.org
+CHAIN_ID="Public Global Stellar Network ; September 2015"
+SOROBAN_ENDPOINT=https://mainnet.stellar.validationcloud.io......
 ```
+**Check .env_example** 
 
 2. Install dependencies:
 
@@ -33,16 +33,6 @@ There are 3 files:
 - **schema.graphql**: Defines the data structure
 - **project.ts**: Contains project configuration and mapping handlers
 - **mapping.ts**: Contains the transformation logic
-
-```
-docker compose down -v && sudo rm -rf .data && sudo rm -rf dist
-yarn pool-rsv
-yarn pairs-rsv
-yarn dev
-
-```
-
-
 Initialize data and project:
 ```bash
 bash ./scripts/init.sh
