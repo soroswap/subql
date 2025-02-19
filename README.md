@@ -2,7 +2,7 @@
 
 0. Clone and edit the `.env`
 ```bash
-git clone https://github.com/PricesoDan/subql.git
+git clone https://github.com/soroswap/subql.git
 cd subql
 cp .env.example .env
 ```
