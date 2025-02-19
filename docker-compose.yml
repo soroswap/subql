@@ -9,7 +9,7 @@ services:
         - .env  # Load environment variables
       stdin_open: true  
       tty: true
-      command: ["/bin/sh", "-c", "rm /app/.ready && yarn install && yarn codegen && yarn build && touch /app/.ready && tail -f /dev/null"]
+      command: ["/bin/sh", "-c", "rm -f /app/.ready && yarn install && yarn codegen && yarn build && touch /app/.ready && tail -f /dev/null"]
       healthcheck:
         test: ["CMD", "test", "-f", "/app/.ready"]
         interval: 5s
