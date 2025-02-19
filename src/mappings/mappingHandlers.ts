@@ -6,6 +6,7 @@ import { poolsList } from "./poolsList";
 import { config } from 'dotenv';
 import { poolReservesList } from "./poolRsvList";
 import { NewPair } from "../types";
+import { StrKey } from '@stellar/stellar-sdk';
 
 config();
 
@@ -34,18 +35,18 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
   logger.info("🔴🔴")
 
   // Verificar si el contrato está en la lista de tokens
-  const contractId = event.contractId?.contractId().toString();
-  if (!contractId || !poolsList.includes(contractId)) {
-    logger.info(`🔴🔴 Error: Contrato ${contractId} no está en la lista de tokens permitidos`);
+  const address = event.contractId?.contractId().toString();
+  if (!address || !poolsList.includes(address)) {
+    logger.info(`🔴🔴 Error: Contrato ${address} no está en la lista de tokens permitidos`);
     return;
   }
 
   try { 
     // Extraer las reservas primero
-    const { reserve0, reserve1 } = extractReserves(JSON.parse(JSON.stringify(event)));
+    const { reserveA, reserveB } = extractReserves(JSON.parse(JSON.stringify(event)));
     
     // Buscar todos los syncs existentes para este contrato
-    const existingSyncs = await Sync.get(contractId);
+    const existingSyncs = await Sync.get(address);
 
     logger.info("existingSyncs: " + existingSyncs);
     logger.info("🔴🔴");
@@ -55,12 +56,12 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
     
     // Crear el nuevo sync
     const newSync = Sync.create({
-      id: contractId,
+      id: address,
       ledger: event.ledger.sequence,
       date: currentDate,
-      contract: contractId,
-      newReserve0: reserve0,
-      newReserve1: reserve1
+      address: address,
+      reserveA: reserveA,
+      reserveB: reserveB
     });
     
     // Primero verificamos si hay registros más antiguos antes de guardar el nuevo
@@ -80,7 +81,7 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
     
     // Si llegamos aquí, guardamos el nuevo sync
     await newSync.save();
-    logger.info(`✨ Actualizado sync para contrato ${contractId} con fecha ${currentDate}`);
+    logger.info(`✨ Actualizado sync para contrato ${address} con fecha ${currentDate}`);
     
   } catch (error) {
     logger.error(`❌ Error procesando sync event: ${error}`);
@@ -92,66 +93,37 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
     logger.info(
         `Nuevo evento NewPair encontrado en el bloque ${event.ledger.sequence.toString()}`
     );
+    logger.info("🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴");
+    logger.info("🔵 Entrando al event NewPair")
+    let eventJson = JSON.stringify(event);
+    logger.info(JSON.stringify(event));
+    logger.info("🔵🔵")
+    //logger.info("eventJson: " + eventJson);
+    logger.info("🔵🔵")
+    let eventValue = JSON.stringify(event.value);
+    logger.info("eventValue: " + eventValue);
+    logger.info("🔵🔵🔵🔵")
+    let eventParse = JSON.parse(eventJson);
+    logger.info(`eventParse: ${eventParse}`);
+
+    logger.info("🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴");
 
     try {
-        // Extraer los datos del evento
-        const eventJson = JSON.stringify(event);
-        const eventParse = JSON.parse(eventJson);
-        const values = eventParse?.value?._value;
-
-        if (!Array.isArray(values)) {
-            logger.error('❌ No se encontró el array de valores en el evento NewPair');
-            return;
-        }
-
-        let token0 = '';
-        let token1 = '';
-        let pair = '';
-        let newPairsLength = 0;
-
-        // Procesar cada valor del evento
-        values.forEach((entry: any) => {
-            const keyBuffer = entry?._attributes?.key?._value?.data;
-            if (!keyBuffer) return;
-
-            const keyText = Buffer.from(keyBuffer).toString();
-            const value = entry?._attributes?.val?._value;
-
-            switch(keyText) {
-                case 'token_0':
-                    token0 = value?.toString() || '';
-                    break;
-                case 'token_1':
-                    token1 = value?.toString() || '';
-                    break;
-                case 'pair':
-                    pair = value?.toString() || '';
-                    break;
-                case 'new_pairs_length':
-                    newPairsLength = parseInt(value?._attributes?.lo?._value || '0');
-                    break;
-            }
-        });
-
-        // Verificar que tenemos todos los datos necesarios
-        if (!token0 || !token1 || !pair || !newPairsLength) {
-            logger.error('❌ Datos incompletos en el evento NewPair');
-            return;
-        }
+        const { tokenA, tokenB, address, newPairsLength } = extractValuesNewPair(JSON.parse(JSON.stringify(event)));
 
         // Crear el nuevo registro
         const newPairEvent = NewPair.create({
             id: event.id,
             ledger: event.ledger.sequence,
             date: new Date(event.ledgerClosedAt),
-            token0: token0,
-            token1: token1,
-            pair: pair,
+            tokenA: tokenA,
+            tokenB: tokenB,
+            address: address,
             newPairsLength: newPairsLength
         });
 
         await newPairEvent.save();
-        logger.info(`✅ Nuevo par guardado: ${pair} (${token0} - ${token1})`);
+        logger.info(`✅ Nuevo par guardado: ${address} (${tokenA} - ${tokenB})`);
 
     } catch (error) {
         logger.error(`❌ Error procesando evento NewPair: ${error}`);
@@ -185,9 +157,9 @@ async function initializeSync(): Promise<void> {
                       id: contractId,
                       ledger: 55735990 + index,
                       date: new Date(Date.now()),
-                      contract: contractId,
-                      newReserve0: reserve0,
-                      newReserve1: reserve1
+                      address: contractId,
+                      reserveA: reserve0,
+                      reserveB: reserve1
                   });
                   
                   await newSync.save();
@@ -244,22 +216,22 @@ async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
 }
 
 interface ReservesResult {
-  reserve0: bigint;
-  reserve1: bigint;
+  reserveA: bigint;
+  reserveB: bigint;
 }
 // Extraer reservas de un evento de sync y las parsear a bigint
 
 function extractReserves(event: any): ReservesResult {
-    let reserve0 = BigInt(0);
-    let reserve1 = BigInt(0);
+    let reserveA = BigInt(0);
+    let reserveB = BigInt(0);
 
     // Verificar si tenemos la estructura correcta
     const values = event?.value?._value;
     if (!Array.isArray(values)) {
         logger.error('No se encontró el array de valores');
         return { 
-            reserve0, 
-            reserve1 
+            reserveA, 
+            reserveB 
         };
     }
 
@@ -295,11 +267,11 @@ function extractReserves(event: any): ReservesResult {
 
             // Asignar el valor según la key
             if (keyText === 'new_reserve_0') {
-                reserve0 = BigInt(value);
-                logger.info('→ Actualizado reserve0:' + reserve0.toString());
+                reserveA = BigInt(value);
+                logger.info('→ Actualizado reserveA:' + reserveA.toString());
             } else if (keyText === 'new_reserve_1') {
-                reserve1 = BigInt(value);
-                logger.info('→ Actualizado reserve1:' + reserve1.toString());
+                reserveB = BigInt(value);
+                logger.info('→ Actualizado reserveB:' + reserveB.toString());
             }
         } catch (error) {
             logger.warn('❌ Error procesando entrada:', error);
@@ -307,12 +279,109 @@ function extractReserves(event: any): ReservesResult {
     });
 
     logger.info('\n🟣🟣🟣🟣 Resultado final:');
-    logger.info(`reserve0: ${reserve0.toString()}`);
-    logger.info(`reserve1: ${reserve1.toString()}`);
+    logger.info(`reserveA: ${reserveA.toString()}`);
+    logger.info(`reserveB: ${reserveB.toString()}`);
 
     return {
-        reserve0,
-        reserve1
+        reserveA,
+        reserveB
+    };
+}
+
+function hexToSorobanAddress(hexString: string): string {
+    const buffer = Buffer.from(hexString, 'hex');
+    return StrKey.encodeContract(buffer);
+}
+
+function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, address: string, newPairsLength: number } {
+    let tokenA = '';
+    let tokenB = '';
+    let address = '';
+    let newPairsLength = 0;
+
+    // Extraer los datos del evento
+    const eventJson = JSON.stringify(event);
+    const eventParse = JSON.parse(eventJson);
+    const values = eventParse?.value?._value;
+
+    if (!Array.isArray(values)) {
+        logger.error('❌ No se encontró el array de valores en el evento NewPair');
+        return {
+            tokenA,
+            tokenB,
+            address,
+            newPairsLength
+        };
+    }
+
+    logger.info("\n🟣🟣🟣🟣 Procesando evento NewPair:");
+
+    values.forEach((entry: any) => {
+        try {
+            const keyBuffer = entry?._attributes?.key?._value?.data;
+            if (!keyBuffer) {
+                logger.info("❌ No se encontró keyBuffer");
+                return;
+            }
+
+            const keyText = Buffer.from(keyBuffer).toString();
+            logger.info('Key (Text):', keyText);
+
+            switch(keyText) {
+                case 'token_0':
+                    const tokenABuffer = entry?._attributes?.val?._value?._value?.data;
+                    if (tokenABuffer) {
+                        const tokenAHex = Buffer.from(tokenABuffer).toString('hex');
+                        tokenA = hexToSorobanAddress(tokenAHex);
+                        logger.info('→ Token A (hex):', tokenAHex);
+                        logger.info('→ Token A (Soroban):', tokenA);
+                    }
+                    break;
+                case 'token_1':
+                    const tokenBBuffer = entry?._attributes?.val?._value?._value?.data;
+                    if (tokenBBuffer) {
+                        const tokenBHex = Buffer.from(tokenBBuffer).toString('hex');
+                        tokenB = hexToSorobanAddress(tokenBHex);
+                        logger.info('→ Token B (hex):', tokenBHex);
+                        logger.info('→ Token B (Soroban):', tokenB);
+                    }
+                    break;
+                case 'pair':
+                    const pairBuffer = entry?._attributes?.val?._value?._value?.data;
+                    if (pairBuffer) {
+                        const pairHex = Buffer.from(pairBuffer).toString('hex');
+                        address = hexToSorobanAddress(pairHex);
+                        logger.info('→ Par (hex):', pairHex);
+                        logger.info('→ Par (Soroban):', address);
+                    }
+                    break;
+                case 'new_pairs_length':
+                    newPairsLength = parseInt(entry?._attributes?.val?._value || '0');
+                    logger.info('→ Longitud de nuevos pares actualizada:', newPairsLength);
+                    break;
+                default:
+                    logger.info('⏩ Key no reconocida:', keyText);
+            }
+        } catch (error) {
+            logger.warn('❌ Error procesando entrada:', error);
+        }
+    });
+
+    logger.info('\n🟣🟣🟣🟣 Resultado final:');
+    logger.info(`Token A: ${tokenA}`);
+    logger.info(`Token B: ${tokenB}`);
+    logger.info(`Dirección del par: ${address}`);
+    logger.info(`Nuevos pares length: ${newPairsLength}`);
+
+    if (!tokenA || !tokenB || !address || !newPairsLength) {
+        logger.error('❌ Datos incompletos en el evento NewPair');
+    }
+
+    return {
+        tokenA,
+        tokenB,
+        address,
+        newPairsLength
     };
 }
 // async function checkAndGetAccount(
