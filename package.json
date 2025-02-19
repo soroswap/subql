@@ -15,7 +15,9 @@
     "testjson": "ts-node scripts/node_test.ts",
     "setup-pools": "ts-node -r dotenv/config scripts/setUprsv.ts",
     "pool-rsv": "ts-node -r dotenv/config scripts/poolRsvMaker.ts",
-    "pairs-rsv": "ts-node -r dotenv/config scripts/pairsTokensMaker.ts"
+    "pairs-rsv": "ts-node -r dotenv/config scripts/pairsTokensMaker.ts",
+    "test:newpair": "ts-node scripts/tests/extractNewPair.ts",
+    "getLastLedger": "ts-node scripts/getLastLedger.ts"
   },
   "homepage": "https://github.com/subquery/stellar-subql-starter",
   "repository": "github:subquery/stellar-subql-starter",

@@ -3,7 +3,7 @@ import {
   StellarHandlerKind,
   StellarProject,
 } from "@subql/types-stellar";
-import { Horizon } from "@stellar/stellar-sdk";
+import { startBlock } from "./scripts/lastLedger";
 
 import * as dotenv from 'dotenv';
 import path from 'path';
@@ -13,6 +13,7 @@ const mode = process.env.NODE_ENV || 'production';
 // Load the appropriate .env file
 const dotenvPath = path.resolve(__dirname, `.env${mode !== 'production' ? `.${mode}` : ''}`);
 dotenv.config({ path: dotenvPath });
+
 
 /* This is your project configuration */
 const project: StellarProject = {
@@ -61,7 +62,7 @@ const project: StellarProject = {
     {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
-      startBlock: parseInt(process.env.STARBLOCK!) || 55735792,
+      startBlock: parseInt(process.env.STARBLOCK!) || startBlock,
       // startBlock:900000, // testnet     
       // startBlock:55722947, // sync 55660216
       mapping: {
@@ -82,7 +83,7 @@ const project: StellarProject = {
             handler: "handleEventNewPair",
             kind: StellarHandlerKind.Event,
             filter: {
-              contractId: "CA4HEQTL2WPEUYKYKCDOHCDNIV4QHNJ7EL4J4NQ6VADP7SYHVRYZ7AW2",
+              contractId:"CA4HEQTL2WPEUYKYKCDOHCDNIV4QHNJ7EL4J4NQ6VADP7SYHVRYZ7AW2",
               topics: [
                 "SoroswapFactory",
                 "new_pair"
