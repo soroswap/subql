@@ -1,6 +1,6 @@
 services:
   app:
-      image: node:20  # Official Node.js 20 image
+      image: node:18.20.6  # Official Node.js 20 image
       container_name: node-subql-app
       working_dir: /app
       volumes:
@@ -9,7 +9,12 @@ services:
         - .env  # Load environment variables
       stdin_open: true  
       tty: true
-      command: ["/bin/sh", "-c", "yarn install && yarn codegen && yarn build && tail -f /dev/null"]
+      command: ["/bin/sh", "-c", "rm /app/.ready && yarn install && yarn codegen && yarn build && touch /app/.ready && tail -f /dev/null"]
+      healthcheck:
+        test: ["CMD", "test", "-f", "/app/.ready"]
+        interval: 5s
+        retries: 10
+        start_period: 10s
   postgres:
     container_name: postgres
     depends_on:
@@ -38,7 +43,7 @@ services:
       postgres:
         condition: service_healthy
       app:
-        condition: service_started
+        condition: service_healthy
     restart: unless-stopped
     env_file:
       - .env  # Load environment variables
@@ -54,16 +59,14 @@ services:
       - ${SUB_COMMAND:-} # set SUB_COMMAND env variable to "test" to run tests
       - -f=/app
       - --db-schema=app
-      - --workers=1 # The more the faster
-      - --batch-size=5 # The higher the faster, set low to avoid rate limit on SDF endpoint
+      - --workers=4 # The more the faster
+      - --batch-size=100 # The higher the faster, set low to avoid rate limit on SDF endpoint
     healthcheck:
       test: ["CMD", "curl", "-f", "http://subquery-node:3000/ready"]
       interval: 3s
       timeout: 5s
       retries: 10
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
+
 
   graphql-engine: 
     image: subquerynetwork/subql-query:latest

@@ -1,12 +1,28 @@
 # Soroswap SubQuery Project
 
-```
-sudo rm -R .data
-docker compose down -v
-docker compose up -d
-bash run
+0. Clone and edit the `.env`
+```bash
+git clone https://github.com/PricesoDan/subql.git
+cd subql
+cp .env.example .env
 ```
 
+1. Reset everything you might have from before
+```
+sudo rm -Rf node_modules
+sudo rm -rf .data && sudo rm -rf dist
+docker compose down -v
+docker stop $(docker ps -aq)
+```
+2. Run all docker containers
+```
+docker compose up
+```
+
+This will install all packages, do `codegen` and `build` before running subquery.
+
+----------------
+----------------
 
 
 A [SubQuery](https://subquery.network) indexer implementation for the Soroswap project on Stellar Soroban. SubQuery is a fast, flexible, and reliable open-source data indexer that provides custom APIs for web3 projects.
