@@ -241,16 +241,16 @@ function extractReserves(event: any): ReservesResult {
             // Get and show the key as buffer and text
             const keyBuffer = entry?._attributes?.key?._value?.data;
             if (!keyBuffer) {
-                logger.info("❌🔴🔴 No keyBuffer found");
+                //logger.info("❌🔴🔴 No keyBuffer found");
                 return;
             }
             const keyText = Buffer.from(keyBuffer).toString();
-            logger.info('Key (Buffer):'+ JSON.stringify(entry._attributes.key));
-            logger.info('Key (Text):' + keyText);
+            //logger.info('Key (Buffer):'+ JSON.stringify(entry._attributes.key));
+            //logger.info('Key (Text):' + keyText);
 
             // Get and show the full value and its details
             const value = entry?._attributes?.val?._value?._attributes?.lo?._value;
-            logger.info('Val lo details:'+ JSON.stringify(entry._attributes.val._value._attributes.lo));
+            //logger.info('Val lo details:'+ JSON.stringify(entry._attributes.val._value._attributes.lo));
             
             if (!value) {
                 logger.info("❌🔴🔴 No value found");
@@ -319,7 +319,7 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
             }
 
             const keyText = Buffer.from(keyBuffer).toString();
-            logger.info('Key (Text):', keyText);
+            //logger.info('Key (Text):', keyText);
 
             switch(keyText) {
                 case 'token_0':
@@ -327,7 +327,7 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
                     if (tokenABuffer) {
                         const tokenAHex = Buffer.from(tokenABuffer).toString('hex');
                         tokenA = hexToSorobanAddress(tokenAHex);
-                        logger.info('→ Token A (hex):', tokenAHex);
+                        //logger.info('→ Token A (hex):', tokenAHex);
                         logger.info('→ Token A (Soroban):', tokenA);
                     }
                     break;
@@ -336,7 +336,7 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
                     if (tokenBBuffer) {
                         const tokenBHex = Buffer.from(tokenBBuffer).toString('hex');
                         tokenB = hexToSorobanAddress(tokenBHex);
-                        logger.info('→ Token B (hex):', tokenBHex);
+                        //logger.info('→ Token B (hex):', tokenBHex);
                         logger.info('→ Token B (Soroban):', tokenB);
                     }
                     break;
@@ -345,7 +345,7 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
                     if (pairBuffer) {
                         const pairHex = Buffer.from(pairBuffer).toString('hex');
                         address = hexToSorobanAddress(pairHex);
-                        logger.info('→ Par (hex):', pairHex);
+                        //logger.info('→ Par (hex):', pairHex);
                         logger.info('→ Par (Soroban):', address);
                     }
                     break;
