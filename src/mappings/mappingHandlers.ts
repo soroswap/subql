@@ -87,20 +87,20 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
     logger.info(
         `New NewPair event found at block ${event.ledger.sequence.toString()}`
     );
+    logger.info("🔵🔵🔵🔵 Entering NewPair event")
     // debug log    
-    logger.info("🔵🔵🔵🔵");
-    logger.info("🔵 Entering NewPair event")
-    let eventJson = JSON.stringify(event);
-    logger.info(JSON.stringify(event));
-    logger.info("🔵🔵")
-    //logger.info("eventJson: " + eventJson);
-    logger.info("🔵🔵")
-    let eventValue = JSON.stringify(event.value);
-    logger.info("eventValue: " + eventValue);
-    logger.info("🔵🔵🔵🔵")
-    let eventParse = JSON.parse(eventJson);
-    logger.info(`eventParse: ${eventParse}`);
-    logger.info("🔵🔵🔵🔵");
+    // logger.info("🔵🔵🔵🔵");
+    // let eventJson = JSON.stringify(event);
+    // logger.info(JSON.stringify(event));
+    // logger.info("🔵🔵")
+    // //logger.info("eventJson: " + eventJson);
+    // logger.info("🔵🔵")
+    // let eventValue = JSON.stringify(event.value);
+    // logger.info("eventValue: " + eventValue);
+    // logger.info("🔵🔵🔵🔵")
+    // let eventParse = JSON.parse(eventJson);
+    // logger.info(`eventParse: ${eventParse}`);
+    // logger.info("🔵🔵🔵🔵");
 
     try {
         const { tokenA, tokenB, address, newPairsLength } = extractValuesNewPair(JSON.parse(JSON.stringify(event)));
@@ -241,7 +241,7 @@ function extractReserves(event: any): ReservesResult {
             // Get and show the key as buffer and text
             const keyBuffer = entry?._attributes?.key?._value?.data;
             if (!keyBuffer) {
-                //logger.info("❌🔴🔴 No keyBuffer found");
+                logger.info("❌🔴🔴 No keyBuffer found");
                 return;
             }
             const keyText = Buffer.from(keyBuffer).toString();
