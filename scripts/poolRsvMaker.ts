@@ -5,10 +5,10 @@ import { poolsList } from "../src/mappings/poolsList";
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Cargar variables de entorno al inicio del script
+// Load environment variables at the beginning of the script
 config();
 
-// Función de reintento con delay exponencial
+// Retry function with exponential delay
 async function retry<T>(
     fn: () => Promise<T>,
     retries: number = 3,
@@ -19,13 +19,13 @@ async function retry<T>(
         return await fn();
     } catch (error) {
         if (retries === 0) throw error;
-        console.log(`⚠️ Reintentando en ${delay}ms... (${retries} intentos restantes)`);
+        console.log(`⚠️ Retrying in ${delay}ms... (${retries} attempts remaining)`);
         await new Promise(resolve => setTimeout(resolve, delay));
         return retry(fn, retries - 1, delay * backoff, backoff);
     }
 }
 
-// Función para obtener las reservas usando el CLI de Soroban
+// Function to get reserves 
 async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
     try {
         const mainnet = {
@@ -58,8 +58,8 @@ async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
         console.log(scValToNative(result.result.retval));
         return [BigInt(reserve0), BigInt(reserve1)];
     } catch (error) {
-        console.error(`❌ Error obteniendo reservas para ${contractId}:`, error);
-        console.warn(`⚠️ Usando valores por defecto para el pool ${contractId}`);
+        console.error(`❌ Error getting reserves for ${contractId}:`, error);
+        console.warn(`⚠️ Using default values for pool ${contractId}`);
         return [BigInt(0), BigInt(0)];
     }
 }
@@ -69,11 +69,11 @@ async function generatePoolReservesList(): Promise<void> {
     const failedPools: string[] = [];
     
     try {
-        console.log("🚀 Obteniendo reservas de pools...");
+        console.log("🚀 Getting reserves from pools...");
         
         for (const [index, contract] of poolsList.entries()) {
             try {
-                console.log(`📊 Procesando pool ${index + 1}/${poolsList.length}: ${contract}`);
+                console.log(`📊 Processing pool ${index + 1}/${poolsList.length}: ${contract}`);
                 
                 const [reserve0, reserve1] = await retry(() => getPoolReserves(contract));
                 
@@ -83,20 +83,20 @@ async function generatePoolReservesList(): Promise<void> {
                     reserve1: reserve1.toString()
                 });
                 
-                console.log(`✅ Reservas obtenidas para: ${contract}`);
+                console.log(`✅ Reserves obtained for: ${contract}`);
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
             } catch (error) {
-                console.error(`❌ Error procesando pool ${contract}:`, error);
+                console.error(`❌ Error processing pool ${contract}:`, error);
                 failedPools.push(contract);
                 continue;
             }
         }
 
-        // Generar el contenido del archivo
+        // Generate file content
         const fileContent = `
-// Este archivo es generado automáticamente por poolRsvMaker.ts
-// No modificar manualmente
+// This file is generated automatically by poolRsvMaker.ts
+// Do not modify manually
 
 export interface PoolReserves {
     contract: string;
@@ -107,36 +107,36 @@ export interface PoolReserves {
 export const poolReservesList: PoolReserves[] = ${JSON.stringify(poolReserves, null, 2)};
 `;
 
-        // Escribir el archivo
+        // Write file
         const filePath = path.join(__dirname, '../src/mappings/poolRsvList.ts');
         fs.writeFileSync(filePath, fileContent);
-        console.log(`✅ Archivo poolRsvList.ts generado exitosamente`);
+        console.log(`✅ poolRsvList.ts file generated successfully`);
 
     } catch (error) {
-        console.error("❌ Error general:", error);
+        console.error("❌ General error:", error);
         throw error;
     } finally {
-        console.log("\n📊 Resumen de la ejecución:");
-        console.log(`✅ Pools procesados exitosamente: ${poolsList.length - failedPools.length}`);
+        console.log("\n📊 Execution summary:");
+        console.log(`✅ Pools processed successfully: ${poolsList.length - failedPools.length}`);
         if (failedPools.length > 0) {
-            console.log(`❌ Pools con errores (${failedPools.length}):`);
+            console.log(`❌ Pools with errors (${failedPools.length}):`);
             failedPools.forEach(pool => console.log(`   - ${pool}`));
         }
     }
 }
 
-// Verificar variables de entorno
+// Check environment variables
 if (!process.env.SOROBAN_ENDPOINT || !process.env.SECRET_KEY_HELPER) {
-    console.error("❌ Error: Variables de entorno SOROBAN_ENDPOINT y SECRET_KEY_HELPER son requeridas");
+    console.error("❌ Error: SOROBAN_ENDPOINT and SECRET_KEY_HELPER environment variables are required");
     process.exit(1);
 }
 
 generatePoolReservesList()
     .then(() => {
-        console.log("✨ Lista de reservas de pools generada exitosamente");
+        console.log("✨ Pool reserves list generated successfully");
         process.exit(0);
     })
     .catch((error) => {
-        console.error("❌ Error generando lista de reservas:", error);
+        console.error("❌ Error generating pool reserves list:", error);
         process.exit(1);
     });

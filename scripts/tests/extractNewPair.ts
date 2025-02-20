@@ -36,20 +36,20 @@ function extractValuesNewPair(event: any): NewPairResult {
         };
     }
 
-    console.log("\n🟣🟣🟣🟣 Procesando evento NewPair:");
+    console.log("\n🟣🟣🟣🟣 Processing NewPair event:");
     
     // Procesar cada valor del evento
     values.forEach((entry: any) => {
         try {
-            console.log("\n--- Procesando entrada ---");
+            console.log("\n--- Processing entry ---");
             
             // Mostrar entrada completa
-            console.log("Entrada completa:");
+            console.log("Complete entry:");
             console.log(entry);
 
             const keyBuffer = entry?._attributes?.key?._value.data;
             if (!keyBuffer) {
-                console.log("❌ No se encontró keyBuffer");
+                console.log("❌ keyBuffer not found");
                 return;
             }
 
@@ -95,7 +95,7 @@ function extractValuesNewPair(event: any): NewPairResult {
                     console.log('⏩ Key no reconocida:', keyText);
             }
         } catch (error) {
-            console.warn('❌ Error procesando entrada:', error);
+            console.warn('❌ Error processing entry:', error);
         }
     });
    

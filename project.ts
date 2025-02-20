@@ -4,9 +4,9 @@ import {
   StellarProject,
 } from "@subql/types-stellar";
 import { startBlock } from "./scripts/lastLedger";
-
 import * as dotenv from 'dotenv';
 import path from 'path';
+
 
 const mode = process.env.NODE_ENV || 'production';
 

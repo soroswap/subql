@@ -1,14 +1,13 @@
 import { config } from 'dotenv';
 import { invokeCustomContract, createToolkit } from 'soroban-toolkit';
 import { Keypair, scValToNative, xdr } from '@stellar/stellar-sdk';
-import { poolsList } from "../src/mappings/poolsList";
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Cargar variables de entorno al inicio del script
+// Load environment variables at the beginning of the script
 config();
 
-// Función de reintento con delay exponencial
+// Retry function with exponential delay
 async function retry<T>(
     fn: () => Promise<T>,
     retries: number = 3,
@@ -19,7 +18,7 @@ async function retry<T>(
         return await fn();
     } catch (error) {
         if (retries === 0) throw error;
-        console.log(`⚠️ Reintentando en ${delay}ms... (${retries} intentos restantes)`);
+        console.log(`⚠️ Retrying in ${delay}ms... (${retries} attempts remaining)`);
         await new Promise(resolve => setTimeout(resolve, delay));
         return retry(fn, retries - 1, delay * backoff, backoff);
     }
@@ -56,7 +55,7 @@ async function getAllPairsLength(): Promise<number> {
 
         return Number(scValToNative(result.result.retval));
     } catch (error) {
-        console.error('❌ Error obteniendo el número total de pairs:', error);
+        console.error('❌ Error getting total number of pairs:', error);
         throw error;
     }
 }
@@ -90,7 +89,7 @@ async function getPairAddress(index: number): Promise<string> {
 
         return scValToNative(result.result.retval);
     } catch (error) {
-        console.error(`❌ Error obteniendo la dirección del pair ${index}:`, error);
+        console.error(`❌ Error getting pair address ${index}:`, error);
         throw error;
     }
 }
@@ -124,7 +123,7 @@ async function getToken(pairAddress: string, method: 'token_0' | 'token_1'): Pro
 
         return scValToNative(result.result.retval);
     } catch (error) {
-        console.error(`❌ Error obteniendo el token (${method}) para el pair ${pairAddress}:`, error);
+        console.error(`❌ Error getting token (${method}) for pair ${pairAddress}:`, error);
         throw error;
     }
 }
@@ -159,7 +158,7 @@ async function getPairReserves(pairAddress: string): Promise<[bigint, bigint]> {
         const [reserve0, reserve1] = scValToNative(result.result.retval);
         return [BigInt(reserve0), BigInt(reserve1)];
     } catch (error) {
-        console.error(`❌ Error obteniendo reservas para ${pairAddress}:`, error);
+        console.error(`❌ Error getting reserves for ${pairAddress}:`, error);
         return [BigInt(0), BigInt(0)];
     }
 }
@@ -174,15 +173,14 @@ async function generatePairTokenReservesList(): Promise<void> {
     }[] = [];
     const failedPairs: string[] = [];
     const totalPairs = await getAllPairsLength();
-        console.log(`📊 Total de pairs encontrados: ${totalPairs}`);
+    console.log(`📊 Total pairs found: ${totalPairs}`);
     try {
-        console.log("🚀 Obteniendo información de pairs...");
+        console.log("🚀 Getting pairs information...");
         
-        
-        
+
         for (let i = 0; i < totalPairs; i++) {
             try {
-                console.log(`📊 Procesando pair ${i + 1}/${totalPairs}`);
+                console.log(`📊 Processing pair ${i + 1}/${totalPairs}`);
                 
                 const pairAddress = await retry(() => getPairAddress(i));
                 const token_a = await retry(() => getToken(pairAddress, 'token_0'));
@@ -197,20 +195,20 @@ async function generatePairTokenReservesList(): Promise<void> {
                     reserve_b: reserve_b.toString()
                 });
                 
-                console.log(`✅ Información obtenida para pair: ${pairAddress}`);
+                console.log(`✅ Information obtained for pair: ${pairAddress}`);
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
             } catch (error) {
-                console.error(`❌ Error procesando pair ${i}:`, error);
-                failedPairs.push(`Pair índice ${i}`);
+                console.error(`❌ Error processing pair ${i}:`, error);
+                failedPairs.push(`Pair index ${i}`);
                 continue;
             }
         }
 
-        // Generar el contenido del archivo
+        // Generate file content
         const fileContent = `
-// Este archivo es generado automáticamente por pairsTokensMaker.ts
-// No modificar manualmente
+// This file is generated automatically by pairsTokensMaker.ts
+// Do not modify manually
 
 export interface PairTokenReserves {
     address: string;
@@ -223,36 +221,36 @@ export interface PairTokenReserves {
 export const pairTokenReservesList: PairTokenReserves[] = ${JSON.stringify(pairTokenReserves, null, 2)};
 `;
 
-        // Escribir el archivo
+        // Write file
         const filePath = path.join(__dirname, '../src/mappings/pairTokenRsv.ts');
         fs.writeFileSync(filePath, fileContent);
-        console.log(`✅ Archivo pairTokenRsv.ts generado exitosamente`);
+        console.log(`✅ pairTokenRsv.ts file generated successfully`);
 
     } catch (error) {
-        console.error("❌ Error general:", error);
+        console.error("❌ General error:", error);
         throw error;
     } finally {
-        console.log("\n📊 Resumen de la ejecución:");
-        console.log(`✅ Pairs procesados exitosamente: ${pairTokenReserves.length}`);
+        console.log("\n📊 Execution summary:");
+        console.log(`✅ Pairs processed successfully: ${pairTokenReserves.length}`);
         if (failedPairs.length > 0) {
-            console.log(`❌ Pairs con errores (${failedPairs.length}):`);
+            console.log(`❌ Pairs with errors (${failedPairs.length}):`);
             failedPairs.forEach(pair => console.log(`   - ${pair}`));
         }
     }
 }
 
-// Verificar variables de entorno
+// Check environment variables
 if (!process.env.SOROBAN_ENDPOINT || !process.env.SECRET_KEY_HELPER) {
-    console.error("❌ Error: Variables de entorno SOROBAN_ENDPOINT y SECRET_KEY_HELPER son requeridas");
+    console.error("❌ Error: SOROBAN_ENDPOINT and SECRET_KEY_HELPER environment variables are required");
     process.exit(1);
 }
 
 generatePairTokenReservesList()
     .then(() => {
-        console.log("✨ Lista de pairs, tokens y reservas generada exitosamente");
+        console.log("✨ Pairs, tokens and reserves list generated successfully");
         process.exit(0);
     })
     .catch((error) => {
-        console.error("❌ Error generando lista:", error);
+        console.error("❌ Error generating list:", error);
         process.exit(1);
     });

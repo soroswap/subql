@@ -22,30 +22,28 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
   logger.info(
     `New sync event found at block ${event.ledger.sequence.toString()}`
   );
-   // Log para debug
+   // Debug log
     
-    logger.info("🔵 Entrando al event sync")
+    logger.info("🔵 Entering sync event")
     let eventJson = JSON.stringify(event);
-    // logger.info("eventJson: " + eventJson);
     logger.info("🔵🔵")
     let eventParse = JSON.parse(eventJson);
     logger.info("eventParse: " + eventParse);
 
-
   logger.info("🔴🔴")
 
-  // Verificar si el contrato está en la lista de tokens
+  // Check if contract is in tokens list
   const address = event.contractId?.contractId().toString();
   if (!address || !poolsList.includes(address)) {
-    logger.info(`🔴🔴 Error: Contrato ${address} no está en la lista de tokens permitidos`);
+    logger.info(`🔴🔴 Error: Contract ${address} is not in allowed tokens list`);
     return;
   }
 
   try { 
-    // Extraer las reservas primero
+    // Extract reserves first
     const { reserveA, reserveB } = extractReserves(JSON.parse(JSON.stringify(event)));
     
-    // Buscar todos los syncs existentes para este contrato
+    // Find all existing syncs for this contract
     const existingSyncs = await Sync.get(address);
 
     logger.info("existingSyncs: " + existingSyncs);
@@ -54,7 +52,7 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
     logger.info("🔴🔴");
     const currentDate = new Date(event.ledgerClosedAt);
     
-    // Crear el nuevo sync
+    // Create new sync
     const newSync = Sync.create({
       id: address,
       ledger: event.ledger.sequence,
@@ -64,37 +62,35 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
       reserveB: reserveB
     });
     
-    // Primero verificamos si hay registros más antiguos antes de guardar el nuevo
+    // First check if there are older records before saving the new one
     if (existingSyncs) {
           const oldDate = new Date(existingSyncs.date);
           
           if (oldDate < currentDate) {
-            logger.info(`🗑️ Eliminando sync antiguo del contrato ${existingSyncs.id} con fecha ${oldDate}`);
+            logger.info(`🗑️ Deleting old sync from contract ${existingSyncs.id} with date ${oldDate}`);
             await Sync.remove(existingSyncs.id);
           } else {
-            logger.info(`⏭️ El sync existente es más reciente (${oldDate}), no se actualiza`);
-            return; // Salimos sin guardar el nuevo sync
+            logger.info(`⏭️ Existing sync is more recent (${oldDate}), not updating`);
+            return; // Exit without saving new sync
           }
         }
       
-    
-    
-    // Si llegamos aquí, guardamos el nuevo sync
+    // If we get here, save the new sync
     await newSync.save();
-    logger.info(`✨ Actualizado sync para contrato ${address} con fecha ${currentDate}`);
+    logger.info(`✨ Updated sync for contract ${address} with date ${currentDate}`);
     
   } catch (error) {
-    logger.error(`❌ Error procesando sync event: ${error}`);
+    logger.error(`❌ Error processing sync event: ${error}`);
     throw error;
   }
 }
 
 export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
     logger.info(
-        `Nuevo evento NewPair encontrado en el bloque ${event.ledger.sequence.toString()}`
+        `New NewPair event found at block ${event.ledger.sequence.toString()}`
     );
     logger.info("🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴");
-    logger.info("🔵 Entrando al event NewPair")
+    logger.info("🔵 Entering NewPair event")
     let eventJson = JSON.stringify(event);
     logger.info(JSON.stringify(event));
     logger.info("🔵🔵")
@@ -111,7 +107,7 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
     try {
         const { tokenA, tokenB, address, newPairsLength } = extractValuesNewPair(JSON.parse(JSON.stringify(event)));
 
-        // Crear el nuevo registro
+        // Create new register
         const newPairEvent = NewPair.create({
             id: event.id,
             ledger: event.ledger.sequence,
@@ -123,10 +119,10 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
         });
 
         await newPairEvent.save();
-        logger.info(`✅ Nuevo par guardado: ${address} (${tokenA} - ${tokenB})`);
+        logger.info(`✅ New pair saved: ${address} (${tokenA} - ${tokenB})`);
 
     } catch (error) {
-        logger.error(`❌ Error procesando evento NewPair: ${error}`);
+        logger.error(`❌ Error processing NewPair event: ${error}`);
         throw error;
     }
 }
@@ -134,25 +130,25 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
 //######################### HELPERS #########################
 
 async function initializeSync(): Promise<void> {
-  logger.info("🚀 Inicializando datos de sync...");
+  logger.info("🚀 Initializing sync data...");
   const failedPools: string[] = [];
   
   try {
       for (const [index, contractId] of poolsList.entries()) {
           try {
-              // Verificar si ya existe un sync para este contrato
+              // Check if there is a sync for this contract
               const existingSync = await Sync.get(contractId);
               if (!existingSync) {
-                  logger.info(`📊 Procesando pool ${index + 1}/${poolsList.length}: ${contractId}`);
+                  logger.info(`📊 Processing pool ${index + 1}/${poolsList.length}: ${contractId}`);
                   
-                  // Obtener reservas actuales
+                  // Get current reserves
                   const [reserve0, reserve1] = await getPoolReserves(contractId);
                   
                   if (reserve0 === BigInt(0) && reserve1 === BigInt(0)) {
                       failedPools.push(contractId);
                   }
                   
-                  // Crear un sync inicial
+                  // Create initial sync
                   const newSync = Sync.create({
                       id: contractId,
                       ledger: 55735990 + index,
@@ -163,53 +159,53 @@ async function initializeSync(): Promise<void> {
                   });
                   
                   await newSync.save();
-                  logger.info(`✨ Sync inicial creado para contrato ${contractId}`);
+                  logger.info(`✨ Initial sync created for contract ${contractId}`);
                   
-                  // Pequeña pausa entre cada pool
+                  // Small pause between each pool
                   await new Promise(resolve => setTimeout(resolve, 1000));
               }
           } catch (error) {
-              logger.error(`❌ Error inicializando sync para ${contractId}: ${error}`);
+              logger.error(`❌ Error initializing sync for ${contractId}: ${error}`);
               failedPools.push(contractId);
           }
       }
       
-      // Resumen final
-      logger.info("\n📊 Resumen de la inicialización:");
-      logger.info(`✅ Pools procesados exitosamente: ${poolsList.length - failedPools.length}`);
+      // Final summary
+      logger.info("\n📊 Summary of initialization:");
+      logger.info(`✅ Pools processed successfully: ${poolsList.length - failedPools.length}`);
       if (failedPools.length > 0) {
-          logger.info(`❌ Pools con errores (${failedPools.length}):`);
+          logger.info(`❌ Pools with errors (${failedPools.length}):`);
           failedPools.forEach(pool => logger.info(`   - ${pool}`));
       }
       
   } catch (error) {
-      logger.error("❌ Error general en inicialización:", error);
+      logger.error("❌ General error in initialization:", error);
       throw error;
   }
   
-  logger.info("✅ Inicialización completada");
+  logger.info("✅ Initialization completed");
 }
 
-// Función modificada para obtener las reservas desde poolRsvList
+// Modified function to get reserves from poolRsvList
 async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
     try {
-        // Buscar el pool en la lista de reservas
+        // Search for the pool in the reserves list
         const pool = poolReservesList.find(p => p.contract === contractId);
         
         if (!pool) {
-            logger.warn(`⚠️ No se encontraron reservas para el pool ${contractId} en poolRsvList`);
+            logger.warn(`⚠️ No reserves found for pool ${contractId} in poolRsvList`);
             return [BigInt(0), BigInt(0)];
         }
 
-        logger.info(`✅ Reservas encontradas para ${contractId}:`);
+        logger.info(`✅ Reserves found for ${contractId}:`);
         logger.info(`Reserve0: ${pool.reserve0}`);
         logger.info(`Reserve1: ${pool.reserve1}`);
 
         return [BigInt(pool.reserve0), BigInt(pool.reserve1)];
         
     } catch (error) {
-        logger.error(`❌ Error obteniendo reservas para ${contractId}: ${error}`);
-        logger.warn(`⚠️ Usando valores por defecto para el pool ${contractId}`);
+        logger.error(`❌ Error getting reserves for ${contractId}: ${error}`);
+        logger.warn(`⚠️ Using default values for pool ${contractId}`);
         
         return [BigInt(0), BigInt(0)];
     }
@@ -219,66 +215,66 @@ interface ReservesResult {
   reserveA: bigint;
   reserveB: bigint;
 }
-// Extraer reservas de un evento de sync y las parsear a bigint
+// Extract reserves from a sync event and parse to bigint
 
 function extractReserves(event: any): ReservesResult {
     let reserveA = BigInt(0);
     let reserveB = BigInt(0);
 
-    // Verificar si tenemos la estructura correcta
+    // Check if we have the correct structure
     const values = event?.value?._value;
     if (!Array.isArray(values)) {
-        logger.error('No se encontró el array de valores');
+        logger.error('No reserves found');
         return { 
             reserveA, 
             reserveB 
         };
     }
 
-    logger.info("\n🟣🟣🟣🟣 Procesando reservas en extractReseves:");
+    logger.info("\n🟣🟣🟣🟣 Processing reserves in extractReseves:");
     values.forEach((entry: any) => {
         try {
-            logger.info("\n--- Procesando entrada ---");
+            logger.info("\n--- Processing entry ---");
             
-            // Mostrar entrada completa
-            logger.info("🔵🔵🔵 entry separado:");
+            // Show full entry
+            logger.info("🔵🔵🔵 entry separated:");
             logger.info(JSON.stringify(entry));
 
-            // Obtener y mostrar la key como buffer y texto
+            // Get and show the key as buffer and text
             const keyBuffer = entry?._attributes?.key?._value?.data;
             if (!keyBuffer) {
-                logger.info("❌ No se encontró keyBuffer");
+                logger.info("❌ No keyBuffer found");
                 return;
             }
             const keyText = Buffer.from(keyBuffer).toString();
             logger.info('Key (Buffer):'+ JSON.stringify(entry._attributes.key));
             logger.info('Key (Text):' + keyText);
 
-            // Obtener y mostrar el valor completo y sus detalles
+            // Get and show the full value and its details
             const value = entry?._attributes?.val?._value?._attributes?.lo?._value;
             logger.info('Val lo details:'+ JSON.stringify(entry._attributes.val._value._attributes.lo));
             
             if (!value) {
-                logger.info("❌ No se encontró valor");
+                logger.info("❌ No value found");
                 return;
             }
 
-            logger.info('✅ Valor final encontrado:' + value);
+            logger.info('✅ Final value found:' + value);
 
-            // Asignar el valor según la key
+            // Assign the value according to the key
             if (keyText === 'new_reserve_0') {
                 reserveA = BigInt(value);
-                logger.info('→ Actualizado reserveA:' + reserveA.toString());
+                logger.info('→ Updated reserveA:' + reserveA.toString());
             } else if (keyText === 'new_reserve_1') {
                 reserveB = BigInt(value);
-                logger.info('→ Actualizado reserveB:' + reserveB.toString());
+                logger.info('→ Updated reserveB:' + reserveB.toString());
             }
         } catch (error) {
-            logger.warn('❌ Error procesando entrada:', error);
+            logger.warn('❌ Error processing entry:', error);
         }
     });
 
-    logger.info('\n🟣🟣🟣🟣 Resultado final:');
+    logger.info('\n🟣🟣🟣🟣 Final result:');
     logger.info(`reserveA: ${reserveA.toString()}`);
     logger.info(`reserveB: ${reserveB.toString()}`);
 
@@ -299,13 +295,13 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
     let address = '';
     let newPairsLength = 0;
 
-    // Extraer los datos del evento
+    // Extract the data from the event
     const eventJson = JSON.stringify(event);
     const eventParse = JSON.parse(eventJson);
     const values = eventParse?.value?._value;
 
     if (!Array.isArray(values)) {
-        logger.error('❌ No se encontró el array de valores en el evento NewPair');
+        logger.error('❌ No values array found in NewPair event');
         return {
             tokenA,
             tokenB,
@@ -314,13 +310,13 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
         };
     }
 
-    logger.info("\n🟣🟣🟣🟣 Procesando evento NewPair:");
+    logger.info("\n🟣🟣🟣🟣 Processing NewPair event:");
 
     values.forEach((entry: any) => {
         try {
             const keyBuffer = entry?._attributes?.key?._value?.data;
             if (!keyBuffer) {
-                logger.info("❌ No se encontró keyBuffer");
+                logger.info("❌ No keyBuffer found");
                 return;
             }
 
@@ -357,24 +353,24 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
                     break;
                 case 'new_pairs_length':
                     newPairsLength = parseInt(entry?._attributes?.val?._value || '0');
-                    logger.info('→ Longitud de nuevos pares actualizada:', newPairsLength);
+                    logger.info('→ New pairs length updated:', newPairsLength);
                     break;
                 default:
-                    logger.info('⏩ Key no reconocida:', keyText);
+                    logger.info('⏩ Unrecognized key:', keyText);
             }
         } catch (error) {
-            logger.warn('❌ Error procesando entrada:', error);
+            logger.warn('❌ Error processing entry:', error);
         }
     });
 
-    logger.info('\n🟣🟣🟣🟣 Resultado final:');
+    logger.info('\n🟣🟣🟣🟣 Final result:');
     logger.info(`Token A: ${tokenA}`);
     logger.info(`Token B: ${tokenB}`);
-    logger.info(`Dirección del par: ${address}`);
-    logger.info(`Nuevos pares length: ${newPairsLength}`);
+    logger.info(`Pair address: ${address}`);
+    logger.info(`New pairs length: ${newPairsLength}`);
 
     if (!tokenA || !tokenB || !address || !newPairsLength) {
-        logger.error('❌ Datos incompletos en el evento NewPair');
+        logger.error('❌ Incomplete data in NewPair event');
     }
 
     return {
