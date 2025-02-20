@@ -22,20 +22,18 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
   logger.info(
     `New sync event found at block ${event.ledger.sequence.toString()}`
   );
+    logger.info("🔵🔵🔵🔵 Entering sync event")
    // Debug log
     
-    logger.info("🔵 Entering sync event")
-    let eventJson = JSON.stringify(event);
-    logger.info("🔵🔵")
-    let eventParse = JSON.parse(eventJson);
-    logger.info("eventParse: " + eventParse);
-
-  logger.info("🔴🔴")
-
+    // let eventJson = JSON.stringify(event);
+    // logger.info("🔵🔵")
+    // let eventParse = JSON.parse(eventJson);
+    // logger.info("eventParse: " + eventParse);
+    // logger.info("🔵🔵")
   // Check if contract is in tokens list
   const address = event.contractId?.contractId().toString();
   if (!address || !poolsList.includes(address)) {
-    logger.info(`🔴🔴 Error: Contract ${address} is not in allowed tokens list`);
+    logger.info(`🔴🔴🔴🔴 Error: Contract ${address} is not in allowed tokens list`);
     return;
   }
 
@@ -45,11 +43,11 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
     
     // Find all existing syncs for this contract
     const existingSyncs = await Sync.get(address);
-
+    // debug log
     logger.info("existingSyncs: " + existingSyncs);
-    logger.info("🔴🔴");
+    logger.info("🔵🔵");
     logger.info(existingSyncs);
-    logger.info("🔴🔴");
+    logger.info("🔵🔵");
     const currentDate = new Date(event.ledgerClosedAt);
     
     // Create new sync
@@ -70,7 +68,7 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
             logger.info(`🗑️ Deleting old sync from contract ${existingSyncs.id} with date ${oldDate}`);
             await Sync.remove(existingSyncs.id);
           } else {
-            logger.info(`⏭️ Existing sync is more recent (${oldDate}), not updating`);
+            logger.info(`⏭️ Existing sync is more recent (${oldDate}), NOT updating`);
             return; // Exit without saving new sync
           }
         }
@@ -80,7 +78,7 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
     logger.info(`✨ Updated sync for contract ${address} with date ${currentDate}`);
     
   } catch (error) {
-    logger.error(`❌ Error processing sync event: ${error}`);
+    logger.error(`❌🔴🔴 Error processing sync event: ${error}`);
     throw error;
   }
 }
@@ -89,7 +87,8 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
     logger.info(
         `New NewPair event found at block ${event.ledger.sequence.toString()}`
     );
-    logger.info("🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴");
+    // debug log    
+    logger.info("🔵🔵🔵🔵");
     logger.info("🔵 Entering NewPair event")
     let eventJson = JSON.stringify(event);
     logger.info(JSON.stringify(event));
@@ -101,8 +100,7 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
     logger.info("🔵🔵🔵🔵")
     let eventParse = JSON.parse(eventJson);
     logger.info(`eventParse: ${eventParse}`);
-
-    logger.info("🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴");
+    logger.info("🔵🔵🔵🔵");
 
     try {
         const { tokenA, tokenB, address, newPairsLength } = extractValuesNewPair(JSON.parse(JSON.stringify(event)));
@@ -122,7 +120,7 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
         logger.info(`✅ New pair saved: ${address} (${tokenA} - ${tokenB})`);
 
     } catch (error) {
-        logger.error(`❌ Error processing NewPair event: ${error}`);
+        logger.error(`❌🔴🔴 Error processing NewPair event: ${error}`);
         throw error;
     }
 }
@@ -165,7 +163,7 @@ async function initializeSync(): Promise<void> {
                   await new Promise(resolve => setTimeout(resolve, 1000));
               }
           } catch (error) {
-              logger.error(`❌ Error initializing sync for ${contractId}: ${error}`);
+              logger.error(`❌🔴🔴 Error initializing sync for ${contractId}: ${error}`);
               failedPools.push(contractId);
           }
       }
@@ -174,12 +172,12 @@ async function initializeSync(): Promise<void> {
       logger.info("\n📊 Summary of initialization:");
       logger.info(`✅ Pools processed successfully: ${poolsList.length - failedPools.length}`);
       if (failedPools.length > 0) {
-          logger.info(`❌ Pools with errors (${failedPools.length}):`);
+          logger.info(`❌🔴🔴 Pools with errors (${failedPools.length}):`);
           failedPools.forEach(pool => logger.info(`   - ${pool}`));
       }
       
   } catch (error) {
-      logger.error("❌ General error in initialization:", error);
+      logger.error("❌🔴🔴 General error in initialization:", error);
       throw error;
   }
   
@@ -204,7 +202,7 @@ async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
         return [BigInt(pool.reserve0), BigInt(pool.reserve1)];
         
     } catch (error) {
-        logger.error(`❌ Error getting reserves for ${contractId}: ${error}`);
+        logger.error(`❌🔴🔴 Error getting reserves for ${contractId}: ${error}`);
         logger.warn(`⚠️ Using default values for pool ${contractId}`);
         
         return [BigInt(0), BigInt(0)];
@@ -237,13 +235,13 @@ function extractReserves(event: any): ReservesResult {
             logger.info("\n--- Processing entry ---");
             
             // Show full entry
-            logger.info("🔵🔵🔵 entry separated:");
-            logger.info(JSON.stringify(entry));
+            logger.info("🟣🟣🟣🟣 entry separated:");
+            //logger.info(JSON.stringify(entry));
 
             // Get and show the key as buffer and text
             const keyBuffer = entry?._attributes?.key?._value?.data;
             if (!keyBuffer) {
-                logger.info("❌ No keyBuffer found");
+                logger.info("❌🔴🔴 No keyBuffer found");
                 return;
             }
             const keyText = Buffer.from(keyBuffer).toString();
@@ -255,7 +253,7 @@ function extractReserves(event: any): ReservesResult {
             logger.info('Val lo details:'+ JSON.stringify(entry._attributes.val._value._attributes.lo));
             
             if (!value) {
-                logger.info("❌ No value found");
+                logger.info("❌🔴🔴 No value found");
                 return;
             }
 
@@ -270,10 +268,10 @@ function extractReserves(event: any): ReservesResult {
                 logger.info('→ Updated reserveB:' + reserveB.toString());
             }
         } catch (error) {
-            logger.warn('❌ Error processing entry:', error);
+            logger.warn('❌🔴🔴 Error processing entry:', error);
         }
     });
-
+    // debug log
     logger.info('\n🟣🟣🟣🟣 Final result:');
     logger.info(`reserveA: ${reserveA.toString()}`);
     logger.info(`reserveB: ${reserveB.toString()}`);
@@ -301,7 +299,7 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
     const values = eventParse?.value?._value;
 
     if (!Array.isArray(values)) {
-        logger.error('❌ No values array found in NewPair event');
+        logger.error('❌🔴🔴 No values array found in NewPair event');
         return {
             tokenA,
             tokenB,
@@ -316,7 +314,7 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
         try {
             const keyBuffer = entry?._attributes?.key?._value?.data;
             if (!keyBuffer) {
-                logger.info("❌ No keyBuffer found");
+                logger.info("❌🔴🔴 No keyBuffer found");
                 return;
             }
 
@@ -356,21 +354,21 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
                     logger.info('→ New pairs length updated:', newPairsLength);
                     break;
                 default:
-                    logger.info('⏩ Unrecognized key:', keyText);
+                    logger.info('⏩🔴🔴 Unrecognized key:', keyText);
             }
         } catch (error) {
-            logger.warn('❌ Error processing entry:', error);
+            logger.warn('❌🔴🔴 Error processing entry:', error);
         }
     });
-
-    logger.info('\n🟣🟣🟣🟣 Final result:');
-    logger.info(`Token A: ${tokenA}`);
-    logger.info(`Token B: ${tokenB}`);
-    logger.info(`Pair address: ${address}`);
-    logger.info(`New pairs length: ${newPairsLength}`);
+    // debug log
+    // logger.info('\n🟣🟣🟣🟣 Final result:');
+    // logger.info(`Token A: ${tokenA}`);
+    // logger.info(`Token B: ${tokenB}`);
+    // logger.info(`Pair address: ${address}`);
+    // logger.info(`New pairs length: ${newPairsLength}`);
 
     if (!tokenA || !tokenB || !address || !newPairsLength) {
-        logger.error('❌ Incomplete data in NewPair event');
+        logger.error('❌🔴🔴 Incomplete data in NewPair event');
     }
 
     return {
