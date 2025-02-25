@@ -27,6 +27,7 @@ docker stop $(docker ps -aq)
 
 2. Run all docker containers
 ```bash
+source .env
 docker compose up
 ```
 Dev mod

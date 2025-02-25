@@ -37,7 +37,7 @@
     "soroban-toolkit": "^0.1.5"
   },
   "devDependencies": {
-    "@subql/cli": "latest",
+    "@subql/cli": "5.7.0",
     "@subql/testing": "latest",
     "@subql/types": "^3.11.5",
     "@types/node": "^22.13.1",
