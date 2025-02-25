@@ -1,6 +1,6 @@
 # Soroswap SubQuery Project
 
-A [SubQuery](https://subquery.network) indexer implementation for the Soroswap project on Stellar Soroban. SubQuery is a flexible, and reliable open-source data indexer that provides custom APIs for web3 projects.
+A [SubQuery](https://subquery.network) indexer implementation for the Soroswap project on Stellar Soroban. SubQuery is a flexible and reliable open-source data indexer that provides custom APIs for web3 projects.
 
 #### Prerequisites
 

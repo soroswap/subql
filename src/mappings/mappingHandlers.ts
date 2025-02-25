@@ -1,123 +1,96 @@
-import { Sync } from "../types";
+//import { Sync } from "../types";
 import {
   SorobanEvent,
 } from "@subql/types-stellar";
 import { poolsList } from "./poolsList";
 import { config } from 'dotenv';
 import { poolReservesList } from "./poolRsvList";
-import { NewPair } from "../types";
+//import { NewPair } from "../types";
 import { StrKey } from '@stellar/stellar-sdk';
+import { pairTokenReservesList } from "./pairTokenRsv";
+import { Pair } from "../types";
 
 config();
 
-let initialized = false;
+let initializedSync = false;
+let initializedNewPair = false;
 
 // SYNC EVENTS
 export async function handleEventSync(event: SorobanEvent): Promise<void> {
-    if (!initialized) {
+    if (!initializedSync) {
         await initializeSync();
-        initialized = true;
+        initializedSync = true;
     }
 
-  logger.info(
-    `New sync event found at block ${event.ledger.sequence.toString()}`
-  );
-    logger.info("🔵🔵🔵🔵 Entering sync event")
-   // Debug log
-    
-    // let eventJson = JSON.stringify(event);
-    // logger.info("🔵🔵")
-    // let eventParse = JSON.parse(eventJson);
-    // logger.info("eventParse: " + eventParse);
-    // logger.info("🔵🔵")
-  // Check if contract is in tokens list
-  const address = event.contractId?.contractId().toString();
-  if (!address || !poolsList.includes(address)) {
-    logger.info(`🔴🔴🔴🔴 Error: Contract ${address} is not in allowed tokens list`);
-    return;
-  }
+    const address = event.contractId?.contractId().toString();
+    if (!address || !poolsList.includes(address)) {
+        logger.info(`🔴🔴🔴🔴 Error: Contract ${address} is not in allowed tokens list`);
+        return;
+    }
 
-  try { 
-    // Extract reserves first
-    const { reserveA, reserveB } = extractReserves(JSON.parse(JSON.stringify(event)));
-    
-    // Find all existing syncs for this contract
-    const existingSyncs = await Sync.get(address);
-    // debug log
-    logger.info("existingSyncs: " + existingSyncs);
-    logger.info("🔵🔵");
-    logger.info(existingSyncs);
-    logger.info("🔵🔵");
-    const currentDate = new Date(event.ledgerClosedAt);
-    
-    // Create new sync
-    const newSync = Sync.create({
-      id: address,
-      ledger: event.ledger.sequence,
-      date: currentDate,
-      address: address,
-      reserveA: reserveA,
-      reserveB: reserveB
-    });
-    
-    // First check if there are older records before saving the new one
-    if (existingSyncs) {
-          const oldDate = new Date(existingSyncs.date);
-          
-          if (oldDate < currentDate) {
-            logger.info(`🗑️ Deleting old sync from contract ${existingSyncs.id} with date ${oldDate}`);
-            await Sync.remove(existingSyncs.id);
-          } else {
-            logger.info(`⏭️ Existing sync is more recent (${oldDate}), NOT updating`);
-            return; // Exit without saving new sync
-          }
+    try { 
+        const { reserveA, reserveB } = extractReserves(JSON.parse(JSON.stringify(event)));
+        
+        // Buscar el par existente
+        const pair = await Pair.get(address);
+        if (!pair) {
+            logger.error(`No se encontró el par para la dirección ${address}`);
+            return;
         }
-      
-    // If we get here, save the new sync
-    await newSync.save();
-    logger.info(`✨ Updated sync for contract ${address} with date ${currentDate}`);
-    
-  } catch (error) {
-    logger.error(`❌🔴🔴 Error processing sync event: ${error}`);
-    throw error;
-  }
+
+        const currentDate = new Date(event.ledgerClosedAt);
+        if (new Date(pair.date) > currentDate) {
+            logger.info(`⏭️ Existing data is more recent, NOT updating`);
+            return;
+        }
+
+        // Actualizar solo las reservas y la fecha
+        pair.reserveA = reserveA;
+        pair.reserveB = reserveB;
+        pair.date = currentDate;
+        pair.ledger = event.ledger.sequence;
+
+        await pair.save();
+        logger.info(`✨ Updated reserves for pair ${address}`);
+        
+    } catch (error) {
+        logger.error(`❌🔴🔴 Error processing sync event: ${error}`);
+        throw error;
+    }
 }
 
 export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
-    logger.info(
-        `New NewPair event found at block ${event.ledger.sequence.toString()}`
-    );
-    logger.info("🔵🔵🔵🔵 Entering NewPair event")
-    // debug log    
-    // logger.info("🔵🔵🔵🔵");
-    // let eventJson = JSON.stringify(event);
-    // logger.info(JSON.stringify(event));
-    // logger.info("🔵🔵")
-    // //logger.info("eventJson: " + eventJson);
-    // logger.info("🔵🔵")
-    // let eventValue = JSON.stringify(event.value);
-    // logger.info("eventValue: " + eventValue);
-    // logger.info("🔵🔵🔵🔵")
-    // let eventParse = JSON.parse(eventJson);
-    // logger.info(`eventParse: ${eventParse}`);
-    // logger.info("🔵🔵🔵🔵");
+    if (!initializedNewPair) {
+        await initializeNewPair();
+        initializedNewPair = true;
+    }
 
     try {
         const { tokenA, tokenB, address, newPairsLength } = extractValuesNewPair(JSON.parse(JSON.stringify(event)));
 
-        // Create new register
-        const newPairEvent = NewPair.create({
-            id: event.id,
+        // Crear nuevo par o actualizar si existe
+        const existingPair = await Pair.get(address);
+        const currentDate = new Date(event.ledgerClosedAt);
+
+        if (existingPair && new Date(existingPair.date) > currentDate) {
+            logger.info(`⏭️ Existing pair data is more recent, NOT updating`);
+            return;
+        }
+
+        const pair = Pair.create({
+            id: address,
             ledger: event.ledger.sequence,
-            date: new Date(event.ledgerClosedAt),
+            date: currentDate,
             tokenA: tokenA,
             tokenB: tokenB,
             address: address,
-            newPairsLength: newPairsLength
+            newPairsLength: newPairsLength,
+            reserveA: existingPair ? existingPair.reserveA : BigInt(0),
+            reserveB: existingPair ? existingPair.reserveB : BigInt(0)
         });
 
-        await newPairEvent.save();
-        logger.info(`✅ New pair saved: ${address} (${tokenA} - ${tokenB})`);
+        await pair.save();
+        logger.info(`✅ Pair ${address} created/updated`);
 
     } catch (error) {
         logger.error(`❌🔴🔴 Error processing NewPair event: ${error}`);
@@ -128,60 +101,40 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
 //######################### HELPERS #########################
 
 async function initializeSync(): Promise<void> {
-  logger.info("🚀 Initializing sync data...");
-  const failedPools: string[] = [];
-  
-  try {
-      for (const [index, contractId] of poolsList.entries()) {
-          try {
-              // Check if there is a sync for this contract
-              const existingSync = await Sync.get(contractId);
-              if (!existingSync) {
-                  logger.info(`📊 Processing pool ${index + 1}/${poolsList.length}: ${contractId}`);
-                  
-                  // Get current reserves
-                  const [reserve0, reserve1] = await getPoolReserves(contractId);
-                  
-                  if (reserve0 === BigInt(0) && reserve1 === BigInt(0)) {
-                      failedPools.push(contractId);
-                  }
-                  
-                  // Create initial sync
-                  const newSync = Sync.create({
-                      id: contractId,
-                      ledger: 55735990 + index,
-                      date: new Date(Date.now()),
-                      address: contractId,
-                      reserveA: reserve0,
-                      reserveB: reserve1
-                  });
-                  
-                  await newSync.save();
-                  logger.info(`✨ Initial sync created for contract ${contractId}`);
-                  
-                  // Small pause between each pool
-                  await new Promise(resolve => setTimeout(resolve, 1000));
-              }
-          } catch (error) {
-              logger.error(`❌🔴🔴 Error initializing sync for ${contractId}: ${error}`);
-              failedPools.push(contractId);
-          }
-      }
-      
-      // Final summary
-      logger.info("\n📊 Summary of initialization:");
-      logger.info(`✅ Pools processed successfully: ${poolsList.length - failedPools.length}`);
-      if (failedPools.length > 0) {
-          logger.info(`❌🔴🔴 Pools with errors (${failedPools.length}):`);
-          failedPools.forEach(pool => logger.info(`   - ${pool}`));
-      }
-      
-  } catch (error) {
-      logger.error("❌🔴🔴 General error in initialization:", error);
-      throw error;
-  }
-  
-  logger.info("✅ Initialization completed");
+    logger.info("🚀 Initializing pairs with reserves...");
+    
+    try {
+        for (const [index, contractId] of poolsList.entries()) {
+            try {
+                const existingPair = await Pair.get(contractId);
+                if (!existingPair) {
+                    logger.info(`📊 Processing pool ${index + 1}/${poolsList.length}: ${contractId}`);
+                    
+                    const [reserve0, reserve1] = await getPoolReserves(contractId);
+                    
+                    const pair = Pair.create({
+                        id: contractId,
+                        ledger: 55735990 + index,
+                        date: new Date(Date.now()),
+                        address: contractId,
+                        tokenA: "", // Se actualizará con NewPair
+                        tokenB: "", // Se actualizará con NewPair
+                        newPairsLength: 0,
+                        reserveA: reserve0,
+                        reserveB: reserve1
+                    });
+                    
+                    await pair.save();
+                    logger.info(`✨ Initial pair created with reserves for ${contractId}`);
+                }
+            } catch (error) {
+                logger.error(`❌ Error initializing pair ${contractId}: ${error}`);
+            }
+        }
+    } catch (error) {
+        logger.error("❌ General error in initialization:", error);
+        throw error;
+    }
 }
 
 // Modified function to get reserves from poolRsvList
@@ -378,6 +331,62 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
         newPairsLength
     };
 }
+
+async function initializeNewPair(): Promise<void> {
+    logger.info("🚀 Initializing NewPair data...");
+    const failedPairs: string[] = [];
+    
+    try {
+        // Iteramos sobre la lista de pares del archivo pairTokenRsv.ts
+        for (const [index, pair] of pairTokenReservesList.entries()) {
+            try {
+                // Verificamos si ya existe un registro para este par
+                const existingPair = await Pair.get(pair.address);
+                
+                if (!existingPair) {
+                    logger.info(`📊 Processing pair ${index + 1}/${pairTokenReservesList.length}: ${pair.address}`);
+                    
+                    // Creamos el registro inicial
+                    const newPairEvent = Pair.create({
+                        id: pair.address,
+                        ledger: 55735990 + index,
+                        date: new Date(Date.now()),
+                        tokenA: pair.token_a,
+                        tokenB: pair.token_b,
+                        address: pair.address,
+                        newPairsLength: index + 1,
+                        reserveA: BigInt(pair.reserve_a),
+                        reserveB: BigInt(pair.reserve_b)
+                    });
+                    
+                    await newPairEvent.save();
+                    logger.info(`✨ Initial NewPair created for contract ${pair.address}`);
+                    
+                    // Pequeña pausa entre cada par
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            } catch (error) {
+                logger.error(`❌🔴🔴 Error initializing NewPair for ${pair.address}: ${error}`);
+                failedPairs.push(pair.address);
+            }
+        }
+        
+        // Resumen final
+        logger.info("\n📊 Summary of NewPair initialization:");
+        logger.info(`✅ Pairs processed successfully: ${pairTokenReservesList.length - failedPairs.length}`);
+        if (failedPairs.length > 0) {
+            logger.info(`❌🔴🔴 Pairs with errors (${failedPairs.length}):`);
+            failedPairs.forEach(pair => logger.info(`   - ${pair}`));
+        }
+        
+    } catch (error) {
+        logger.error("❌🔴🔴 General error in NewPair initialization:", error);
+        throw error;
+    }
+    
+    logger.info("✅ NewPair initialization completed");
+}
+
 // async function checkAndGetAccount(
 //   id: string,
 //   ledgerSequence: number

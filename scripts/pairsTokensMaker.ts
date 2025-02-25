@@ -26,33 +26,36 @@ async function retry<T>(
 
 const FACTORY_CONTRACT = 'CA4HEQTL2WPEUYKYKCDOHCDNIV4QHNJ7EL4J4NQ6VADP7SYHVRYZ7AW2';
 
+// Add this at the top level of the file
+const mainnet = {
+    network: "mainnet",
+    friendbotUrl: "",
+    horizonRpcUrl: process.env.HORIZON_ENDPOINT as string,
+    sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
+    networkPassphrase: process.env.CHAIN_ID as string
+}    
+
+const sorobanToolkit = createToolkit({
+    adminSecret: process.env.SECRET_KEY_HELPER as string,
+    contractPaths: {},
+    addressBookPath: "",
+    customNetworks: [mainnet],
+    verbose: "full"
+});
+
+// Create a single instance of networkToolkit
+const networkToolkit = sorobanToolkit.getNetworkToolkit("mainnet");
+
 async function getAllPairsLength(): Promise<number> {
     try {
-        const mainnet = {
-            network: "mainnet",
-            friendbotUrl: "",
-            horizonRpcUrl: process.env.HORIZON_ENDPOINT as string,
-            sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
-            networkPassphrase: process.env.CHAIN_ID as string
-        }    
-
-        const sorobanToolkit = createToolkit({
-            adminSecret: process.env.SECRET_KEY_HELPER as string,
-            contractPaths: {},
-            addressBookPath: "",
-            customNetworks: [mainnet],
-            verbose: "full"
-        });
-            
         const result = await invokeCustomContract(
-            sorobanToolkit.getNetworkToolkit("mainnet"),
+            networkToolkit,
             FACTORY_CONTRACT,
             'all_pairs_length',
             [],
             true,
             Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
         );
-
         return Number(scValToNative(result.result.retval));
     } catch (error) {
         console.error('❌ Error getting total number of pairs:', error);
@@ -62,31 +65,14 @@ async function getAllPairsLength(): Promise<number> {
 
 async function getPairAddress(index: number): Promise<string> {
     try {
-        const mainnet = {
-            network: "mainnet",
-            friendbotUrl: "",
-            horizonRpcUrl: process.env.HORIZON_ENDPOINT as string,
-            sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
-            networkPassphrase: process.env.CHAIN_ID as string
-        }    
-
-        const sorobanToolkit = createToolkit({
-            adminSecret: process.env.SECRET_KEY_HELPER as string,
-            contractPaths: {},
-            addressBookPath: "",
-            customNetworks: [mainnet],
-            verbose: "full"
-        });
-            
         const result = await invokeCustomContract(
-            sorobanToolkit.getNetworkToolkit("mainnet"),
+            networkToolkit,
             FACTORY_CONTRACT,
             'all_pairs',
             [xdr.ScVal.scvU32(index)],
             true,
             Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
         );
-
         return scValToNative(result.result.retval);
     } catch (error) {
         console.error(`❌ Error getting pair address ${index}:`, error);
@@ -96,31 +82,14 @@ async function getPairAddress(index: number): Promise<string> {
 
 async function getToken(pairAddress: string, method: 'token_0' | 'token_1'): Promise<string> {
     try {
-        const mainnet = {
-            network: "mainnet",
-            friendbotUrl: "",
-            horizonRpcUrl: process.env.HORIZON_ENDPOINT as string,
-            sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
-            networkPassphrase: process.env.CHAIN_ID as string
-        }    
-
-        const sorobanToolkit = createToolkit({
-            adminSecret: process.env.SECRET_KEY_HELPER as string,
-            contractPaths: {},
-            addressBookPath: "",
-            customNetworks: [mainnet],
-            verbose: "full"
-        });
-            
         const result = await invokeCustomContract(
-            sorobanToolkit.getNetworkToolkit("mainnet"),
+            networkToolkit,
             pairAddress,
             method,
             [],
             true,
             Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
         );
-
         return scValToNative(result.result.retval);
     } catch (error) {
         console.error(`❌ Error getting token (${method}) for pair ${pairAddress}:`, error);
@@ -130,31 +99,14 @@ async function getToken(pairAddress: string, method: 'token_0' | 'token_1'): Pro
 
 async function getPairReserves(pairAddress: string): Promise<[bigint, bigint]> {
     try {
-        const mainnet = {
-            network: "mainnet",
-            friendbotUrl: "",
-            horizonRpcUrl: process.env.HORIZON_ENDPOINT as string,
-            sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
-            networkPassphrase: process.env.CHAIN_ID as string
-        }    
-
-        const sorobanToolkit = createToolkit({
-            adminSecret: process.env.SECRET_KEY_HELPER as string,
-            contractPaths: {},
-            addressBookPath: "",
-            customNetworks: [mainnet],
-            verbose: "full"
-        });
-            
         const result = await invokeCustomContract(
-            sorobanToolkit.getNetworkToolkit("mainnet"),
+            networkToolkit,
             pairAddress,
             'get_reserves',
             [],
             true,
             Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
         );
-
         const [reserve0, reserve1] = scValToNative(result.result.retval);
         return [BigInt(reserve0), BigInt(reserve1)];
     } catch (error) {

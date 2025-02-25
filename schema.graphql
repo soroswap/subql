@@ -2,21 +2,17 @@
 # Add the `@index` or `@index(unique: true)` annotation after any non-key field
 # https://academy.subquery.network/build/graphql.html#indexing-by-non-primary-key-field
 
-type Sync @entity {
-  id: ID! # Este será el address del par
-  ledger: Int!
-  date: Date!
-  address: String! @index
-  reserveA: BigInt!
-  reserveB: BigInt!
-}
-
-type NewPair @entity {
-  id: ID! # Este será el hash del evento
+"""
+Pair entity: Stores pair data and current reserves
+"""
+type Pair @entity {
+  id: ID! # Contract address
   ledger: Int!
   date: Date!
   tokenA: String! @index
   tokenB: String! @index
   address: String! @index
   newPairsLength: Int!
+  reserveA: BigInt!
+  reserveB: BigInt!
 }
