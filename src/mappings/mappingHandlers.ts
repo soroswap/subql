@@ -12,14 +12,13 @@ import { Pair } from "../types";
 
 config();
 
-let initializedSync = false;
-let initializedNewPair = false;
+let initialized = false;
 
 // SYNC EVENTS
 export async function handleEventSync(event: SorobanEvent): Promise<void> {
-    if (!initializedSync) {
-        await initializeSync();
-        initializedSync = true;
+    if (!initialized) {
+        await initialize();
+        initialized = true;
     }
 
     const address = event.contractId?.contractId().toString();
@@ -60,9 +59,9 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
 }
 
 export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
-    if (!initializedNewPair) {
-        await initializeNewPair();
-        initializedNewPair = true;
+    if (!initialized) {
+        await initialize();
+        initialized = true;
     }
 
     try {
@@ -100,41 +99,59 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
 
 //######################### HELPERS #########################
 
-async function initializeSync(): Promise<void> {
-    logger.info("🚀 Initializing pairs with reserves...");
+async function initialize(): Promise<void> {
+    logger.info("🚀 Inicializando pares...");
+    const failedPairs: string[] = [];
     
     try {
-        for (const [index, contractId] of poolsList.entries()) {
+        // Iteramos sobre la lista de pares del archivo pairTokenRsv.ts
+        for (const [index, pair] of pairTokenReservesList.entries()) {
             try {
-                const existingPair = await Pair.get(contractId);
+                // Verificamos si ya existe un registro para este par
+                const existingPair = await Pair.get(pair.address);
+                
                 if (!existingPair) {
-                    logger.info(`📊 Processing pool ${index + 1}/${poolsList.length}: ${contractId}`);
+                    logger.info(`📊 Procesando par ${index + 1}/${pairTokenReservesList.length}: ${pair.address}`);
                     
-                    const [reserve0, reserve1] = await getPoolReserves(contractId);
-                    
-                    const pair = Pair.create({
-                        id: contractId,
+                    // Creamos el registro inicial con toda la información
+                    const newPair = Pair.create({
+                        id: pair.address,
                         ledger: 55735990 + index,
                         date: new Date(Date.now()),
-                        address: contractId,
-                        tokenA: "", // Se actualizará con NewPair
-                        tokenB: "", // Se actualizará con NewPair
-                        newPairsLength: 0,
-                        reserveA: reserve0,
-                        reserveB: reserve1
+                        tokenA: pair.token_a,
+                        tokenB: pair.token_b,
+                        address: pair.address,
+                        newPairsLength: index + 1,
+                        reserveA: BigInt(pair.reserve_a),
+                        reserveB: BigInt(pair.reserve_b)
                     });
                     
-                    await pair.save();
-                    logger.info(`✨ Initial pair created with reserves for ${contractId}`);
+                    await newPair.save();
+                    logger.info(`✨ Par inicializado: ${pair.address}`);
+                    
+                    // Pequeña pausa entre cada par
+                    await new Promise(resolve => setTimeout(resolve, 100));
                 }
             } catch (error) {
-                logger.error(`❌ Error initializing pair ${contractId}: ${error}`);
+                logger.error(`❌ Error inicializando par ${pair.address}: ${error}`);
+                failedPairs.push(pair.address);
             }
         }
+        
+        // Resumen final
+        logger.info("\n📊 Resumen de inicialización:");
+        logger.info(`✅ Pares procesados exitosamente: ${pairTokenReservesList.length - failedPairs.length}`);
+        if (failedPairs.length > 0) {
+            logger.info(`❌ Pares con errores (${failedPairs.length}):`);
+            failedPairs.forEach(pair => logger.info(`   - ${pair}`));
+        }
+        
     } catch (error) {
-        logger.error("❌ General error in initialization:", error);
+        logger.error("❌ Error general en la inicialización:", error);
         throw error;
     }
+    
+    logger.info("✅ Inicialización completada");
 }
 
 // Modified function to get reserves from poolRsvList
@@ -332,61 +349,6 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
     };
 }
 
-async function initializeNewPair(): Promise<void> {
-    logger.info("🚀 Initializing NewPair data...");
-    const failedPairs: string[] = [];
-    
-    try {
-        // Iteramos sobre la lista de pares del archivo pairTokenRsv.ts
-        for (const [index, pair] of pairTokenReservesList.entries()) {
-            try {
-                // Verificamos si ya existe un registro para este par
-                const existingPair = await Pair.get(pair.address);
-                
-                if (!existingPair) {
-                    logger.info(`📊 Processing pair ${index + 1}/${pairTokenReservesList.length}: ${pair.address}`);
-                    
-                    // Creamos el registro inicial
-                    const newPairEvent = Pair.create({
-                        id: pair.address,
-                        ledger: 55735990 + index,
-                        date: new Date(Date.now()),
-                        tokenA: pair.token_a,
-                        tokenB: pair.token_b,
-                        address: pair.address,
-                        newPairsLength: index + 1,
-                        reserveA: BigInt(pair.reserve_a),
-                        reserveB: BigInt(pair.reserve_b)
-                    });
-                    
-                    await newPairEvent.save();
-                    logger.info(`✨ Initial NewPair created for contract ${pair.address}`);
-                    
-                    // Pequeña pausa entre cada par
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-            } catch (error) {
-                logger.error(`❌🔴🔴 Error initializing NewPair for ${pair.address}: ${error}`);
-                failedPairs.push(pair.address);
-            }
-        }
-        
-        // Resumen final
-        logger.info("\n📊 Summary of NewPair initialization:");
-        logger.info(`✅ Pairs processed successfully: ${pairTokenReservesList.length - failedPairs.length}`);
-        if (failedPairs.length > 0) {
-            logger.info(`❌🔴🔴 Pairs with errors (${failedPairs.length}):`);
-            failedPairs.forEach(pair => logger.info(`   - ${pair}`));
-        }
-        
-    } catch (error) {
-        logger.error("❌🔴🔴 General error in NewPair initialization:", error);
-        throw error;
-    }
-    
-    logger.info("✅ NewPair initialization completed");
-}
-
 // async function checkAndGetAccount(
 //   id: string,
 //   ledgerSequence: number
@@ -410,3 +372,4 @@ async function initializeNewPair(): Promise<void> {
 //     return Address.contract(scVal.address().contractId()).toString();
 //   }
 // }
+

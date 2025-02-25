@@ -50,7 +50,8 @@ The GraphQL playground will be available at `http://localhost:3000`.
 
 ```graphql
 query GetLatestPairs {
-  newPairs(orderBy: DATE_DESC, first: 10) {
+  pairs (orderBy: DATE_DESC, first: 10) {
+    totalCount
     nodes {
       id
       ledger
@@ -58,23 +59,11 @@ query GetLatestPairs {
       tokenA
       tokenB
       address
-      newPairsLength
-    }
-  }
-}
-query GetSyncByAddress {
-  syncs {
-    nodes {
-      id
-      ledger
-      date
-      address
       reserveA
       reserveB
     }
   }
 }
-
 ```
 
 ----------------
