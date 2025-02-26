@@ -38,7 +38,8 @@ services:
       retries: 5
 
   subquery-node:
-    image: subquerynetwork/subql-node-stellar:latest
+    image: subql-stellar-node-development
+    # image: subquerynetwork/subql-node-stellar:latest
     depends_on:
       postgres:
         condition: service_healthy
@@ -60,9 +61,10 @@ services:
       - -f=/app
       - --db-schema=app
       - --workers=4 # The more the faster
-      - --batch-size=100 # The higher the faster, set low to avoid rate limit on SDF endpoint
+      - --batch-size=50 # The higher the faster, set low to avoid rate limit on SDF endpoint
       - --debug
-      - --log-level=debug 
+      - --log-level=debug
+      - --page-limit=100 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://subquery-node:3000/ready"]
       interval: 3s

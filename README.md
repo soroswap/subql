@@ -26,6 +26,13 @@ docker stop $(docker ps -aq)
 ```
 
 2. Run all docker containers
+if you want recreate table Pair
+```bash
+source .env 
+docker compose up -d app
+docker compose exec app sh -c "yarn install && yarn pairs-rsv"
+```
+Run
 ```bash
 source .env
 docker compose up
@@ -50,15 +57,12 @@ The GraphQL playground will be available at `http://localhost:3000`.
 
 ```graphql
 query GetLatestPairs {
-  pairs (orderBy: DATE_DESC, first: 10) {
+  pairs {
     totalCount
     nodes {
-      id
-      ledger
-      date
+      address
       tokenA
       tokenB
-      address
       reserveA
       reserveB
     }
