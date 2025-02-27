@@ -18,6 +18,7 @@ cp .env.example .env
     Check .env, if STARBLOCK is empty the indexer start from lastledger in mainnet.
 
 1. Reset everything you might have from before
+
 ```bash
 sudo rm -Rf node_modules
 sudo rm -rf .data && sudo rm -rf dist
