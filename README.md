@@ -90,7 +90,7 @@ query GetLatestPairs {
   pairs {
     totalCount
     nodes {
-      address
+      id
       tokenA
       tokenB
       reserveA
