@@ -31,7 +31,7 @@
     "@stellar/stellar-sdk": "^13.1.0",
     "@subql/common": "latest",
     "@subql/types-core": "^2.0.1",
-    "@subql/types-stellar": "latest",
+    "@subql/types-stellar": "4.2.0",
     "@types/pg": "^8.11.11",
     "pg": "^8.13.3",
     "soroban-toolkit": "^0.1.5"
