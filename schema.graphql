@@ -16,3 +16,17 @@ type Pair @entity {
   reserveA: BigInt!
   reserveB: BigInt!
 }
+
+"""
+PairsAqua entity: Stores Aqua swap events
+"""
+type PairsAqua @entity {
+  id: ID! # Transaction hash
+  ledger: Int! @index
+  date: Date! @index
+  user: String! @index
+  tokenIn: String! @index
+  tokenOut: String! @index
+  inAmount: BigInt!
+  outMin: BigInt!
+}
