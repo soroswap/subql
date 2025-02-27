@@ -60,7 +60,7 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
     }
 
     try {
-        const { tokenA, tokenB, address, newPairsLength } = extractValuesNewPair(JSON.parse(JSON.stringify(event)));
+        const { tokenA, tokenB, address } = extractValuesNewPair(JSON.parse(JSON.stringify(event)));
 
         // Crear nuevo par o actualizar si existe
         const existingPair = await Pair.get(address);
@@ -77,8 +77,6 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
             date: currentDate,
             tokenA: tokenA,
             tokenB: tokenB,
-            address: address,
-            newPairsLength: newPairsLength,
             reserveA: existingPair ? existingPair.reserveA : BigInt(0),
             reserveB: existingPair ? existingPair.reserveB : BigInt(0)
         });
@@ -200,8 +198,6 @@ async function initialize(): Promise<void> {
                         date: new Date(Date.now()),
                         tokenA: pair.token_a,
                         tokenB: pair.token_b,
-                        address: pair.address,
-                        newPairsLength: index + 1,
                         reserveA: BigInt(pair.reserve_a),
                         reserveB: BigInt(pair.reserve_b)
                     });
@@ -312,11 +308,10 @@ function hexToSorobanAddress(hexString: string): string {
     return StrKey.encodeContract(buffer);
 }
 
-function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, address: string, newPairsLength: number } {
+function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, address: string } {
     let tokenA = '';
     let tokenB = '';
     let address = '';
-    let newPairsLength = 0;
 
     // Extract the data from the event
     const eventJson = JSON.stringify(event);
@@ -328,8 +323,7 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
         return {
             tokenA,
             tokenB,
-            address,
-            newPairsLength
+            address
         };
     }
 
@@ -374,10 +368,6 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
                         logger.info('→ Par (Soroban):', address);
                     }
                     break;
-                case 'new_pairs_length':
-                    newPairsLength = parseInt(entry?._attributes?.val?._value || '0');
-                    logger.info('→ New pairs length updated:', newPairsLength);
-                    break;
                 default:
                     logger.info('⏩🔴🔴 Unrecognized key:', keyText);
             }
@@ -392,15 +382,14 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
     // logger.info(`Pair address: ${address}`);
     // logger.info(`New pairs length: ${newPairsLength}`);
 
-    if (!tokenA || !tokenB || !address || !newPairsLength) {
+    if (!tokenA || !tokenB || !address) {
         logger.error('❌🔴🔴 Incomplete data in NewPair event');
     }
 
     return {
         tokenA,
         tokenB,
-        address,
-        newPairsLength
+        address
     };
 }
 // extract values from swapAqua event   

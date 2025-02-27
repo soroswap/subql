@@ -11,8 +11,6 @@ type Pair @entity {
   date: Date!
   tokenA: String! @index
   tokenB: String! @index
-  address: String! @index
-  newPairsLength: Int!
   reserveA: BigInt!
   reserveB: BigInt!
 }
