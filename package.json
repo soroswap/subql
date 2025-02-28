@@ -17,7 +17,8 @@
     "pairs-rsv": "ts-node -r dotenv/config scripts/pairsTokensMaker.ts",
     "test:newpair": "ts-node scripts/tests/extractNewPair.ts",
     "getLastLedger": "ts-node scripts/getLastLedger.ts",
-    "getData": "ts-node scripts/stellar-sdk/getContractData.ts"
+    "getData": "ts-node scripts/stellar-sdk/getContractData.ts",
+    "test:addpool": "ts-node scripts/tests/exctract_addpool.ts"
   },
   "homepage": "https://github.com/subquery/stellar-subql-starter",
   "repository": "github:subquery/stellar-subql-starter",

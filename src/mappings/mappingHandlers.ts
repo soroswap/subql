@@ -91,41 +91,33 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
 }
 // AQUA SWAP EVENTS AQUA PROTOCOL
 export async function handleEventAddPoolAqua(event: SorobanEvent): Promise<void> {
-    // debug log    
-    logger.info('🔴🔴🔴🔴🔴🔴');
-    logger.info(event); 
-    logger.info(JSON.stringify(event));   
-    logger.info(event.value);
-    logger.info(JSON.stringify(event.value));
-    logger.info('🔴🔴🔴🔴🔴🔴');
-
     try {
         const eventData = extractAddPoolAquaValues(JSON.parse(JSON.stringify(event)));
         const currentDate = new Date(event.ledgerClosedAt);
 
         // Buscar si existe un registro previo para este usuario
-        const existingPool = await PairsAqua.get(eventData.user);
+        const existingPool = await PairsAqua.get(eventData.address);
         
         // Si existe un registro más reciente, no actualizamos
         if (existingPool && new Date(existingPool.date) > currentDate) {
-            logger.info(`⏭️ Existing pool data for contract ${eventData.user} is more recent, NOT updating`);
+            logger.info(`⏭️ Existing pool data for contract ${eventData.address} is more recent, NOT updating`);
             return;
         }
 
         // Create or update record
         const pairAqua = PairsAqua.create({
-            id: eventData.user,
+            id: eventData.address,
             ledger: event.ledger.sequence,
             date: currentDate,
-            address: eventData.user,
-            tokenA: eventData.tokens[0],
-            tokenB: eventData.tokens[1],
+            address: eventData.address,
+            tokenA: eventData.tokenA,
+            tokenB: eventData.tokenB,
             reserveA: BigInt(0), // Inicializado en 0
-            reserveB: BigInt(0)    // Inicializado en 0
+            reserveB: BigInt(0)  // Inicializado en 0
         });
 
         await pairAqua.save();
-        logger.info(`✅ Pool event created/updated for address: ${eventData.user}`);
+        logger.info(`✅ Pool event created/updated for address: ${eventData.address}`);
 
     } catch (error) {
         logger.error(`❌ Error processing Aqua Pool event: ${error}`);
@@ -520,17 +512,18 @@ function extractDepositAquaValues(event: any): {
 
 // Helper function para extraer valores del evento add_pool
 function extractAddPoolAquaValues(event: any): {
-    user: string,
-    tokens: string[],
-    feeFraction: number
+    address: string;
+    tokenA: string;
+    tokenB: string;
 } {
     let result = {
-        user: '',
-        tokens: [] as string[],
-        feeFraction: 0
+        address: '',
+        tokenA: '',
+        tokenB: ''
     };
 
     try {
+        // Extraer user del value
         const values = event?.value?._value;
         if (!Array.isArray(values)) {
             throw new Error('No values array found in AddPool event');
@@ -538,35 +531,32 @@ function extractAddPoolAquaValues(event: any): {
 
         logger.info("\n🔄 Processing Aqua AddPool event values:");
 
-        // User address (primer valor)
+        // User address (primer valor del value)
         const userBuffer = values[0]?._value?._value?.data;
         if (userBuffer) {
-            result.user = hexToSorobanAddress(Buffer.from(userBuffer).toString('hex'));
-            logger.info(`→ User address: ${result.user}`);
+            result.address = hexToSorobanAddress(Buffer.from(userBuffer).toString('hex'));
+            logger.info(`→ User address: ${result.address}`);
         }
 
-        // Tokens vector (segundo valor)
-        const tokensVector = values[1]?._value;
-        if (Array.isArray(tokensVector)) {
-            result.tokens = tokensVector.map(token => {
-                const tokenBuffer = token?._value?._value?.data;
-                if (tokenBuffer) {
-                    const tokenAddress = hexToSorobanAddress(Buffer.from(tokenBuffer).toString('hex'));
-                    logger.info(`→ Token address: ${tokenAddress}`);
-                    return tokenAddress;
-                }
-                return '';
-            }).filter(token => token !== '');
+        // Tokens del topic[1]
+        const topicTokens = event?.topic?.[1]?._value;
+        if (Array.isArray(topicTokens) && topicTokens.length >= 2) {
+            // Token A
+            const tokenABuffer = topicTokens[0]?._value?._value?.data;
+            if (tokenABuffer) {
+                result.tokenA = hexToSorobanAddress(Buffer.from(tokenABuffer).toString('hex'));
+                logger.info(`→ Token A: ${result.tokenA}`);
+            }
+
+            // Token B
+            const tokenBBuffer = topicTokens[1]?._value?._value?.data;
+            if (tokenBBuffer) {
+                result.tokenB = hexToSorobanAddress(Buffer.from(tokenBBuffer).toString('hex'));
+                logger.info(`→ Token B: ${result.tokenB}`);
+            }
         }
 
-        // Fee fraction (tercer valor)
-        const feeFraction = values[2]?._value;
-        if (feeFraction) {
-            result.feeFraction = Number(feeFraction);
-            logger.info(`→ Fee fraction: ${result.feeFraction}`);
-        }
-
-        if (!result.user || result.tokens.length < 2) {
+        if (!result.address || !result.tokenA || !result.tokenB) {
             throw new Error('Incomplete data in AddPool event');
         }
 
