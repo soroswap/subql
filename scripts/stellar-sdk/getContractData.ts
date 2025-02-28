@@ -1,4 +1,4 @@
-import { xdr, Contract, Address, rpc, scValToNative } from "@stellar/stellar-sdk";
+import { xdr, rpc, scValToNative } from "@stellar/stellar-sdk";
 import 'dotenv/config';
 
 // Default Soroban endpoint
@@ -10,45 +10,45 @@ async function main() {
   try {
     const contractId = "CASUGCN324QMLAPWG5IUSXCFD3GZSREDEH54VJCP5MOBOEXDKWSYR2TS";
     
-    // Para datos de tipo instance, usamos scvLedgerKeyContractInstance
+    // For instance type data, we use scvLedgerKeyContractInstance
     const instanceKey = xdr.ScVal.scvLedgerKeyContractInstance();
     
-    // Obtenemos todos los datos de la instancia
+    // Get all instance data
     const response = await server.getContractData(contractId, instanceKey);
     
     if (response) {
-      // Decodificamos los datos de la instancia
+      // Decode instance data
       const storage = response.val.contractData().val().instance().storage();
       
-      // Creamos un objeto para almacenar todos los valores
+      // Create an object to store all values
       const contractValues: { [key: string]: any } = {};
       
-      // Iteramos sobre el storage para obtener todos los valores
+      // Iterate through storage to get all values
       storage?.forEach((entry) => {
         const key = scValToNative(entry.key());
         const value = scValToNative(entry.val());
         contractValues[key] = value;
       });
 
-      console.log("Datos del contrato:");
+      console.log("Contract Data:");
       console.log(contractValues);
       //console.log(JSON.stringify(contractValues, null, 2));
       
-      // Si quieres obtener un valor específico
-      console.log("\nValores específicos:");
+      // If you want to get specific values
+      console.log("\nSpecific Values:");
       console.log("ReserveA:", contractValues["ReserveA"]);
       console.log("ReserveB:", contractValues["ReserveB"]);
       console.log("TotalShares:", contractValues["TotalShares"]);
     }
 
   } catch (error) {
-    console.error("Error al obtener datos del contrato:", error);
+    console.error("XXX Error getting contract data:", error);
     if (error.response?.data) {
-      console.error("Detalles del error:", error.response.data);
+      console.error("XXX Error details:", error.response.data);
     }
   }
 }
 
-// Ejecutar la función principal
+// Execute main function
 main().catch(console.error);
 
