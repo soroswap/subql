@@ -90,87 +90,45 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
     }
 }
 // AQUA SWAP EVENTS AQUA PROTOCOL
-export async function handleEventSwapAqua(event: SorobanEvent): Promise<void> {
+export async function handleEventAddPoolAqua(event: SorobanEvent): Promise<void> {
     // debug log    
-    // logger.info('🔴🔴🔴🔴🔴🔴');
-    // logger.info(event);    
-    // logger.info(event.value);
-    // logger.info(JSON.stringify(event.value));
-    // logger.info('🔴🔴🔴🔴🔴🔴');
-
-    try {
-        const eventData = extractSwapAquaValues(JSON.parse(JSON.stringify(event)));
-        const currentDate = new Date(event.ledgerClosedAt);
-
-        // Buscar si existe un registro previo para este usuario
-        const existingSwap = await PairsAqua.get(eventData.user);
-        
-        // Si existe un registro más reciente, no actualizamos
-        if (existingSwap && new Date(existingSwap.date) > currentDate) {
-            logger.info(`⏭️ Existing swap data for user ${eventData.user} is more recent, NOT updating`);
-            return;
-        }
-
-        // Crear o actualizar registro de swap
-        const pairAqua = PairsAqua.create({
-            id: eventData.user, // Usamos el user como ID en lugar del transaction hash
-            ledger: event.ledger.sequence,
-            date: currentDate,
-            user: eventData.user,
-            tokenIn: eventData.tokenIn,
-            tokenOut: eventData.tokenOut,
-            inAmount: eventData.inAmount,
-            outMin: eventData.outMin
-        });
-
-        await pairAqua.save();
-        logger.info(`✅ Swap event updated for user: ${eventData.user}`);
-
-    } catch (error) {
-        logger.error(`❌ Error processing Aqua Swap event: ${error}`);
-        throw error;
-    }
-}
-
-// Handler for deposit event from Aqua protocol 
-export async function handleEventDepositAqua(event: SorobanEvent): Promise<void> {
-    logger.info('🔵🔵🔵🔵🔵🔵 DEPOSIT AQUA EVENT');
-    logger.info(event);
-    logger.info(JSON.stringify(event));
+    logger.info('🔴🔴🔴🔴🔴🔴');
+    logger.info(event); 
+    logger.info(JSON.stringify(event));   
     logger.info(event.value);
     logger.info(JSON.stringify(event.value));
-    logger.info('🔵🔵🔵🔵🔵🔵');
+    logger.info('🔴🔴🔴🔴🔴🔴');
 
     try {
-        const eventData = extractDepositAquaValues(JSON.parse(JSON.stringify(event)));
+        const eventData = extractAddPoolAquaValues(JSON.parse(JSON.stringify(event)));
         const currentDate = new Date(event.ledgerClosedAt);
 
         // Buscar si existe un registro previo para este usuario
-        const existingDeposit = await PairsAqua.get(eventData.user);
+        const existingPool = await PairsAqua.get(eventData.user);
         
         // Si existe un registro más reciente, no actualizamos
-        if (existingDeposit && new Date(existingDeposit.date) > currentDate) {
-            logger.info(`⏭️ Existing deposit data for user ${eventData.user} is more recent, NOT updating`);
+        if (existingPool && new Date(existingPool.date) > currentDate) {
+            logger.info(`⏭️ Existing pool data for contract ${eventData.user} is more recent, NOT updating`);
             return;
         }
 
-        // Crear o actualizar registro de deposit
+        // Create or update record
         const pairAqua = PairsAqua.create({
             id: eventData.user,
             ledger: event.ledger.sequence,
             date: currentDate,
-            user: eventData.user,
-            tokenIn: eventData.tokenIn,
-            tokenOut: eventData.tokenOut,
-            inAmount: eventData.inAmount,
-            outMin: eventData.outMin
+            address: eventData.user,
+            tokenA: eventData.tokens[0],
+            tokenB: eventData.tokens[1],
+            reserveA: BigInt(0), // Inicializado en 0
+            reserveB: BigInt(0)    // Inicializado en 0
         });
 
         await pairAqua.save();
-        logger.info(`✅ Deposit event updated for user: ${eventData.user}`);
+        logger.info(`✅ Pool event created/updated for address: ${eventData.user}`);
 
     } catch (error) {
-        logger.error(`❌ Error processing Aqua Deposit event: ${error}`);
+        logger.error(`❌ Error processing Aqua Pool event: ${error}`);
         throw error;
     }
 }
@@ -560,7 +518,66 @@ function extractDepositAquaValues(event: any): {
     }
 }
 
+// Helper function para extraer valores del evento add_pool
+function extractAddPoolAquaValues(event: any): {
+    user: string,
+    tokens: string[],
+    feeFraction: number
+} {
+    let result = {
+        user: '',
+        tokens: [] as string[],
+        feeFraction: 0
+    };
 
+    try {
+        const values = event?.value?._value;
+        if (!Array.isArray(values)) {
+            throw new Error('No values array found in AddPool event');
+        }
+
+        logger.info("\n🔄 Processing Aqua AddPool event values:");
+
+        // User address (primer valor)
+        const userBuffer = values[0]?._value?._value?.data;
+        if (userBuffer) {
+            result.user = hexToSorobanAddress(Buffer.from(userBuffer).toString('hex'));
+            logger.info(`→ User address: ${result.user}`);
+        }
+
+        // Tokens vector (segundo valor)
+        const tokensVector = values[1]?._value;
+        if (Array.isArray(tokensVector)) {
+            result.tokens = tokensVector.map(token => {
+                const tokenBuffer = token?._value?._value?.data;
+                if (tokenBuffer) {
+                    const tokenAddress = hexToSorobanAddress(Buffer.from(tokenBuffer).toString('hex'));
+                    logger.info(`→ Token address: ${tokenAddress}`);
+                    return tokenAddress;
+                }
+                return '';
+            }).filter(token => token !== '');
+        }
+
+        // Fee fraction (tercer valor)
+        const feeFraction = values[2]?._value;
+        if (feeFraction) {
+            result.feeFraction = Number(feeFraction);
+            logger.info(`→ Fee fraction: ${result.feeFraction}`);
+        }
+
+        if (!result.user || result.tokens.length < 2) {
+            throw new Error('Incomplete data in AddPool event');
+        }
+
+        return result;
+
+    } catch (error) {
+        logger.error(`❌ Error extracting Aqua AddPool values: ${error}`);
+        logger.error('Event data was:', JSON.stringify(event, null, 2));
+        throw error;
+    }
+}
 
 // // Modified function to get reserves from poolRsvList
 // async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {

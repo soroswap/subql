@@ -99,6 +99,23 @@ query GetLatestPairs {
   }
 }
 ```
+```subgraql
+query aqua {
+  pairsAquas(first: 5, orderBy: DATE_DESC) {
+    totalCount
+    nodes {
+      id
+      ledger
+      date
+      user
+      tokenIn
+      tokenOut
+      inAmount
+      outMin
+    }
+  }
+}
+```
 
 ----------------
 ----------------

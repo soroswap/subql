@@ -19,12 +19,12 @@ type Pair @entity {
 PairsAqua entity: Stores Aqua swap events
 """
 type PairsAqua @entity {
-  id: ID! # Transaction hash
+  id: ID! # User or Address
   ledger: Int! @index
   date: Date! @index
-  user: String! @index
-  tokenIn: String! @index
-  tokenOut: String! @index
-  inAmount: BigInt!
-  outMin: BigInt!
+  address: String! @index
+  tokenA: String! @index
+  tokenB: String! @index
+  reserveA: BigInt!
+  reserveB: BigInt!
 }

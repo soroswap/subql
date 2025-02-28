@@ -89,22 +89,12 @@ const project: StellarProject = {
             },
           },
           {
-            handler: "handleEventSwapAqua",//swap Aqua
+            handler: "handleEventAddPoolAqua",// add pool aqua
             kind: StellarHandlerKind.Event,
             filter: {
               contractId:"CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK",
               topics: [
-                "swap"
-              ],
-            },
-          },
-          {
-            handler: "handleEventDepositAqua",//deposit Aqua
-            kind: StellarHandlerKind.Event,
-            filter: {
-              contractId:"CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK",
-              topics: [
-                "deposit"
+                "add_pool"
               ],
             },
           },
