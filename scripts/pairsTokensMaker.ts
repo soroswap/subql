@@ -24,11 +24,11 @@ async function retry<T>(
     }
 }
 
-const FACTORY_CONTRACT = 'CA4HEQTL2WPEUYKYKCDOHCDNIV4QHNJ7EL4J4NQ6VADP7SYHVRYZ7AW2';
+const FACTORY_CONTRACT = process.env.FACTORY_CONTRACT_SOROSWAP as string;
 
 // Add this at the top level of the file
 const mainnet = {
-    network: "mainnet",
+    network: process.env.NETWORK as string,
     friendbotUrl: "",
     horizonRpcUrl: process.env.HORIZON_ENDPOINT as string,
     sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
@@ -44,7 +44,7 @@ const sorobanToolkit = createToolkit({
 });
 
 // Create a single instance of networkToolkit
-const networkToolkit = sorobanToolkit.getNetworkToolkit("mainnet");
+const networkToolkit = sorobanToolkit.getNetworkToolkit(process.env.NETWORK as string);
 
 async function getAllPairsLength(): Promise<number> {
     try {
