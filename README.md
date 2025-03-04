@@ -38,6 +38,12 @@ source .env
 docker compose up -d app
 docker compose exec app sh -c "yarn install && yarn pairs-rsv"
 ```
+To recreate Pair and PairsAqua tables, run:
+```bash
+source .env 
+docker compose up -d app
+docker compose exec app sh -c "yarn install && yarn pairs-rsv && yarn aqua-pools"
+```
 
 #### Start the Service
 ```bash

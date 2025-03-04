@@ -4,11 +4,19 @@ import {
 import { config } from 'dotenv';
 import { StrKey } from '@stellar/stellar-sdk';
 import { pairTokenReservesList } from "./pairTokenRsv";
+import { aquaPoolsList } from "./aquaPools";
 import { Pair, PairsAqua } from "../types";
 
 config();
 
 let initialized = false;
+let aquaInitialized = false;
+interface ReservesResult {
+    reserveA: bigint;
+    reserveB: bigint;
+  }
+  
+
 
 // SYNC EVENTS SOROSWAP PROTOCOL
 export async function handleEventSync(event: SorobanEvent): Promise<void> {
@@ -91,6 +99,11 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
 }
 // AQUA SWAP EVENTS AQUA PROTOCOL
 export async function handleEventAddPoolAqua(event: SorobanEvent): Promise<void> {
+    if (!aquaInitialized) {
+        await initializeAqua();
+        aquaInitialized = true;
+    }
+
     try {
         const eventData = extractAddPoolAquaValues(JSON.parse(JSON.stringify(event)));
         const currentDate = new Date(event.ledgerClosedAt);
@@ -180,11 +193,82 @@ async function initialize(): Promise<void> {
     logger.info("✅ Initialization completed");
 }
 
+async function initializeAqua(): Promise<void> {
+    logger.info("🚀 Initializing Aqua pools...");
+    const failedPools: string[] = [];
+    
+    try {
+        // Verificar si ya hay datos en la base de datos
+        const existingCount = await PairsAqua.count();
+        if (existingCount > 0) {
+            logger.info(`✅ Ya existen ${existingCount} pools de Aqua en la base de datos`);
+            return;
+        }
 
-interface ReservesResult {
-  reserveA: bigint;
-  reserveB: bigint;
+        logger.info(`📊 Procesando ${aquaPoolsList.length} pools de Aqua...`);
+        
+        // Procesar en lotes para evitar sobrecarga de memoria
+        const batchSize = 20;
+        for (let i = 0; i < aquaPoolsList.length; i += batchSize) {
+            const batch = aquaPoolsList.slice(i, i + batchSize);
+            
+            // Crear registros para este lote
+            const poolPromises = batch.map(async (pool, index) => {
+                try {
+                    // Verificar si ya existe este pool
+                    const existingPool = await PairsAqua.get(pool.address);
+                    if (existingPool) {
+                        return null; // Ya existe, no hacer nada
+                    }
+                    
+                    // Crear nuevo registro
+                    const newPool = PairsAqua.create({
+                        id: pool.address,
+                        ledger: 0, // Se actualizará con eventos reales
+                        date: new Date(),
+                        address: pool.address,
+                        tokenA: pool.tokenA,
+                        tokenB: pool.tokenB,
+                        reserveA: BigInt(0), // Inicializado en 0
+                        reserveB: BigInt(0)  // Inicializado en 0
+                    });
+                    
+                    await newPool.save();
+                    return pool.address;
+                } catch (error) {
+                    logger.error(`❌ Error inicializando Aqua pool ${pool.address}: ${error}`);
+                    failedPools.push(pool.address);
+                    return null;
+                }
+            });
+            
+            // Esperar a que se completen todas las operaciones del lote
+            const results = await Promise.all(poolPromises);
+            const successCount = results.filter(Boolean).length;
+            
+            logger.info(`✅ Procesado lote ${Math.floor(i/batchSize) + 1}/${Math.ceil(aquaPoolsList.length/batchSize)}: ${successCount} pools guardados`);
+            
+            // Pequeña pausa entre lotes para evitar sobrecarga
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        
+        // Resumen final
+        const totalSaved = await PairsAqua.count();
+        logger.info("\n📊 Resumen de inicialización de Aqua:");
+        logger.info(`✅ Pools procesados exitosamente: ${totalSaved}`);
+        if (failedPools.length > 0) {
+            logger.info(`❌ Pools con errores (${failedPools.length}):`);
+            failedPools.forEach(pool => logger.info(`   - ${pool}`));
+        }
+        
+    } catch (error) {
+        logger.error(`❌ Error general inicializando Aqua pools: ${error}`);
+        throw error;
+    }
+    
+    logger.info("✅ Inicialización de Aqua completada");
 }
+
 // Extract reserves from a sync event and parse to bigint
 function extractReserves(event: any): ReservesResult {
     let reserveA = BigInt(0);
@@ -342,173 +426,6 @@ function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, add
         address
     };
 }
-// extract values from swapAqua event   
-function extractSwapAquaValues(event: any): {
-    user: string,
-    tokenIn: string,
-    tokenOut: string,
-    inAmount: bigint,
-    outMin: bigint
-} {
-    let result = {
-        user: '',
-        tokenIn: '',
-        tokenOut: '',
-        inAmount: BigInt(0),
-        outMin: BigInt(0)
-    };
-
-    try {
-        // Extraer los valores del evento
-        const values = event?.value?._value;
-        if (!Array.isArray(values)) {
-            logger.error('❌ Event structure is not as expected. Event value:', JSON.stringify(event?.value));
-            throw new Error('No values array found in Swap event');
-        }
-
-        logger.info("\n🔄 Processing Aqua Swap event values:");
-
-        // Los primeros tres valores son direcciones (user, tokenIn, tokenOut)
-        if (values.length >= 3) {
-            // User address (primer valor)
-            const userBuffer = values[0]?._arm === 'address' ? 
-                values[0]?._value?._value?.data : null;
-            if (userBuffer) {
-                result.user = hexToSorobanAddress(Buffer.from(userBuffer).toString('hex'));
-                logger.info(`→ User address: ${result.user}`);
-            }
-
-            // Token In (segundo valor)
-            const tokenInBuffer = values[1]?._arm === 'address' ? 
-                values[1]?._value?._value?.data : null;
-            if (tokenInBuffer) {
-                result.tokenIn = hexToSorobanAddress(Buffer.from(tokenInBuffer).toString('hex'));
-                logger.info(`→ Token In: ${result.tokenIn}`);
-            }
-
-            // Token Out (tercer valor)
-            const tokenOutBuffer = values[2]?._arm === 'address' ? 
-                values[2]?._value?._value?.data : null;
-            if (tokenOutBuffer) {
-                result.tokenOut = hexToSorobanAddress(Buffer.from(tokenOutBuffer).toString('hex'));
-                logger.info(`→ Token Out: ${result.tokenOut}`);
-            }
-
-            // In Amount (cuarto valor)
-            const inAmount = values[3]?._arm === 'u128' ? 
-                values[3]?._value?._attributes?.lo?._value : null;
-            if (inAmount) {
-                result.inAmount = BigInt(inAmount);
-                logger.info(`→ In Amount: ${result.inAmount.toString()}`);
-            }
-
-            // Out Min (quinto valor)
-            const outMin = values[4]?._arm === 'u128' ? 
-                values[4]?._value?._attributes?.lo?._value : null;
-            if (outMin) {
-                result.outMin = BigInt(outMin);
-                logger.info(`→ Out Min: ${result.outMin.toString()}`);
-            }
-        }
-
-        // Verificación más flexible
-        if (!result.user || !result.tokenIn || !result.tokenOut) {
-            throw new Error('No data could be extracted from the Swap event');
-        }
-
-        return result;
-
-    } catch (error) {
-        logger.error(`❌ Error extracting Aqua Swap values: ${error}`);
-        logger.error('Event data was:', JSON.stringify(event, null, 2));
-        throw error;
-    }
-}
-
-// Function to extract values from depositAqua event
-function extractDepositAquaValues(event: any): {
-    user: string,
-    tokenIn: string,
-    tokenOut: string,
-    inAmount: bigint,
-    outMin: bigint
-} {
-    let result = {
-        user: '',
-        tokenIn: '',
-        tokenOut: '',
-        inAmount: BigInt(0),
-        outMin: BigInt(0)
-    };
-
-    try {
-        const values = event?.value?._value;
-        if (!Array.isArray(values)) {
-            logger.error('❌ Event structure is not as expected. Event value:', JSON.stringify(event?.value));
-            throw new Error('No values array found in Deposit event');
-        }
-
-        logger.info("\n🔄 Processing Aqua Deposit event values:");
-
-        // Los primeros valores son direcciones (user y tokens)
-        if (values.length >= 2) {
-            // User address (primer valor)
-            const userBuffer = values[0]?._arm === 'address' ? 
-                values[0]?._value?._value?._value?.data : null;
-            if (userBuffer) {
-                result.user = hexToSorobanAddress(Buffer.from(userBuffer).toString('hex'));
-                logger.info(`→ User address: ${result.user}`);
-            }
-
-            // Tokens (segundo valor es un vector de addresses)
-            const tokens = values[1]?._value;
-            if (Array.isArray(tokens) && tokens.length >= 2) {
-                // Token In (primer token)
-                const tokenInBuffer = tokens[0]?._value?._value?._value?.data;
-                if (tokenInBuffer) {
-                    result.tokenIn = hexToSorobanAddress(Buffer.from(tokenInBuffer).toString('hex'));
-                    logger.info(`→ Token In: ${result.tokenIn}`);
-                }
-
-                // Token Out (segundo token)
-                const tokenOutBuffer = tokens[1]?._value?._value?._value?.data;
-                if (tokenOutBuffer) {
-                    result.tokenOut = hexToSorobanAddress(Buffer.from(tokenOutBuffer).toString('hex'));
-                    logger.info(`→ Token Out: ${result.tokenOut}`);
-                }
-            }
-
-            // Desired amounts (cuarto valor es un vector de u128)
-            const desiredAmounts = values[3]?._value;
-            if (Array.isArray(desiredAmounts) && desiredAmounts.length >= 1) {
-                const inAmount = desiredAmounts[0]?._value?._attributes?.lo?._value;
-                if (inAmount) {
-                    result.inAmount = BigInt(inAmount);
-                    logger.info(`→ In Amount: ${result.inAmount.toString()}`);
-                }
-            }
-
-            // Min shares (quinto valor)
-            const minShares = values[4]?._value?._attributes?.lo?._value;
-            if (minShares) {
-                result.outMin = BigInt(minShares);
-                logger.info(`→ Min Shares: ${result.outMin.toString()}`);
-            }
-        }
-
-        // Verificación más flexible
-        if (!result.user || !result.tokenIn || !result.tokenOut) {
-            throw new Error('No data could be extracted from the Deposit event');
-        }
-
-        return result;
-
-    } catch (error) {
-        logger.error(`❌ Error extracting Aqua Deposit values: ${error}`);
-        logger.error('Event data was:', JSON.stringify(event, null, 2));
-        throw error;
-    }
-}
 
 // Helper function para extraer valores del evento add_pool
 function extractAddPoolAquaValues(event: any): {
@@ -569,53 +486,178 @@ function extractAddPoolAquaValues(event: any): {
     }
 }
 
-// // Modified function to get reserves from poolRsvList
-// async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
+// // extract values from swapAqua event   
+// function extractSwapAquaValues(event: any): {
+//     user: string,
+//     tokenIn: string,
+//     tokenOut: string,
+//     inAmount: bigint,
+//     outMin: bigint
+// } {
+//     let result = {
+//         user: '',
+//         tokenIn: '',
+//         tokenOut: '',
+//         inAmount: BigInt(0),
+//         outMin: BigInt(0)
+//     };
+
 //     try {
-//         // Search for the pool in the reserves list
-//         const pool = poolReservesList.find(p => p.contract === contractId);
-        
-//         if (!pool) {
-//             logger.warn(`⚠️ No reserves found for pool ${contractId} in poolRsvList`);
-//             return [BigInt(0), BigInt(0)];
+//         // Extraer los valores del evento
+//         const values = event?.value?._value;
+//         if (!Array.isArray(values)) {
+//             logger.error('❌ Event structure is not as expected. Event value:', JSON.stringify(event?.value));
+//             throw new Error('No values array found in Swap event');
 //         }
 
-//         logger.info(`✅ Reserves found for ${contractId}:`);
-//         logger.info(`Reserve0: ${pool.reserve0}`);
-//         logger.info(`Reserve1: ${pool.reserve1}`);
+//         logger.info("\n🔄 Processing Aqua Swap event values:");
 
-//         return [BigInt(pool.reserve0), BigInt(pool.reserve1)];
-        
+//         // Los primeros tres valores son direcciones (user, tokenIn, tokenOut)
+//         if (values.length >= 3) {
+//             // User address (primer valor)
+//             const userBuffer = values[0]?._arm === 'address' ? 
+//                 values[0]?._value?._value?.data : null;
+//             if (userBuffer) {
+//                 result.user = hexToSorobanAddress(Buffer.from(userBuffer).toString('hex'));
+//                 logger.info(`→ User address: ${result.user}`);
+//             }
+
+//             // Token In (segundo valor)
+//             const tokenInBuffer = values[1]?._arm === 'address' ? 
+//                 values[1]?._value?._value?.data : null;
+//             if (tokenInBuffer) {
+//                 result.tokenIn = hexToSorobanAddress(Buffer.from(tokenInBuffer).toString('hex'));
+//                 logger.info(`→ Token In: ${result.tokenIn}`);
+//             }
+
+//             // Token Out (tercer valor)
+//             const tokenOutBuffer = values[2]?._arm === 'address' ? 
+//                 values[2]?._value?._value?.data : null;
+//             if (tokenOutBuffer) {
+//                 result.tokenOut = hexToSorobanAddress(Buffer.from(tokenOutBuffer).toString('hex'));
+//                 logger.info(`→ Token Out: ${result.tokenOut}`);
+//             }
+
+//             // In Amount (cuarto valor)
+//             const inAmount = values[3]?._arm === 'u128' ? 
+//                 values[3]?._value?._attributes?.lo?._value : null;
+//             if (inAmount) {
+//                 result.inAmount = BigInt(inAmount);
+//                 logger.info(`→ In Amount: ${result.inAmount.toString()}`);
+//             }
+
+//             // Out Min (quinto valor)
+//             const outMin = values[4]?._arm === 'u128' ? 
+//                 values[4]?._value?._attributes?.lo?._value : null;
+//             if (outMin) {
+//                 result.outMin = BigInt(outMin);
+//                 logger.info(`→ Out Min: ${result.outMin.toString()}`);
+//             }
+//         }
+
+//         // Verificación más flexible
+//         if (!result.user || !result.tokenIn || !result.tokenOut) {
+//             throw new Error('No data could be extracted from the Swap event');
+//         }
+
+//         return result;
+
 //     } catch (error) {
-//         logger.error(`❌🔴🔴 Error getting reserves for ${contractId}: ${error}`);
-//         logger.warn(`⚠️ Using default values for pool ${contractId}`);
-        
-//         return [BigInt(0), BigInt(0)];
+//         logger.error(`❌ Error extracting Aqua Swap values: ${error}`);
+//         logger.error('Event data was:', JSON.stringify(event, null, 2));
+//         throw error;
 //     }
 // }
 
 
 
-// async function checkAndGetAccount(
-//   id: string,
-//   ledgerSequence: number
-// ): Promise<Account> {
-//   let account = await Account.get(id.toLowerCase());
-//   if (!account) {
-//     // We couldn't find the account
-//     account = Account.create({
-//       id: id.toLowerCase(),
-//       firstSeenLedger: ledgerSequence,
-//     });
-//   }
-//   return account;
+// // Function to extract values from depositAqua event
+// function extractDepositAquaValues(event: any): {
+//     user: string,
+//     tokenIn: string,
+//     tokenOut: string,
+//     inAmount: bigint,
+//     outMin: bigint
+// } {
+//     let result = {
+//         user: '',
+//         tokenIn: '',
+//         tokenOut: '',
+//         inAmount: BigInt(0),
+//         outMin: BigInt(0)
+//     };
+
+//     try {
+//         const values = event?.value?._value;
+//         if (!Array.isArray(values)) {
+//             logger.error('❌ Event structure is not as expected. Event value:', JSON.stringify(event?.value));
+//             throw new Error('No values array found in Deposit event');
+//         }
+
+//         logger.info("\n🔄 Processing Aqua Deposit event values:");
+
+//         // Los primeros valores son direcciones (user y tokens)
+//         if (values.length >= 2) {
+//             // User address (primer valor)
+//             const userBuffer = values[0]?._arm === 'address' ? 
+//                 values[0]?._value?._value?._value?.data : null;
+//             if (userBuffer) {
+//                 result.user = hexToSorobanAddress(Buffer.from(userBuffer).toString('hex'));
+//                 logger.info(`→ User address: ${result.user}`);
+//             }
+
+//             // Tokens (segundo valor es un vector de addresses)
+//             const tokens = values[1]?._value;
+//             if (Array.isArray(tokens) && tokens.length >= 2) {
+//                 // Token In (primer token)
+//                 const tokenInBuffer = tokens[0]?._value?._value?._value?.data;
+//                 if (tokenInBuffer) {
+//                     result.tokenIn = hexToSorobanAddress(Buffer.from(tokenInBuffer).toString('hex'));
+//                     logger.info(`→ Token In: ${result.tokenIn}`);
+//                 }
+
+//                 // Token Out (segundo token)
+//                 const tokenOutBuffer = tokens[1]?._value?._value?._value?.data;
+//                 if (tokenOutBuffer) {
+//                     result.tokenOut = hexToSorobanAddress(Buffer.from(tokenOutBuffer).toString('hex'));
+//                     logger.info(`→ Token Out: ${result.tokenOut}`);
+//                 }
+//             }
+
+//             // Desired amounts (cuarto valor es un vector de u128)
+//             const desiredAmounts = values[3]?._value;
+//             if (Array.isArray(desiredAmounts) && desiredAmounts.length >= 1) {
+//                 const inAmount = desiredAmounts[0]?._value?._attributes?.lo?._value;
+//                 if (inAmount) {
+//                     result.inAmount = BigInt(inAmount);
+//                     logger.info(`→ In Amount: ${result.inAmount.toString()}`);
+//                 }
+//             }
+
+//             // Min shares (quinto valor)
+//             const minShares = values[4]?._value?._attributes?.lo?._value;
+//             if (minShares) {
+//                 result.outMin = BigInt(minShares);
+//                 logger.info(`→ Min Shares: ${result.outMin.toString()}`);
+//             }
+//         }
+
+//         // Verificación más flexible
+//         if (!result.user || !result.tokenIn || !result.tokenOut) {
+//             throw new Error('No data could be extracted from the Deposit event');
+//         }
+
+//         return result;
+
+//     } catch (error) {
+//         logger.error(`❌ Error extracting Aqua Deposit values: ${error}`);
+//         logger.error('Event data was:', JSON.stringify(event, null, 2));
+//         throw error;
+//     }
 // }
 
-// scValToNative not works, temp solution
-// function decodeAddress(scVal: xdr.ScVal): string {
-//   try {
-//     return Address.account(scVal.address().accountId().ed25519()).toString();
-//   } catch (e) {
-//     return Address.contract(scVal.address().contractId()).toString();
-//   }
-// }
+
+
+
+
+
