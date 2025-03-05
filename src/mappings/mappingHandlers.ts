@@ -15,8 +15,13 @@ interface ReservesResult {
     reserveA: bigint;
     reserveB: bigint;
   }
-  
-
+// AQUA DEPOSIT LIQUIDITY EVENTS
+export async function handleEventDepositLiquidity(event: SorobanEvent): Promise<void> {
+    logger.info(`🔄 🔴🔴🔴🔴 AQUA DEPOSIT LIQUIDITY EVENTS`);
+    logger.info(event);
+    logger.info(JSON.stringify(event));
+    logger.info(`🔄 🔴🔴🔴🔴 AQUA DEPOSIT LIQUIDITY EVENTS`);
+}
 
 // SYNC EVENTS SOROSWAP PROTOCOL
 export async function handleEventSync(event: SorobanEvent): Promise<void> {
