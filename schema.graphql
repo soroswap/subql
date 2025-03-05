@@ -5,7 +5,7 @@
 """
 Pair entity: Stores pair data and current reserves
 """
-type Pair @entity {
+type soroswapPair @entity {
   id: ID! # Contract address
   ledger: Int!
   date: Date!

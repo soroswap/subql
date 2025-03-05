@@ -4,7 +4,7 @@ import {
 import { config } from 'dotenv';
 import { StrKey } from '@stellar/stellar-sdk';
 import { pairTokenReservesList } from "./pairTokenRsv";
-import { Pair } from "../types";
+import { soroswapPair } from "../types";
 
 config();
 
@@ -23,7 +23,7 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
         return;
     }
     // get pair from database and check if it exists
-    const existingPair = await Pair.get(address);
+    const existingPair = await soroswapPair.get(address);
     if (!existingPair) {
         logger.info(`🔴🔴🔴🔴 Error: Contract ${address} not work with soroswap, not processing`);
         return;
@@ -63,7 +63,7 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
         const { tokenA, tokenB, address } = extractValuesNewPair(JSON.parse(JSON.stringify(event)));
 
         // Crear nuevo par o actualizar si existe
-        const existingPair = await Pair.get(address);
+        const existingPair = await soroswapPair.get(address);
         const currentDate = new Date(event.ledgerClosedAt);
 
         if (existingPair && new Date(existingPair.date) > currentDate) {
@@ -71,7 +71,7 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
             return;
         }
 
-        const pair = Pair.create({
+        const pair = soroswapPair.create({
             id: address,
             ledger: event.ledger.sequence,
             date: currentDate,
@@ -101,13 +101,13 @@ async function initialize(): Promise<void> {
         for (const [index, pair] of pairTokenReservesList.entries()) {
             try {
                 // Check if a record already exists for this pair
-                const existingPair = await Pair.get(pair.address);
+                const existingPair = await soroswapPair.get(pair.address);
                 
                 if (!existingPair) {
                     logger.info(`📊 Processing pair ${index + 1}/${pairTokenReservesList.length}: ${pair.address}`);
                     
                     // Create the initial record with all the information
-                    const newPair = Pair.create({
+                    const newPair = soroswapPair.create({
                         id: pair.address,
                         ledger: 55735990 + index,
                         date: new Date(Date.now()),
