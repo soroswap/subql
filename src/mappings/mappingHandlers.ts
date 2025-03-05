@@ -198,12 +198,8 @@ async function initializeAqua(): Promise<void> {
     const failedPools: string[] = [];
     
     try {
-        // Verificar si ya hay datos en la base de datos
-        const existingCount = await PairsAqua.count();
-        if (existingCount > 0) {
-            logger.info(`✅ Ya existen ${existingCount} pools de Aqua en la base de datos`);
-            return;
-        }
+        // Eliminamos la verificación inicial ya que es un proceso de inicialización
+        // y asumimos que la base de datos está vacía
 
         logger.info(`📊 Procesando ${aquaPoolsList.length} pools de Aqua...`);
         
@@ -252,10 +248,9 @@ async function initializeAqua(): Promise<void> {
             await new Promise(resolve => setTimeout(resolve, 500));
         }
         
-        // Resumen final
-        const totalSaved = await PairsAqua.count();
+        // Para el resumen final, simplemente contamos los pools guardados exitosamente
         logger.info("\n📊 Resumen de inicialización de Aqua:");
-        logger.info(`✅ Pools procesados exitosamente: ${totalSaved}`);
+        logger.info(`✅ Pools procesados exitosamente: ${aquaPoolsList.length - failedPools.length}`);
         if (failedPools.length > 0) {
             logger.info(`❌ Pools con errores (${failedPools.length}):`);
             failedPools.forEach(pool => logger.info(`   - ${pool}`));

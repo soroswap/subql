@@ -92,11 +92,11 @@ Access the GraphQL playground at `http://localhost:3000`
 ### Example Query
 
 ```graphql
-query GetLatestPairs {
-  pairs {
+query GetSoroswapPairs {
+  pairs (orderBy: DATE_DESC) {
     totalCount
     nodes {
-      id
+			id
       tokenA
       tokenB
       reserveA
@@ -105,19 +105,16 @@ query GetLatestPairs {
   }
 }
 ```
-```subgraql
-query aqua {
-  pairsAquas(first: 5, orderBy: DATE_DESC) {
+```graphql
+query GetPairsAqua {
+  pairsAquas {
     totalCount
     nodes {
       id
-      ledger
-      date
-      user
-      tokenIn
-      tokenOut
-      inAmount
-      outMin
+      tokenA
+      tokenB
+      reserveA
+      reserveB
     }
   }
 }
