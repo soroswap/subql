@@ -2,10 +2,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { StrKey } from '@stellar/stellar-sdk';
 
+// yarn test:addpool: "ts-node scripts/tests/exctract_addpool.ts"
+
 interface AddPoolResult {
     address: string;
     tokenA: string;
     tokenB: string;
+    poolType: string;
 }
 
 function hexToSorobanAddress(hexString: string): string {
@@ -18,7 +21,8 @@ function extractAddPoolAquaValues(event: any): AddPoolResult {
     let result = {
         address: '',
         tokenA: '',
-        tokenB: ''
+        tokenB: '',
+        poolType: ''
     };
 
     try {
@@ -35,6 +39,12 @@ function extractAddPoolAquaValues(event: any): AddPoolResult {
         if (userBuffer) {
             result.address = hexToSorobanAddress(Buffer.from(userBuffer).toString('hex'));
             console.log(`→ User address: ${result.address}`);
+        }
+        // pool type
+        const poolType = values[1]?._value?.data;
+        if (poolType) {
+            result.poolType = Buffer.from(poolType).toString('utf8');
+            console.log(`→ Pool type: ${result.poolType}`);
         }
 
         // Tokens del topic[1]
@@ -84,7 +94,7 @@ function runTest() {
         const eventData = loadEventData();
         
         console.log("🔴 Datos del evento raw:");
-        //console.log(JSON.stringify(eventData, null, 2));
+        console.log(JSON.stringify(eventData, null, 2));
 
         if (eventData) {
             console.log('✅ Estructura del evento encontrada');

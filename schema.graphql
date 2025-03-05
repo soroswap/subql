@@ -25,6 +25,7 @@ type PairsAqua @entity {
   address: String! @index
   tokenA: String! @index
   tokenB: String! @index
+  poolType: String!
   reserveA: BigInt!
   reserveB: BigInt!
 }

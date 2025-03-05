@@ -125,6 +125,7 @@ export async function handleEventAddPoolAqua(event: SorobanEvent): Promise<void>
             address: eventData.address,
             tokenA: eventData.tokenA,
             tokenB: eventData.tokenB,
+            poolType: eventData.poolType,
             reserveA: BigInt(0), // Inicializado en 0
             reserveB: BigInt(0)  // Inicializado en 0
         });
@@ -225,6 +226,7 @@ async function initializeAqua(): Promise<void> {
                         address: pool.address,
                         tokenA: pool.tokenA,
                         tokenB: pool.tokenB,
+                        poolType: '',
                         reserveA: BigInt(0), // Inicializado en 0
                         reserveB: BigInt(0)  // Inicializado en 0
                     });
@@ -427,11 +429,13 @@ function extractAddPoolAquaValues(event: any): {
     address: string;
     tokenA: string;
     tokenB: string;
+    poolType: string;
 } {
     let result = {
         address: '',
         tokenA: '',
-        tokenB: ''
+        tokenB: '',
+        poolType: ''
     };
 
     try {
@@ -448,6 +452,12 @@ function extractAddPoolAquaValues(event: any): {
         if (userBuffer) {
             result.address = hexToSorobanAddress(Buffer.from(userBuffer).toString('hex'));
             logger.info(`→ User address: ${result.address}`);
+        }
+        // pool type
+        const poolType = values[1]?._value?.data;
+        if (poolType) {
+            result.poolType = Buffer.from(poolType).toString('utf8');
+            logger.info(`→ Pool type: ${result.poolType}`);
         }
 
         // Tokens del topic[1]
