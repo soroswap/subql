@@ -4,9 +4,9 @@ import {
   StellarProject,
 } from "@subql/types-stellar";
 import { startBlock } from "./scripts/lastLedger";
-import * as dotenv from "dotenv";
-import path from "path";
 import { Networks } from "@stellar/stellar-sdk";
+import path from "path";
+import * as dotenv from "dotenv";
 
 const mode = process.env.NODE_ENV || "production";
 
@@ -25,9 +25,9 @@ const project: StellarProject = {
   runner: {
     node: {
       name: "@subql/node-stellar",
-      // options: {
-      //   unsafe: true
-      // },
+      options: {
+        unsafe: true,
+      },
       version: "*",
     },
     query: {
@@ -54,13 +54,10 @@ const project: StellarProject = {
      * If you use a rate limited endpoint, adjust the --batch-size and --workers parameters
      * These settings can be found in your docker-compose.yaml, they will slow indexing but prevent your project being rate limited
      */
-    endpoint: [
-      "https://newest-autumn-energy.stellar-mainnet.quiknode.pro/b9c096bbb70d53afa791ad08425ddb2f65fa2559",
-    ],
+    endpoint: process.env.HORIZON_ENDPOINT!?.split(",") as string[] | string,
     /* This is a specific Soroban endpoint
       It is only required when you are using a soroban/EventHandler */
-    sorobanEndpoint:
-      "https://newest-autumn-energy.stellar-mainnet.quiknode.pro/b9c096bbb70d53afa791ad08425ddb2f65fa2559",
+    sorobanEndpoint: process.env.SOROBAN_ENDPOINT!,
   },
   dataSources: [
     {
@@ -71,7 +68,7 @@ const project: StellarProject = {
         file: "./dist/index.js",
         handlers: [
           {
-            handler: "handleEventSync",
+            handler: "handleSoroswapEventSync",
             kind: StellarHandlerKind.Event,
             filter: {
               //contractId: "CDJDRGUCHANJDXALZVJ5IZVB76HX4MWCON5SHF4DE5HB64CBBR7W2ZCD",
@@ -82,7 +79,7 @@ const project: StellarProject = {
             },
           },
           {
-            handler: "handleEventNewPair",
+            handler: "handleSoroswapEventNewPair",
             kind: StellarHandlerKind.Event,
             filter: {
               contractId:
