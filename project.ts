@@ -17,6 +17,8 @@ const dotenvPath = path.resolve(
 );
 dotenv.config({ path: dotenvPath });
 
+const isMainnet = process.env.NETWORK === "mainnet";
+
 /* This is your project configuration */
 const project: StellarProject = {
   specVersion: "1.0.0",
@@ -45,7 +47,7 @@ const project: StellarProject = {
       'Test SDF Network ; September 2015' for testnet
       'Public Global Stellar Network ; September 2015' for mainnet
       'Test SDF Future Network ; October 2022' for Future Network */
-    chainId: Networks.PUBLIC,
+    chainId: isMainnet ? Networks.PUBLIC : Networks.TESTNET,
     /**
      * These endpoint(s) should be public non-pruned archive node
      * We recommend providing more than one endpoint for improved reliability, performance, and uptime
