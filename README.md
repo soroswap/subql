@@ -124,7 +124,15 @@ query GetPairsAqua {
 ----------------
 ## Known Issues
 
-1. **Mapping Logic Limitation**: The ScvalToNative function doesn't work inside the subql-node container in the sandbox environment. As a workaround, we use direct event parsing. See the helper functions in the mapping for implementation details.
+**MappingHandler Limitations**: There are three specific API functionalities that don't work properly inside the subql-node container in the sandbox environment:
+
+1. **ScvalToNative conversion**: Native Stellar SDK conversion functions fail to process contract data.
+2. **Axios HTTP requests**: API calls using axios library cannot connect to external endpoints.
+3. **Fetch API**: Standard fetch requests also fail to retrieve external data.
+
+As a workaround, we've implemented direct event parsing through custom helper functions. You can see commented examples of these failing approaches in the `handleEventDepositAqua` function in `src/mappings/mappingHandlers.ts`.
+
+For implementation details of our workaround solution, see the helper functions in the mapping file.
 
 ## Resources
 

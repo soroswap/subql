@@ -40,34 +40,34 @@ export async function handleEventDepositAqua(event: SorobanEvent): Promise<void>
     //     throw(error);
     // }
     // Test for error example with fetch
-    try {
-        const contractId = "CCDLVANSRYQ4IVO3A43UJAPKIWU2324D54NKGHCWWVCVCX2CNX2K4TAR";
-        const ledgerKey = getLedgerKeyContractCode(contractId);
-        const requestBody = {
-            "jsonrpc": "2.0",
-            "id": 8675309,
-            "method": "getLedgerEntries",
-            "params": {
-                "keys": [
-                    ledgerKey
-                ]
-            }
-        };
+    // try {
+    //     const contractId = "CCDLVANSRYQ4IVO3A43UJAPKIWU2324D54NKGHCWWVCVCX2CNX2K4TAR";
+    //     const ledgerKey = getLedgerKeyContractCode(contractId);
+    //     const requestBody = {
+    //         "jsonrpc": "2.0",
+    //         "id": 8675309,
+    //         "method": "getLedgerEntries",
+    //         "params": {
+    //             "keys": [
+    //                 ledgerKey
+    //             ]
+    //         }
+    //     };
         
-        const res = await fetch(SOROBAN_ENDPOINT, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-        });
+    //     const res = await fetch(SOROBAN_ENDPOINT, {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify(requestBody),
+    //     });
         
-        const json = await res.json();
-        logger.info(`🔍 json: ${JSON.stringify(json)}`);
-    } catch (error) {
-        logger.error(`❌ Error processing Aqua deposit event: ${error}`);
-        throw error;
-    }
+    //     const json = await res.json();
+    //     logger.info(`🔍 json: ${JSON.stringify(json)}`);
+    // } catch (error) {
+    //     logger.error(`❌ Error processing Aqua deposit event: ${error}`);
+    //     throw error;
+    // }
 
     try {
         logger.info(`🔄 Processing AQUA DEPOSIT LIQUIDITY EVENT`);
