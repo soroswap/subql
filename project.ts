@@ -99,7 +99,7 @@ const project: StellarProject = {
             },
           },
           {
-            handler: "handleEventDepositLiquidity",// add pool aqua
+            handler: "handleEventDepositAqua",// deposit liquidity
             kind: StellarHandlerKind.Event,
             filter: {
               topics: [

@@ -1,7 +1,7 @@
 
 // Este archivo fue generado automáticamente por AquapoolsTokensMaker.ts
 // No modificar manualmente
-// Generado: 2025-03-04T19:16:38.761Z
+// Generado: 2025-03-06T14:22:16.153Z
 // Total de pools: 69
 
 export interface AquaPool {

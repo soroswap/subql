@@ -2,7 +2,7 @@ import {
   SorobanEvent,
 } from "@subql/types-stellar";
 import { config } from 'dotenv';
-import { StrKey } from '@stellar/stellar-sdk';
+import { StrKey, xdr, rpc, Contract } from '@stellar/stellar-sdk';
 import { pairTokenReservesList } from "./pairTokenRsv";
 import { aquaPoolsList } from "./aquaPools";
 import { Pair, PairsAqua } from "../types";
@@ -11,16 +11,125 @@ config();
 
 let initialized = false;
 let aquaInitialized = false;
+
+// Default Soroban endpoint
+const SOROBAN_ENDPOINT = process.env.SOROBAN_ENDPOINT || 'https://soroban-testnet.stellar.org';
+
+const server = new rpc.Server(SOROBAN_ENDPOINT, { allowHttp: true });
+
 interface ReservesResult {
     reserveA: bigint;
     reserveB: bigint;
-  }
+}
+
 // AQUA DEPOSIT LIQUIDITY EVENTS
-export async function handleEventDepositLiquidity(event: SorobanEvent): Promise<void> {
+export async function handleEventDepositAqua(event: SorobanEvent): Promise<void> {
     logger.info(`🔄 🔴🔴🔴🔴 AQUA DEPOSIT LIQUIDITY EVENTS`);
-    logger.info(event);
-    logger.info(JSON.stringify(event));
-    logger.info(`🔄 🔴🔴🔴🔴 AQUA DEPOSIT LIQUIDITY EVENTS`);
+    if (!aquaInitialized) {
+        await initializeAqua();
+        aquaInitialized = true;
+    }
+
+    // TEST for error example with axios
+    // try {
+    //     const instanceKey = xdr.ScVal.scvLedgerKeyContractInstance();
+    //     const test = await server.getContractData("CCDLVANSRYQ4IVO3A43UJAPKIWU2324D54NKGHCWWVCVCX2CNX2K4TAR", instanceKey);
+    //     logger.info("🔍 test:❌❌❌❌❌");
+    //     logger.info(test);
+    // } catch (error) {
+    //     throw(error);
+    // }
+    // Test for error example with fetch
+    try {
+        const contractId = "CCDLVANSRYQ4IVO3A43UJAPKIWU2324D54NKGHCWWVCVCX2CNX2K4TAR";
+        const ledgerKey = getLedgerKeyContractCode(contractId);
+        const requestBody = {
+            "jsonrpc": "2.0",
+            "id": 8675309,
+            "method": "getLedgerEntries",
+            "params": {
+                "keys": [
+                    ledgerKey
+                ]
+            }
+        };
+        
+        const res = await fetch(SOROBAN_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+        });
+        
+        const json = await res.json();
+        logger.info(`🔍 json: ${JSON.stringify(json)}`);
+    } catch (error) {
+        logger.error(`❌ Error processing Aqua deposit event: ${error}`);
+        throw error;
+    }
+
+    try {
+        logger.info(`🔄 Processing AQUA DEPOSIT LIQUIDITY EVENT`);
+        
+        // Extract data from the event
+        const depositData = await extractDepositAquaValues(JSON.parse(JSON.stringify(event)));
+        
+        // Check if we have the contract address
+        if (!depositData.address) {
+            logger.error(`❌ No contract address found in deposit event`);
+            return;
+        }
+        
+        // Look for the pool in the database
+        const existingPool = await PairsAqua.get(depositData.address);
+        if (!existingPool) {
+            logger.info(`⚠️ Pool ${depositData.address} not found in database, creating new record`);
+            
+            // Create a new record if it doesn't exist
+            const newPool = PairsAqua.create({
+                id: depositData.address,
+                ledger: event.ledger.sequence,
+                date: new Date(event.ledgerClosedAt),
+                address: depositData.address,
+                tokenA: depositData.tokenA,
+                tokenB: depositData.tokenB,
+                poolType: 'unknown', // We could get this from another source
+                reserveA: depositData.reserveA || BigInt(0),
+                reserveB: depositData.reserveB || BigInt(0)
+            });
+            
+            await newPool.save();
+            logger.info(`✅ Created new pool record for ${depositData.address}`);
+            return;
+        }
+        
+        // Check if the event is more recent than existing data
+        const currentDate = new Date(event.ledgerClosedAt);
+        if (new Date(existingPool.date) > currentDate) {
+            logger.info(`⏭️ Existing pool data is more recent, NOT updating`);
+            return;
+        }
+        
+        // Update the existing record with new data
+        if (depositData.reserveA !== undefined) {
+            existingPool.reserveA = depositData.reserveA;
+        }
+        
+        if (depositData.reserveB !== undefined) {
+            existingPool.reserveB = depositData.reserveB;
+        }
+        
+        existingPool.date = currentDate;
+        existingPool.ledger = event.ledger.sequence;
+        
+        await existingPool.save();
+        logger.info(`✨ Updated reserves for pool ${depositData.address}`);
+        
+    } catch (error) {
+        logger.error(`❌ Error processing Aqua deposit event: ${error}`);
+        throw error;
+    }
 }
 
 // SYNC EVENTS SOROSWAP PROTOCOL
@@ -51,7 +160,7 @@ export async function handleEventSync(event: SorobanEvent): Promise<void> {
             return;
         }
 
-        // Actualizar solo las reservas y la fecha
+        // Update only reserves and date
         existingPair.reserveA = reserveA;
         existingPair.reserveB = reserveB;
         existingPair.date = currentDate;
@@ -75,7 +184,7 @@ export async function handleEventNewPair(event: SorobanEvent): Promise<void> {
     try {
         const { tokenA, tokenB, address } = extractValuesNewPair(JSON.parse(JSON.stringify(event)));
 
-        // Crear nuevo par o actualizar si existe
+        // Create new pair or update if it exists
         const existingPair = await Pair.get(address);
         const currentDate = new Date(event.ledgerClosedAt);
 
@@ -113,10 +222,10 @@ export async function handleEventAddPoolAqua(event: SorobanEvent): Promise<void>
         const eventData = extractAddPoolAquaValues(JSON.parse(JSON.stringify(event)));
         const currentDate = new Date(event.ledgerClosedAt);
 
-        // Buscar si existe un registro previo para este usuario
+        // Check if there is a previous record for this user
         const existingPool = await PairsAqua.get(eventData.address);
         
-        // Si existe un registro más reciente, no actualizamos
+        // If there is a more recent record, do not update
         if (existingPool && new Date(existingPool.date) > currentDate) {
             logger.info(`⏭️ Existing pool data for contract ${eventData.address} is more recent, NOT updating`);
             return;
@@ -131,8 +240,8 @@ export async function handleEventAddPoolAqua(event: SorobanEvent): Promise<void>
             tokenA: eventData.tokenA,
             tokenB: eventData.tokenB,
             poolType: eventData.poolType,
-            reserveA: BigInt(0), // Inicializado en 0
-            reserveB: BigInt(0)  // Inicializado en 0
+            reserveA: BigInt(0), // Initialized in 0
+            reserveB: BigInt(0)  // Initialized in 0
         });
 
         await pairAqua.save();
@@ -145,6 +254,81 @@ export async function handleEventAddPoolAqua(event: SorobanEvent): Promise<void>
 }
 
 //######################### HELPERS #########################
+
+
+// Helper function to extract values from deposit event
+async function extractDepositAquaValues(event: any): Promise<{
+    address: string;
+    tokenA: string;
+    tokenB: string;
+    reserveA?: bigint;
+    reserveB?: bigint;
+    effects?: any[];
+}> {
+    let result = {
+        address: '',
+        tokenA: '',
+        tokenB: '',
+        reserveA: undefined as bigint | undefined,
+        reserveB: undefined as bigint | undefined,
+        effects: []
+    };
+
+    try {
+        logger.info("\n🔄 Processing Aqua Deposit event values:");
+
+        // User address (first value of the value)
+        const contractBuffer = event?.contractId?._id?.data;
+        if (contractBuffer) {
+            result.address = hexToSorobanAddress(Buffer.from(contractBuffer).toString('hex'));
+            logger.info(`→ Contract address: ${result.address}`);
+        }
+        // Token A
+        const topicTokens1 = event?.topic?.[1]?._value;
+        const tokenABuffer = topicTokens1?._value?.data;
+        if (tokenABuffer) {
+            result.tokenA = hexToSorobanAddress(Buffer.from(tokenABuffer).toString('hex'));
+            logger.info(`→ Token A: ${result.tokenA}`);
+        }
+        // Token B
+        const topicTokens2 = event?.topic?.[2]?._value;
+        const tokenBBuffer = topicTokens2?._value?.data;
+        if (tokenBBuffer) {
+            result.tokenB = hexToSorobanAddress(Buffer.from(tokenBBuffer).toString('hex'));
+            logger.info(`→ Token B: ${result.tokenB}`);
+        }
+        
+        if (!result.address || !result.tokenA || !result.tokenB) {
+            throw new Error('Incomplete data in Deposit event');
+        }
+
+        // Get contract data using getLedgerEntries
+        if (result.address) {
+            logger.info(`🔍 Fetching contract data for ${result.address}...`);
+            const contractData = await getContractData(result.address);
+            
+            if (contractData.reserveA !== undefined) {
+                result.reserveA = contractData.reserveA;
+                logger.info(`→ ReserveA from contract: ${result.reserveA.toString()}`);
+            }
+            
+            if (contractData.reserveB !== undefined) {
+                result.reserveB = contractData.reserveB;
+                logger.info(`→ ReserveB from contract: ${result.reserveB.toString()}`);
+            }
+        }
+
+        return result;
+    } catch (error) {
+        logger.error(`❌ Error extracting Aqua Deposit values: ${error}`);
+        return result;
+    }
+}
+
+function hexToSorobanAddress(hexString: string): string {
+    const buffer = Buffer.from(hexString, 'hex');
+    return StrKey.encodeContract(buffer);
+}
 
 async function initialize(): Promise<void> {
     logger.info("🚀 Initializing pairs...");
@@ -204,71 +388,69 @@ async function initializeAqua(): Promise<void> {
     const failedPools: string[] = [];
     
     try {
-        // Eliminamos la verificación inicial ya que es un proceso de inicialización
-        // y asumimos que la base de datos está vacía
 
-        logger.info(`📊 Procesando ${aquaPoolsList.length} pools de Aqua...`);
+        logger.info(`📊 Processing ${aquaPoolsList.length} Aqua pools...`);
         
-        // Procesar en lotes para evitar sobrecarga de memoria
+        // Process in batches to avoid memory overload
         const batchSize = 20;
         for (let i = 0; i < aquaPoolsList.length; i += batchSize) {
             const batch = aquaPoolsList.slice(i, i + batchSize);
             
-            // Crear registros para este lote
+            // Create records for this batch
             const poolPromises = batch.map(async (pool, index) => {
                 try {
-                    // Verificar si ya existe este pool
+                    // Verify if this pool already exists
                     const existingPool = await PairsAqua.get(pool.address);
                     if (existingPool) {
-                        return null; // Ya existe, no hacer nada
+                        return null; // Already exists, do nothing
                     }
                     
-                    // Crear nuevo registro
+                    // Create new record
                     const newPool = PairsAqua.create({
                         id: pool.address,
-                        ledger: 0, // Se actualizará con eventos reales
+                        ledger: 0, // Will be updated with real events
                         date: new Date(),
                         address: pool.address,
                         tokenA: pool.tokenA,
                         tokenB: pool.tokenB,
                         poolType: '',
-                        reserveA: BigInt(0), // Inicializado en 0
-                        reserveB: BigInt(0)  // Inicializado en 0
+                        reserveA: BigInt(0), // Initialized in 0
+                        reserveB: BigInt(0)  // Initialized in 0
                     });
                     
                     await newPool.save();
                     return pool.address;
                 } catch (error) {
-                    logger.error(`❌ Error inicializando Aqua pool ${pool.address}: ${error}`);
+                    logger.error(`❌ Error initializing Aqua pool ${pool.address}: ${error}`);
                     failedPools.push(pool.address);
                     return null;
                 }
             });
             
-            // Esperar a que se completen todas las operaciones del lote
+            // Wait for all operations in the batch to complete
             const results = await Promise.all(poolPromises);
             const successCount = results.filter(Boolean).length;
             
             logger.info(`✅ Procesado lote ${Math.floor(i/batchSize) + 1}/${Math.ceil(aquaPoolsList.length/batchSize)}: ${successCount} pools guardados`);
             
-            // Pequeña pausa entre lotes para evitar sobrecarga
+            // Small pause between batches to avoid overload
             await new Promise(resolve => setTimeout(resolve, 500));
         }
         
-        // Para el resumen final, simplemente contamos los pools guardados exitosamente
-        logger.info("\n📊 Resumen de inicialización de Aqua:");
-        logger.info(`✅ Pools procesados exitosamente: ${aquaPoolsList.length - failedPools.length}`);
+        // For the final summary, simply count the successfully saved pools
+        logger.info("\n📊 Summary of Aqua initialization:");
+        logger.info(`✅ Pools processed successfully: ${aquaPoolsList.length - failedPools.length}`);
         if (failedPools.length > 0) {
-            logger.info(`❌ Pools con errores (${failedPools.length}):`);
+            logger.info(`❌ Pools with errors (${failedPools.length}):`);
             failedPools.forEach(pool => logger.info(`   - ${pool}`));
         }
         
     } catch (error) {
-        logger.error(`❌ Error general inicializando Aqua pools: ${error}`);
+        logger.error(`❌ General error initializing Aqua pools: ${error}`);
         throw error;
     }
     
-    logger.info("✅ Inicialización de Aqua completada");
+    logger.info("✅ Aqua initialization completed");
 }
 
 // Extract reserves from a sync event and parse to bigint
@@ -337,11 +519,6 @@ function extractReserves(event: any): ReservesResult {
         reserveA,
         reserveB
     };
-}
-
-function hexToSorobanAddress(hexString: string): string {
-    const buffer = Buffer.from(hexString, 'hex');
-    return StrKey.encodeContract(buffer);
 }
 
 function extractValuesNewPair(event: any): { tokenA: string, tokenB: string, address: string } {
@@ -496,175 +673,151 @@ function extractAddPoolAquaValues(event: any): {
     }
 }
 
-// // extract values from swapAqua event   
-// function extractSwapAquaValues(event: any): {
-//     user: string,
-//     tokenIn: string,
-//     tokenOut: string,
-//     inAmount: bigint,
-//     outMin: bigint
-// } {
-//     let result = {
-//         user: '',
-//         tokenIn: '',
-//         tokenOut: '',
-//         inAmount: BigInt(0),
-//         outMin: BigInt(0)
-//     };
+// Function to get ledger key for contract instance
+function getLedgerKeyContractCode(contractId: string): string {
+    const instance = new Contract(contractId).getFootprint();
+    return instance.toXDR("base64");
+}
 
-//     try {
-//         // Extraer los valores del evento
-//         const values = event?.value?._value;
-//         if (!Array.isArray(values)) {
-//             logger.error('❌ Event structure is not as expected. Event value:', JSON.stringify(event?.value));
-//             throw new Error('No values array found in Swap event');
-//         }
-
-//         logger.info("\n🔄 Processing Aqua Swap event values:");
-
-//         // Los primeros tres valores son direcciones (user, tokenIn, tokenOut)
-//         if (values.length >= 3) {
-//             // User address (primer valor)
-//             const userBuffer = values[0]?._arm === 'address' ? 
-//                 values[0]?._value?._value?.data : null;
-//             if (userBuffer) {
-//                 result.user = hexToSorobanAddress(Buffer.from(userBuffer).toString('hex'));
-//                 logger.info(`→ User address: ${result.user}`);
-//             }
-
-//             // Token In (segundo valor)
-//             const tokenInBuffer = values[1]?._arm === 'address' ? 
-//                 values[1]?._value?._value?.data : null;
-//             if (tokenInBuffer) {
-//                 result.tokenIn = hexToSorobanAddress(Buffer.from(tokenInBuffer).toString('hex'));
-//                 logger.info(`→ Token In: ${result.tokenIn}`);
-//             }
-
-//             // Token Out (tercer valor)
-//             const tokenOutBuffer = values[2]?._arm === 'address' ? 
-//                 values[2]?._value?._value?.data : null;
-//             if (tokenOutBuffer) {
-//                 result.tokenOut = hexToSorobanAddress(Buffer.from(tokenOutBuffer).toString('hex'));
-//                 logger.info(`→ Token Out: ${result.tokenOut}`);
-//             }
-
-//             // In Amount (cuarto valor)
-//             const inAmount = values[3]?._arm === 'u128' ? 
-//                 values[3]?._value?._attributes?.lo?._value : null;
-//             if (inAmount) {
-//                 result.inAmount = BigInt(inAmount);
-//                 logger.info(`→ In Amount: ${result.inAmount.toString()}`);
-//             }
-
-//             // Out Min (quinto valor)
-//             const outMin = values[4]?._arm === 'u128' ? 
-//                 values[4]?._value?._attributes?.lo?._value : null;
-//             if (outMin) {
-//                 result.outMin = BigInt(outMin);
-//                 logger.info(`→ Out Min: ${result.outMin.toString()}`);
-//             }
-//         }
-
-//         // Verificación más flexible
-//         if (!result.user || !result.tokenIn || !result.tokenOut) {
-//             throw new Error('No data could be extracted from the Swap event');
-//         }
-
-//         return result;
-
-//     } catch (error) {
-//         logger.error(`❌ Error extracting Aqua Swap values: ${error}`);
-//         logger.error('Event data was:', JSON.stringify(event, null, 2));
-//         throw error;
-//     }
-// }
-
-
-
-// // Function to extract values from depositAqua event
-// function extractDepositAquaValues(event: any): {
-//     user: string,
-//     tokenIn: string,
-//     tokenOut: string,
-//     inAmount: bigint,
-//     outMin: bigint
-// } {
-//     let result = {
-//         user: '',
-//         tokenIn: '',
-//         tokenOut: '',
-//         inAmount: BigInt(0),
-//         outMin: BigInt(0)
-//     };
-
-//     try {
-//         const values = event?.value?._value;
-//         if (!Array.isArray(values)) {
-//             logger.error('❌ Event structure is not as expected. Event value:', JSON.stringify(event?.value));
-//             throw new Error('No values array found in Deposit event');
-//         }
-
-//         logger.info("\n🔄 Processing Aqua Deposit event values:");
-
-//         // Los primeros valores son direcciones (user y tokens)
-//         if (values.length >= 2) {
-//             // User address (primer valor)
-//             const userBuffer = values[0]?._arm === 'address' ? 
-//                 values[0]?._value?._value?._value?.data : null;
-//             if (userBuffer) {
-//                 result.user = hexToSorobanAddress(Buffer.from(userBuffer).toString('hex'));
-//                 logger.info(`→ User address: ${result.user}`);
-//             }
-
-//             // Tokens (segundo valor es un vector de addresses)
-//             const tokens = values[1]?._value;
-//             if (Array.isArray(tokens) && tokens.length >= 2) {
-//                 // Token In (primer token)
-//                 const tokenInBuffer = tokens[0]?._value?._value?._value?.data;
-//                 if (tokenInBuffer) {
-//                     result.tokenIn = hexToSorobanAddress(Buffer.from(tokenInBuffer).toString('hex'));
-//                     logger.info(`→ Token In: ${result.tokenIn}`);
-//                 }
-
-//                 // Token Out (segundo token)
-//                 const tokenOutBuffer = tokens[1]?._value?._value?._value?.data;
-//                 if (tokenOutBuffer) {
-//                     result.tokenOut = hexToSorobanAddress(Buffer.from(tokenOutBuffer).toString('hex'));
-//                     logger.info(`→ Token Out: ${result.tokenOut}`);
-//                 }
-//             }
-
-//             // Desired amounts (cuarto valor es un vector de u128)
-//             const desiredAmounts = values[3]?._value;
-//             if (Array.isArray(desiredAmounts) && desiredAmounts.length >= 1) {
-//                 const inAmount = desiredAmounts[0]?._value?._attributes?.lo?._value;
-//                 if (inAmount) {
-//                     result.inAmount = BigInt(inAmount);
-//                     logger.info(`→ In Amount: ${result.inAmount.toString()}`);
-//                 }
-//             }
-
-//             // Min shares (quinto valor)
-//             const minShares = values[4]?._value?._attributes?.lo?._value;
-//             if (minShares) {
-//                 result.outMin = BigInt(minShares);
-//                 logger.info(`→ Min Shares: ${result.outMin.toString()}`);
-//             }
-//         }
-
-//         // Verificación más flexible
-//         if (!result.user || !result.tokenIn || !result.tokenOut) {
-//             throw new Error('No data could be extracted from the Deposit event');
-//         }
-
-//         return result;
-
-//     } catch (error) {
-//         logger.error(`❌ Error extracting Aqua Deposit values: ${error}`);
-//         logger.error('Event data was:', JSON.stringify(event, null, 2));
-//         throw error;
-//     }
-// }
+// Function to get contract data using getLedgerEntries
+async function getContractData(contractId: string): Promise<{reserveA?: bigint, reserveB?: bigint}> {
+    try {
+        logger.info(`🔍 Getting contract data for: ${contractId}`);
+        
+        const ledgerKey = getLedgerKeyContractCode(contractId);
+        
+        
+        const requestBody = {
+            "jsonrpc": "2.0",
+            "id": 8675309,
+            "method": "getLedgerEntries",
+            "params": {
+                "keys": [
+                    ledgerKey
+                ]
+            }
+        };
+        
+        const res = await fetch(SOROBAN_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+        });
+        
+        const json = await res.json();
+        logger.info(`🔍 json: ${JSON.stringify(json, null, 2)}`);
+        
+        // Check if there are entries in the response
+        if (json.result && json.result.entries && json.result.entries.length > 0) {
+            // Get the XDR from the first entry
+            const xdrData = json.result.entries[0].xdr;
+            
+            try {
+                // Try to decode the XDR
+                const decodedData = xdr.LedgerEntryData.fromXDR(xdrData, 'base64');
+                
+                // If it's contract data, extract more information
+                if (decodedData.switch().name === 'contractData') {
+                    const contractData = decodedData.contractData();
+                    
+                    // Extract ReserveA and ReserveB
+                    if (contractData.val().switch().name === 'scvContractInstance') {
+                        const instance = contractData.val().instance();
+                        if (instance && instance.storage()) {
+                            const storage = instance.storage();
+                            
+                            // Create an object to store the values
+                            const contractValues: { [key: string]: any } = {};
+                            
+                            if(storage) {
+                                // Look for ReserveA and ReserveB in the storage
+                                for (let i = 0; i < storage.length; i++) {
+                                    const entry = storage[i];
+                                    const key = entry.key();
+                                    
+                                    // Check if the key is a vector containing a symbol
+                                    if (key.switch().name === 'scvVec' && key.vec() && key.vec().length > 0) {
+                                        const firstElement = key.vec()[0];
+                                        if (firstElement.switch().name === 'scvSymbol') {
+                                            // Convert buffer to string for comparison
+                                            const symbolBuffer = firstElement.sym();
+                                            const symbolText = Buffer.from(symbolBuffer).toString();
+                                            
+                                            // Get the value
+                                            const val = entry.val();
+                                            
+                                            // Store in the values object
+                                            contractValues[symbolText] = val;
+                                        }
+                                    }
+                                }
+                                
+                                // search reserves - they can have different names depending on the contract
+                                let reserveA: bigint | undefined;
+                                let reserveB: bigint | undefined;
+                                
+                                // possible names for reserves
+                                const reserveANames = ["ReserveA", "reserve_a", "reserve0", "Reserve0"];
+                                const reserveBNames = ["ReserveB", "reserve_b", "reserve1", "Reserve1"];
+                                
+                                // search reserveA
+                                for (const name of reserveANames) {
+                                    if (contractValues[name] !== undefined) {
+                                        const reserveAVal = contractValues[name];
+                                        if (reserveAVal.switch().name === 'scvU128') {
+                                            reserveA = BigInt(reserveAVal.u128().lo().toString());
+                                            logger.info(`→ ReserveA (${name}): ${reserveA.toString()}`);
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                // search reserveB
+                                for (const name of reserveBNames) {
+                                    if (contractValues[name] !== undefined) {
+                                        const reserveBVal = contractValues[name];
+                                        if (reserveBVal.switch().name === 'scvU128') {
+                                            reserveB = BigInt(reserveBVal.u128().lo().toString());
+                                            logger.info(`→ ReserveB (${name}): ${reserveB.toString()}`);
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                // if we don't find the reserves, show all available keys
+                                if (reserveA === undefined || reserveB === undefined) {
+                                    logger.info("⚠️ Not all reserves found. Available keys:");
+                                    Object.keys(contractValues).forEach(key => {
+                                        logger.info(`- ${key}`);
+                                    });
+                                }
+                                
+                                return {
+                                    reserveA,
+                                    reserveB
+                                };
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                logger.error("❌ Error decoding XDR:", error);
+            }
+        } else {
+            logger.info("No entries found in the response or incorrect format.");
+        }
+        
+        return {};
+    } catch (error) {
+        logger.error("❌ Error getting contract data:", error);
+        if (error.response?.data) {
+            logger.error("❌ Error details:", error.response.data);
+        }
+        return {};
+    }
+}
 
 
 

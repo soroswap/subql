@@ -1,6 +1,6 @@
 import { xdr, rpc, scValToNative } from "@stellar/stellar-sdk";
 import 'dotenv/config';
-
+//   yarn getData: "ts-node scripts/stellar-sdk/getContractData.ts"
 // Default Soroban endpoint
 const SOROBAN_ENDPOINT = process.env.SOROBAN_ENDPOINT || 'https://soroban-testnet.stellar.org';
 const server = new rpc.Server(SOROBAN_ENDPOINT, { allowHttp: true });

@@ -18,6 +18,7 @@
     "test:newpair": "ts-node scripts/tests/extractNewPair.ts",
     "getLastLedger": "ts-node scripts/getLastLedger.ts",
     "getData": "ts-node scripts/stellar-sdk/getContractData.ts",
+    "getLedger": "ts-node scripts/stellar-sdk/getLedgerEntries.ts",
     "test:addpool": "ts-node scripts/tests/exctract_addpool.ts",
     "aqua-pools": "ts-node -r dotenv/config scripts/AquapoolsTokensMaker.ts",
     "test:deposit": "ts-node scripts/extract-values-events/extract_deposit_aqua.ts"
