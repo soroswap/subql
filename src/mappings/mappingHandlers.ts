@@ -2,7 +2,7 @@ import {
   SorobanEvent,
 } from "@subql/types-stellar";
 import { config } from 'dotenv';
-import { StrKey, xdr, rpc, Contract, scValToNative } from '@stellar/stellar-sdk';
+import { StrKey, xdr, rpc, Contract, scValToNative, Address } from '@stellar/stellar-sdk';
 import { pairTokenReservesList } from "./pairTokenRsv";
 import { aquaPoolsList } from "./aquaPools";
 import { Pair, PairsAqua } from "../types";
@@ -30,56 +30,39 @@ export async function handleEventDepositAqua(event: SorobanEvent): Promise<void>
         await initializeAqua();
         aquaInitialized = true;
     }
-    // // Test for error example with scValToNative
+    // // 1. Test for error example with Incomplete Data
     // try {
-    //     const test = scValToNative(event.value);
-    //     logger.info("🔍 test:❌❌❌❌❌");
-    //     logger.info(test[0]);
-    //     logger.info(JSON.stringify(test[0]));
+    //     const test = event.value;
+    //     logger.info(`🔍 🔴🔴🔴🔴 test: ${JSON.stringify(test)}`);
+    //     logger.info(`🔍 🔴🔴🔴🔴 testTransaction: ${JSON.stringify(event.transaction)}`);
+    //     const testResultXdr = event.transaction.result_meta_xdr;
+    //     logger.info(`🔍 🔴🔴🔴🔴 testResultMetaXdr: ${testResultXdr}`);
+    //     logger.info(`🔍 🔴🔴🔴🔴 testResultXdrString: ${testResultXdr.toString()}`);
     // } catch (error) {
-    //     logger.error("❌🔴🔴 Error processing Aqua deposit event: ${error}");
+    //     logger.error("❌🔴🔴 Error processing Aqua deposit event transaction: ${error}");
     //     throw error;
     // }
 
-    // TEST for error example with axios
+
+    // // 2. Test for error example with getContractData using axios
     // try {
-    //     const instanceKey = xdr.ScVal.scvLedgerKeyContractInstance();
-    //     const test = await server.getContractData("CCDLVANSRYQ4IVO3A43UJAPKIWU2324D54NKGHCWWVCVCX2CNX2K4TAR", instanceKey);
+    //     const contractId = "CAQVZKCFWX4HT3C3RUXGR7OETDKRMN433M2QWUXC5X64WE2FKDUFA7GQ";
+    //     const ledgerKey = getLedgerKeyContractCode(contractId);
+    //     const test = await server.getContractData(new Address(contractId),xdr.ScVal.scvLedgerKeyContractInstance());
     //     logger.info("🔍 test:❌❌❌❌❌");
     //     logger.info(test);
     // } catch (error) {
     //     throw(error);
     // }
-    // Test for error example with fetch
-    // try {
-    //     const contractId = "CCDLVANSRYQ4IVO3A43UJAPKIWU2324D54NKGHCWWVCVCX2CNX2K4TAR";
-    //     const ledgerKey = getLedgerKeyContractCode(contractId);
-    //     const requestBody = {
-    //         "jsonrpc": "2.0",
-    //         "id": 8675309,
-    //         "method": "getLedgerEntries",
-    //         "params": {
-    //             "keys": [
-    //                 ledgerKey
-    //             ]
-    //         }
-    // //     };
-        
-    //     const res = await fetch(SOROBAN_ENDPOINT, {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify(requestBody),
-    //     });
-        
-    //     const json = await res.json();
-    //     logger.info(`🔍 json: ${JSON.stringify(json)}`);
-    // } catch (error) {
-    //     logger.error(`❌ Error processing Aqua deposit event: ${error}`);
-    //     throw error;
-    // }
-
+    // 3. Test for error example with getContractDataFetch incomplete data
+    try {
+        const contractId = "CAQVZKCFWX4HT3C3RUXGR7OETDKRMN433M2QWUXC5X64WE2FKDUFA7GQ";
+        const contractData = await getContractDataFetch(contractId);
+        logger.info(`🔍 🔴🔴🔴🔴 contractData: ${JSON.stringify(contractData)}`);
+    } catch (error) {
+        logger.error(`❌ Error processing Aqua deposit event: ${error}`);
+        throw error;
+    }
     try {
         logger.info(`🔄 Processing AQUA DEPOSIT LIQUIDITY EVENT`);
         
@@ -316,7 +299,7 @@ async function extractDepositAquaValues(event: any): Promise<{
         // Get contract data using getLedgerEntries
         if (result.address) {
             logger.info(`🔍 Fetching contract data for ${result.address}...`);
-            let contractData = await getContractData(result.address);
+            let contractData = await getContractDataFetch("CA6PUJLBYKZKUEKLZJMKBZLEKP2OTHANDEOWSFF44FTSYLKQPIICCJBE");
             
             
             if (contractData.reserveA !== undefined) {
@@ -346,7 +329,7 @@ async function extractDepositAquaValues(event: any): Promise<{
 
 
 // Function to get contract data using getLedgerEntries
-async function getContractData(contractId: string): Promise<{reserveA?: bigint, reserveB?: bigint}> {
+async function getContractDataFetch(contractId: string): Promise<{reserveA?: bigint, reserveB?: bigint}> {
     try {
         logger.info(`🔍 Getting contract data for: ${contractId}`);
         const ledgerKey = getLedgerKeyContractCode(contractId);
@@ -370,21 +353,24 @@ async function getContractData(contractId: string): Promise<{reserveA?: bigint, 
         });
         
         const json = await res.json();
-        logger.info(json) 
         logger.info(`🔍 🔴🟣🟢🔵 Response: ${JSON.stringify(json)}`);
         logger.info(`🔍 🟢🟢🟢🟢 json.result.entries.length: ${json.result.entries.length}`);
         // Check if there are entries in the response
         if (json.result && json.result.entries) {
+            let xdrData: any;
+            try {
             // Get the XDR from the first entry
-            const jsonResult = json.result; 
-            logger.info(`🔍 🔴🔴🔴🔴 jsonResult: ${jsonResult}`);
-            logger.info(`🔍 🔴🔴🔴 jsonResult string: ${JSON.stringify(jsonResult)}`);
-            const jsonEntries = jsonResult.entries;
-            logger.info(`🔍 🔴🔴 jsonEntries: ${JSON.stringify(jsonEntries)}`);
-            const jsonEntry = jsonEntries[0];
-            logger.info(`🔍 🔴 jsonEntry: ${JSON.stringify(jsonEntry)}`);
-            const xdrData = jsonEntry.xdr;
-            logger.info(`🔍 ✅  XDR data: ${JSON.stringify(xdrData)}`);
+                const jsonResult = json.result; 
+                logger.info(`🔍 🔴🔴🔴 jsonResult string: ${JSON.stringify(jsonResult)}`);
+                const jsonEntries = jsonResult.entries;
+                logger.info(`🔍 🔴🔴 jsonEntries: ${JSON.stringify(jsonEntries)}`);
+                const jsonEntry = jsonEntries[0];
+                logger.info(`🔍 🔴 jsonEntry: ${JSON.stringify(jsonEntry)}`);
+                let xdrData = jsonEntry.xdr;
+                logger.info(`🔍 ✅  XDR data: ${JSON.stringify(xdrData)}`);
+            } catch (error) {
+                logger.error(`❌ Error decoding XDR: ${error}`);
+            }
 
             try {
                 // Try to decode the XDR
@@ -862,7 +848,17 @@ function getLedgerKeyContractCode(contractId: string): string {
     }
 }
 
-
+    // // //  2. Test for error example with scValToNative
+    // try {
+    //     const test = scValToNative(event.value);
+    //     logger.info("🔍 test:❌❌❌❌❌");
+    //     logger.info(" test[0]: " + test[0]);
+    //     logger.info(" test[1]: " + test[1]);
+    //     logger.info(" test: " + test);
+    // } catch (error) {
+    //     logger.error("❌🔴🔴 Error processing Aqua deposit event: ${error}");
+    //     throw error;
+    // }
 
 
 

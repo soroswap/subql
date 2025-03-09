@@ -28,7 +28,7 @@ function getLedgerKeyContractCode(contractId) {
   }
 
 // Function to get contract data using getLedgerEntries
-async function getContractData2(contractId: string): Promise<{reserveA?: bigint, reserveB?: bigint}> {
+async function getContractDataFetch(contractId: string): Promise<{reserveA?: bigint, reserveB?: bigint}> {
     try {
         console.log(`🔍 Getting contract data for: ${contractId}`);
         
@@ -208,7 +208,7 @@ async function extractDepositAquaValues(event: any): Promise<AddPoolResult> {
         // get contract data
         if (result.address) {
             console.log(`🔍 Fetching contract data for ${result.address}...`);
-            const contractData = await getContractData2(result.address);
+            const contractData = await getContractDataFetch(result.address);
             
             if (contractData.reserveA !== undefined) {
                 result.reserveA = contractData.reserveA;
