@@ -2,10 +2,11 @@ import {
   SorobanEvent,
 } from "@subql/types-stellar";
 import { config } from 'dotenv';
-import { StrKey, xdr, rpc, Contract } from '@stellar/stellar-sdk';
+import { StrKey, xdr, rpc, Contract, scValToNative } from '@stellar/stellar-sdk';
 import { pairTokenReservesList } from "./pairTokenRsv";
 import { aquaPoolsList } from "./aquaPools";
 import { Pair, PairsAqua } from "../types";
+import fetch from 'node-fetch';
 
 config();
 
@@ -29,6 +30,16 @@ export async function handleEventDepositAqua(event: SorobanEvent): Promise<void>
         await initializeAqua();
         aquaInitialized = true;
     }
+    // // Test for error example with scValToNative
+    // try {
+    //     const test = scValToNative(event.value);
+    //     logger.info("🔍 test:❌❌❌❌❌");
+    //     logger.info(test[0]);
+    //     logger.info(JSON.stringify(test[0]));
+    // } catch (error) {
+    //     logger.error("❌🔴🔴 Error processing Aqua deposit event: ${error}");
+    //     throw error;
+    // }
 
     // TEST for error example with axios
     // try {
@@ -52,7 +63,7 @@ export async function handleEventDepositAqua(event: SorobanEvent): Promise<void>
     //                 ledgerKey
     //             ]
     //         }
-    //     };
+    // //     };
         
     //     const res = await fetch(SOROBAN_ENDPOINT, {
     //         method: 'POST',
@@ -305,7 +316,8 @@ async function extractDepositAquaValues(event: any): Promise<{
         // Get contract data using getLedgerEntries
         if (result.address) {
             logger.info(`🔍 Fetching contract data for ${result.address}...`);
-            const contractData = await getContractData(result.address);
+            let contractData = await getContractData(result.address);
+            
             
             if (contractData.reserveA !== undefined) {
                 result.reserveA = contractData.reserveA;
@@ -316,6 +328,13 @@ async function extractDepositAquaValues(event: any): Promise<{
                 result.reserveB = contractData.reserveB;
                 logger.info(`→ ReserveB from contract: ${result.reserveB.toString()}`);
             }
+            
+            // If no data is found, use default values
+            if (result.reserveA === undefined && result.reserveB === undefined) {
+                logger.info(`⚠️ No reserve data found for contract ${result.address}, using default values`);
+                result.reserveA = BigInt(0);
+                result.reserveB = BigInt(0);
+            }
         }
 
         return result;
@@ -324,6 +343,155 @@ async function extractDepositAquaValues(event: any): Promise<{
         return result;
     }
 }
+
+
+// Function to get contract data using getLedgerEntries
+async function getContractData(contractId: string): Promise<{reserveA?: bigint, reserveB?: bigint}> {
+    try {
+        logger.info(`🔍 Getting contract data for: ${contractId}`);
+        const ledgerKey = getLedgerKeyContractCode(contractId);
+        const requestBody = {
+            "jsonrpc": "2.0",
+            "id": 8675309,
+            "method": "getLedgerEntries",
+            "params": {
+                "keys": [
+                    ledgerKey
+                ]
+            }
+        };
+        
+        const res = await fetch(SOROBAN_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+        });
+        
+        const json = await res.json();
+        logger.info(json) 
+        logger.info(`🔍 🔴🟣🟢🔵 Response: ${JSON.stringify(json)}`);
+        logger.info(`🔍 🟢🟢🟢🟢 json.result.entries.length: ${json.result.entries.length}`);
+        // Check if there are entries in the response
+        if (json.result && json.result.entries) {
+            // Get the XDR from the first entry
+            const jsonResult = json.result; 
+            logger.info(`🔍 🔴🔴🔴🔴 jsonResult: ${jsonResult}`);
+            logger.info(`🔍 🔴🔴🔴 jsonResult string: ${JSON.stringify(jsonResult)}`);
+            const jsonEntries = jsonResult.entries;
+            logger.info(`🔍 🔴🔴 jsonEntries: ${JSON.stringify(jsonEntries)}`);
+            const jsonEntry = jsonEntries[0];
+            logger.info(`🔍 🔴 jsonEntry: ${JSON.stringify(jsonEntry)}`);
+            const xdrData = jsonEntry.xdr;
+            logger.info(`🔍 ✅  XDR data: ${JSON.stringify(xdrData)}`);
+
+            try {
+                // Try to decode the XDR
+                const decodedData = xdr.LedgerEntryData.fromXDR(xdrData, 'base64');
+                logger.info(`🔍 🔴🔴🔴 Decoded data: ${JSON.stringify(decodedData)}`);
+                // If it's contract data, extract more information
+                if (decodedData.switch().name === 'contractData') {
+                    const contractData = decodedData.contractData();
+                    logger.info(`🔍 🔴🔴 Contract data: ${JSON.stringify(contractData)}`);
+                    // Extract ReserveA and ReserveB
+                    if (contractData.val().switch().name === 'scvContractInstance') {
+                        const instance = contractData.val().instance();
+                        if (instance && instance.storage()) {
+                            const storage = instance.storage();
+                            
+                            // Create an object to store the values
+                            const contractValues: { [key: string]: any } = {};
+                            
+                            if(storage) {
+                                // Look for ReserveA and ReserveB in the storage
+                                for (let i = 0; i < storage.length; i++) {
+                                    const entry = storage[i];
+                                    const key = entry.key();
+                                    
+                                    // Check if the key is a vector containing a symbol
+                                    const keyVec = key.switch().name === 'scvVec' ? key.vec() : null;
+                                    if (keyVec && keyVec.length > 0) {
+                                        const firstElement = keyVec[0];
+                                        if (firstElement && firstElement.switch().name === 'scvSymbol') {
+                                            // Convert buffer to string for comparison
+                                            const symbolBuffer = firstElement.sym();
+                                            const symbolText = Buffer.from(symbolBuffer).toString();
+                                            
+                                            // Get the value
+                                            const val = entry.val();
+                                            
+                                            // Store in the values object
+                                            contractValues[symbolText] = val;
+                                        }
+                                    }
+                                }
+                                
+                                // search reserves - they can have different names depending on the contract
+                                let reserveA: bigint | undefined;
+                                let reserveB: bigint | undefined;
+                                
+                                // possible names for reserves
+                                const reserveANames = ["ReserveA", "reserve_a", "reserve0", "Reserve0"];
+                                const reserveBNames = ["ReserveB", "reserve_b", "reserve1", "Reserve1"];
+                                
+                                // search reserveA
+                                for (const name of reserveANames) {
+                                    if (contractValues[name] !== undefined) {
+                                        const reserveAVal = contractValues[name];
+                                        if (reserveAVal.switch().name === 'scvU128') {
+                                            reserveA = BigInt(reserveAVal.u128().lo().toString());
+                                            console.log(`→ ReserveA (${name}): ${reserveA.toString()}`);
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                // search reserveB
+                                for (const name of reserveBNames) {
+                                    if (contractValues[name] !== undefined) {
+                                        const reserveBVal = contractValues[name];
+                                        if (reserveBVal.switch().name === 'scvU128') {
+                                            reserveB = BigInt(reserveBVal.u128().lo().toString());
+                                            console.log(`→ ReserveB (${name}): ${reserveB.toString()}`);
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                // if we don't find the reserves, show all available keys
+                                if (reserveA === undefined || reserveB === undefined) {
+                                    console.log("⚠️ Not all reserves found. Available keys:");
+                                    Object.keys(contractValues).forEach(key => {
+                                        console.log(`- ${key}`);
+                                    });
+                                }
+                                
+                                return {
+                                    reserveA,
+                                    reserveB
+                                };
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("❌ Error decoding XDR:", error);
+            }
+        } else {
+            console.log("No entries found in the response or incorrect format.");
+        }
+        
+        return {};
+    } catch (error) {
+        console.error("❌ Error getting contract data:", error);
+        if (error.response?.data) {
+            console.error("❌ Error details:", error.response.data);
+        }
+        return {};
+    }
+}
+
 
 function hexToSorobanAddress(hexString: string): string {
     const buffer = Buffer.from(hexString, 'hex');
@@ -675,149 +843,25 @@ function extractAddPoolAquaValues(event: any): {
 
 // Function to get ledger key for contract instance
 function getLedgerKeyContractCode(contractId: string): string {
-    const instance = new Contract(contractId).getFootprint();
-    return instance.toXDR("base64");
-}
-
-// Function to get contract data using getLedgerEntries
-async function getContractData(contractId: string): Promise<{reserveA?: bigint, reserveB?: bigint}> {
     try {
-        logger.info(`🔍 Getting contract data for: ${contractId}`);
+        // Create contract instance and get its footprint
+        const contract = new Contract(contractId);
         
-        const ledgerKey = getLedgerKeyContractCode(contractId);
+        // Get contract footprint (footprint)
+        const footprint = contract.getFootprint();
         
+        // Convert to XDR in base64 format
+        const xdrBase64 = footprint.toXDR("base64");
         
-        const requestBody = {
-            "jsonrpc": "2.0",
-            "id": 8675309,
-            "method": "getLedgerEntries",
-            "params": {
-                "keys": [
-                    ledgerKey
-                ]
-            }
-        };
+        logger.info(`🔍 Generated ledger key for ${contractId}: ${xdrBase64}`);
         
-        const res = await fetch(SOROBAN_ENDPOINT, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-        });
-        
-        const json = await res.json();
-        logger.info(`🔍 json: ${JSON.stringify(json, null, 2)}`);
-        
-        // Check if there are entries in the response
-        if (json.result && json.result.entries && json.result.entries.length > 0) {
-            // Get the XDR from the first entry
-            const xdrData = json.result.entries[0].xdr;
-            
-            try {
-                // Try to decode the XDR
-                const decodedData = xdr.LedgerEntryData.fromXDR(xdrData, 'base64');
-                
-                // If it's contract data, extract more information
-                if (decodedData.switch().name === 'contractData') {
-                    const contractData = decodedData.contractData();
-                    
-                    // Extract ReserveA and ReserveB
-                    if (contractData.val().switch().name === 'scvContractInstance') {
-                        const instance = contractData.val().instance();
-                        if (instance && instance.storage()) {
-                            const storage = instance.storage();
-                            
-                            // Create an object to store the values
-                            const contractValues: { [key: string]: any } = {};
-                            
-                            if(storage) {
-                                // Look for ReserveA and ReserveB in the storage
-                                for (let i = 0; i < storage.length; i++) {
-                                    const entry = storage[i];
-                                    const key = entry.key();
-                                    
-                                    // Check if the key is a vector containing a symbol
-                                    if (key.switch().name === 'scvVec' && key.vec() && key.vec().length > 0) {
-                                        const firstElement = key.vec()[0];
-                                        if (firstElement.switch().name === 'scvSymbol') {
-                                            // Convert buffer to string for comparison
-                                            const symbolBuffer = firstElement.sym();
-                                            const symbolText = Buffer.from(symbolBuffer).toString();
-                                            
-                                            // Get the value
-                                            const val = entry.val();
-                                            
-                                            // Store in the values object
-                                            contractValues[symbolText] = val;
-                                        }
-                                    }
-                                }
-                                
-                                // search reserves - they can have different names depending on the contract
-                                let reserveA: bigint | undefined;
-                                let reserveB: bigint | undefined;
-                                
-                                // possible names for reserves
-                                const reserveANames = ["ReserveA", "reserve_a", "reserve0", "Reserve0"];
-                                const reserveBNames = ["ReserveB", "reserve_b", "reserve1", "Reserve1"];
-                                
-                                // search reserveA
-                                for (const name of reserveANames) {
-                                    if (contractValues[name] !== undefined) {
-                                        const reserveAVal = contractValues[name];
-                                        if (reserveAVal.switch().name === 'scvU128') {
-                                            reserveA = BigInt(reserveAVal.u128().lo().toString());
-                                            logger.info(`→ ReserveA (${name}): ${reserveA.toString()}`);
-                                            break;
-                                        }
-                                    }
-                                }
-                                
-                                // search reserveB
-                                for (const name of reserveBNames) {
-                                    if (contractValues[name] !== undefined) {
-                                        const reserveBVal = contractValues[name];
-                                        if (reserveBVal.switch().name === 'scvU128') {
-                                            reserveB = BigInt(reserveBVal.u128().lo().toString());
-                                            logger.info(`→ ReserveB (${name}): ${reserveB.toString()}`);
-                                            break;
-                                        }
-                                    }
-                                }
-                                
-                                // if we don't find the reserves, show all available keys
-                                if (reserveA === undefined || reserveB === undefined) {
-                                    logger.info("⚠️ Not all reserves found. Available keys:");
-                                    Object.keys(contractValues).forEach(key => {
-                                        logger.info(`- ${key}`);
-                                    });
-                                }
-                                
-                                return {
-                                    reserveA,
-                                    reserveB
-                                };
-                            }
-                        }
-                    }
-                }
-            } catch (error) {
-                logger.error("❌ Error decoding XDR:", error);
-            }
-        } else {
-            logger.info("No entries found in the response or incorrect format.");
-        }
-        
-        return {};
+        return xdrBase64;
     } catch (error) {
-        logger.error("❌ Error getting contract data:", error);
-        if (error.response?.data) {
-            logger.error("❌ Error details:", error.response.data);
-        }
-        return {};
+        logger.error(`❌ Error generating ledger key: ${error}`);
+        throw error;
     }
 }
+
 
 
 

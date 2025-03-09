@@ -3,7 +3,7 @@ import * as path from 'path';
 import { StrKey, xdr, Contract } from '@stellar/stellar-sdk';
 import 'dotenv/config';
 
-// yarn test:deposit: "ts-node scripts/tests/event_deposit_aqua.ts"
+// yarn test:fetch: "ts-node scripts/tests/event_deposit_aqua_test.ts"
 
 interface AddPoolResult {
     address: string;
@@ -27,19 +27,8 @@ function getLedgerKeyContractCode(contractId) {
     return instance.toXDR("base64");
   }
 
-// function getLedgerKeyContractCode(contractId: string): string {
-//     const ledgerKey = xdr.LedgerKey.contractData(
-//         new xdr.LedgerKeyContractData({
-//             contract: new Address(contractId).toScAddress(),
-//             key: xdr.ScVal.scvLedgerKeyContractInstance(),
-//             durability: xdr.ContractDataDurability.persistent(),
-//         }),
-//     );
-//     return ledgerKey.toXDR("base64");
-// }
-
 // Function to get contract data using getLedgerEntries
-async function getContractData(contractId: string): Promise<{reserveA?: bigint, reserveB?: bigint}> {
+async function getContractData2(contractId: string): Promise<{reserveA?: bigint, reserveB?: bigint}> {
     try {
         console.log(`🔍 Getting contract data for: ${contractId}`);
         
@@ -64,6 +53,9 @@ async function getContractData(contractId: string): Promise<{reserveA?: bigint, 
         });
         
         const json = await res.json();
+        console.log(json)
+        console.log(`🔍 🔴🔴🔴🔴 json: ${JSON.stringify(json)}`);
+        console.log(`🔍 🟢🟢🟢🟢 json.result.entries.length: ${json.result.entries.length}`);
         
         // Check if there are entries in the response
         if (json.result && json.result.entries && json.result.entries.length > 0) {
@@ -216,7 +208,7 @@ async function extractDepositAquaValues(event: any): Promise<AddPoolResult> {
         // get contract data
         if (result.address) {
             console.log(`🔍 Fetching contract data for ${result.address}...`);
-            const contractData = await getContractData(result.address);
+            const contractData = await getContractData2(result.address);
             
             if (contractData.reserveA !== undefined) {
                 result.reserveA = contractData.reserveA;
