@@ -27,7 +27,8 @@
   "dependencies": {
     "@subql/common": "^5.4.0",
     "@subql/common-stellar": "^4.3.0",
-    "@subql/types-stellar": "4.3.0"
+    "@subql/types-stellar": "4.3.0",
+    "base32.js": "^0.1.0"
   },
   "devDependencies": {
     "@subql/cli": "^5.7.0",

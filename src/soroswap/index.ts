@@ -1,19 +1,15 @@
-import { StrKey } from "@stellar/stellar-sdk";
 import { SorobanEvent } from "@subql/types-stellar";
 import { SoroswapPair } from "../types";
 import { extractReserves } from "./helpers/syncEvent";
+import { extractValuesNewPair } from "./helpers/newPairEvent";
+// import { extractValuesNewPair } from "./helpers/newPairEvent";
 
 export const soroswapSyncHandler = async (event: SorobanEvent) => {
-  // if (!initialized) {
-  //     await initialize();
-  //     initialized = true;
-  // }
-  // get contract address
   const address = event.contractId?.contractId().toString();
-  if (!StrKey.isValidContract(address)) {
-    logger.info(`🔴 Error: Invalid contract address`);
-    return;
-  }
+  // if (!StrKey.isValidContract(address)) {
+  //   logger.info(`🔴 Error: Invalid contract address`);
+  //   return;
+  // }
   // get pair from database and check if it exists
   const existingPair = await SoroswapPair.get(address);
   if (!existingPair) {
@@ -44,6 +40,42 @@ export const soroswapSyncHandler = async (event: SorobanEvent) => {
     logger.info(`✨ Updated reserves for pair ${address}`);
   } catch (error) {
     logger.error(`❌🔴🔴 Error processing sync event: ${error}`);
+    throw error;
+  }
+};
+
+export const soroswapNewPairHandler = async (event: SorobanEvent) => {
+  try {
+    const { tokenA, tokenB, address } = extractValuesNewPair(
+      JSON.parse(JSON.stringify(event))
+    );
+
+    logger.info(`🟣🟣🟣🟣 NewPair event: ${address}`);
+    logger.info(`🟣 Token A: ${tokenA}`);
+    logger.info(`🟣 Token B: ${tokenB}`);
+    // Crear nuevo par o actualizar si existe
+    const existingPair = await SoroswapPair.get(address);
+    const currentDate = new Date(event.ledgerClosedAt);
+
+    if (existingPair && new Date(existingPair.date) > currentDate) {
+      logger.info(`⏭️ Existing pair data is more recent, NOT updating`);
+      return;
+    }
+
+    const pair = SoroswapPair.create({
+      id: address,
+      ledger: event.ledger.sequence,
+      date: currentDate,
+      tokenA: tokenA,
+      tokenB: tokenB,
+      reserveA: existingPair ? existingPair.reserveA : BigInt(0),
+      reserveB: existingPair ? existingPair.reserveB : BigInt(0),
+    });
+
+    await pair.save();
+    logger.info(`✅ Pair ${address} created/updated`);
+  } catch (error) {
+    logger.error(`❌🔴🔴 Error processing NewPair event: ${error}`);
     throw error;
   }
 };

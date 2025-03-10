@@ -15,9 +15,6 @@ const project: StellarProject = {
   runner: {
     node: {
       name: "@subql/node-stellar",
-      options: {
-        unsafe: true,
-      },
       version: "*",
     },
     query: {
@@ -53,7 +50,7 @@ const project: StellarProject = {
     {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
-      startBlock: 56087671,
+      startBlock: 56091667,
       mapping: {
         file: "./dist/index.js",
         handlers: [

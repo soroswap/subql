@@ -1,9 +1,4 @@
-import { StrKey } from "@stellar/stellar-sdk";
-
-function hexToSorobanAddress(hexString: string): string {
-  const buffer = Buffer.from(hexString, "hex");
-  return StrKey.encodeContract(buffer);
-}
+import { encodeContract } from "./utils";
 
 export const extractValuesNewPair = (
   event: any
@@ -48,7 +43,7 @@ export const extractValuesNewPair = (
           const tokenABuffer = entry?._attributes?.val?._value?._value?.data;
           if (tokenABuffer) {
             const tokenAHex = Buffer.from(tokenABuffer).toString("hex");
-            tokenA = hexToSorobanAddress(tokenAHex);
+            tokenA = encodeContract(tokenAHex);
             //logger.info('→ Token A (hex):', tokenAHex);
             logger.info("→ Token A (Soroban):", tokenA);
           }
@@ -57,7 +52,7 @@ export const extractValuesNewPair = (
           const tokenBBuffer = entry?._attributes?.val?._value?._value?.data;
           if (tokenBBuffer) {
             const tokenBHex = Buffer.from(tokenBBuffer).toString("hex");
-            tokenB = hexToSorobanAddress(tokenBHex);
+            tokenB = encodeContract(tokenBHex);
             //logger.info('→ Token B (hex):', tokenBHex);
             logger.info("→ Token B (Soroban):", tokenB);
           }
@@ -66,7 +61,7 @@ export const extractValuesNewPair = (
           const pairBuffer = entry?._attributes?.val?._value?._value?.data;
           if (pairBuffer) {
             const pairHex = Buffer.from(pairBuffer).toString("hex");
-            address = hexToSorobanAddress(pairHex);
+            address = encodeContract(pairHex);
             //logger.info('→ Par (hex):', pairHex);
             logger.info("→ Par (Soroban):", address);
           }
