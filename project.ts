@@ -26,7 +26,7 @@ const project: StellarProject = {
     },
   },
   description: "Soroswap Indexer",
-  repository: "https://github.com/soroswap/subql",
+  repository: "https://github.com/soroswap/subql/tree/onfinality",
   schema: {
     file: "./schema.graphql",
   },
