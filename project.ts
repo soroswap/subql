@@ -4,6 +4,8 @@ import {
   StellarProject,
 } from "@subql/types-stellar";
 import { Networks } from "@stellar/stellar-sdk";
+import { config } from "dotenv";
+config();
 
 /* This is your project configuration */
 const project: StellarProject = {
@@ -42,13 +44,10 @@ const project: StellarProject = {
      * If you use a rate limited endpoint, adjust the --batch-size and --workers parameters
      * These settings can be found in your docker-compose.yaml, they will slow indexing but prevent your project being rate limited
      */
-    endpoint: [
-      "https://newest-autumn-energy.stellar-mainnet.quiknode.pro/b9c096bbb70d53afa791ad08425ddb2f65fa2559",
-    ],
+    endpoint: process.env.HORIZON_ENDPOINT!?.split(",") as string[] | string,
     /* This is a specific Soroban endpoint
       It is only required when you are using a soroban/EventHandler */
-    sorobanEndpoint:
-      "https://newest-autumn-energy.stellar-mainnet.quiknode.pro/b9c096bbb70d53afa791ad08425ddb2f65fa2559",
+    sorobanEndpoint: process.env.SOROBAN_ENDPOINT!,
   },
   dataSources: [
     {
