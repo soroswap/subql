@@ -11,7 +11,7 @@
     "prepack": "rm -rf dist && npm run build",
     "test": "subql build && subql-node-stellar test",
     "build:develop": "NODE_ENV=develop subql codegen && NODE_ENV=develop subql build",
-    "reset": "docker compose down -v && sudo rm -rf .data && sudo rm -rf dist",
+    "reset": "docker compose down -v && rm -rf .data && rm -rf dist",
     "pairs-rsv": "ts-node scripts/pairsTokensMaker.ts"
   },
   "homepage": "https://github.com/subquery/stellar-subql-starter",
@@ -24,14 +24,9 @@
   "author": "PrincesoDan",
   "license": "MIT",
   "dependencies": {
-    "@stellar/stellar-sdk": "^13.1.0",
     "@subql/common": "^5.4.0",
     "@subql/common-stellar": "^4.3.0",
-    "@subql/types-core": "^2.0.2",
-    "@subql/types-stellar": "4.3.0",
-    "@types/pg": "^8.11.11",
-    "pg": "^8.13.3",
-    "soroban-toolkit": "^0.1.5"
+    "@subql/types-stellar": "4.3.0"
   },
   "devDependencies": {
     "@subql/cli": "^5.7.0",

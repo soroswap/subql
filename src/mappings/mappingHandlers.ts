@@ -1,14 +1,8 @@
 import { SorobanEvent } from "@subql/types-stellar";
-import { config } from "dotenv";
-import { pairTokenReservesList } from "./pairTokenRsv";
 import { SoroswapPair } from "../types";
 import { extractValuesNewPair } from "../soroswap/helpers/newPairEvent";
 import { soroswapSyncHandler } from "../soroswap";
 import { initializeDB } from "../intialize";
-
-config();
-
-let initialized = false;
 
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(
