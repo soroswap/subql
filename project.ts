@@ -3,21 +3,7 @@ import {
   StellarHandlerKind,
   StellarProject,
 } from "@subql/types-stellar";
-import { startBlock } from "./scripts/lastLedger";
 import { Networks } from "@stellar/stellar-sdk";
-import path from "path";
-import * as dotenv from "dotenv";
-
-const mode = process.env.NODE_ENV || "production";
-
-// Load the appropriate .env file
-const dotenvPath = path.resolve(
-  __dirname,
-  `.env${mode !== "production" ? `.${mode}` : ""}`
-);
-dotenv.config({ path: dotenvPath });
-
-const isMainnet = process.env.NETWORK === "mainnet";
 
 /* This is your project configuration */
 const project: StellarProject = {
@@ -47,7 +33,7 @@ const project: StellarProject = {
       'Test SDF Network ; September 2015' for testnet
       'Public Global Stellar Network ; September 2015' for mainnet
       'Test SDF Future Network ; October 2022' for Future Network */
-    chainId: isMainnet ? Networks.PUBLIC : Networks.TESTNET,
+    chainId: Networks.PUBLIC, //Networks.TESTNET,
     /**
      * These endpoint(s) should be public non-pruned archive node
      * We recommend providing more than one endpoint for improved reliability, performance, and uptime
@@ -56,16 +42,19 @@ const project: StellarProject = {
      * If you use a rate limited endpoint, adjust the --batch-size and --workers parameters
      * These settings can be found in your docker-compose.yaml, they will slow indexing but prevent your project being rate limited
      */
-    endpoint: process.env.HORIZON_ENDPOINT!?.split(",") as string[] | string,
+    endpoint: [
+      "https://newest-autumn-energy.stellar-mainnet.quiknode.pro/b9c096bbb70d53afa791ad08425ddb2f65fa2559",
+    ],
     /* This is a specific Soroban endpoint
       It is only required when you are using a soroban/EventHandler */
-    sorobanEndpoint: process.env.SOROBAN_ENDPOINT!,
+    sorobanEndpoint:
+      "https://newest-autumn-energy.stellar-mainnet.quiknode.pro/b9c096bbb70d53afa791ad08425ddb2f65fa2559",
   },
   dataSources: [
     {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
-      startBlock: startBlock,
+      startBlock: 56087671,
       mapping: {
         file: "./dist/index.js",
         handlers: [
