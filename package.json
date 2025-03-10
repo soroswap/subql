@@ -29,15 +29,16 @@
   "license": "MIT",
   "dependencies": {
     "@stellar/stellar-sdk": "^13.1.0",
-    "@subql/common": "latest",
-    "@subql/types-core": "^2.0.1",
-    "@subql/types-stellar": "4.2.0",
+    "@subql/common": "^5.4.0",
+    "@subql/common-stellar": "^4.3.0",
+    "@subql/types-core": "^2.0.2",
+    "@subql/types-stellar": "4.3.0",
     "@types/pg": "^8.11.11",
     "pg": "^8.13.3",
     "soroban-toolkit": "^0.1.5"
   },
   "devDependencies": {
-    "@subql/cli": "5.7.0",
+    "@subql/cli": "^5.7.0",
     "@subql/testing": "latest",
     "@subql/types": "^3.11.5",
     "@types/node": "^22.13.1",
