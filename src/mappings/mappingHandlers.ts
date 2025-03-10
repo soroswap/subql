@@ -16,6 +16,7 @@ export async function handleSoroswapEventSync(
 export async function handleSoroswapEventNewPair(
   event: SorobanEvent
 ): Promise<void> {
+  logger.info(`🔁 NewPair event received`);
   try {
     const { tokenA, tokenB, address } = extractValuesNewPair(
       JSON.parse(JSON.stringify(event))
@@ -47,52 +48,3 @@ export async function handleSoroswapEventNewPair(
     throw error;
   }
 }
-
-// // Modified function to get reserves from poolRsvList
-// async function getPoolReserves(contractId: string): Promise<[bigint, bigint]> {
-//     try {
-//         // Search for the pool in the reserves list
-//         const pool = poolReservesList.find(p => p.contract === contractId);
-
-//         if (!pool) {
-//             logger.warn(`⚠️ No reserves found for pool ${contractId} in poolRsvList`);
-//             return [BigInt(0), BigInt(0)];
-//         }
-
-//         logger.info(`✅ Reserves found for ${contractId}:`);
-//         logger.info(`Reserve0: ${pool.reserve0}`);
-//         logger.info(`Reserve1: ${pool.reserve1}`);
-
-//         return [BigInt(pool.reserve0), BigInt(pool.reserve1)];
-
-//     } catch (error) {
-//         logger.error(`❌🔴🔴 Error getting reserves for ${contractId}: ${error}`);
-//         logger.warn(`⚠️ Using default values for pool ${contractId}`);
-
-//         return [BigInt(0), BigInt(0)];
-//     }
-// }
-
-// async function checkAndGetAccount(
-//   id: string,
-//   ledgerSequence: number
-// ): Promise<Account> {
-//   let account = await Account.get(id.toLowerCase());
-//   if (!account) {
-//     // We couldn't find the account
-//     account = Account.create({
-//       id: id.toLowerCase(),
-//       firstSeenLedger: ledgerSequence,
-//     });
-//   }
-//   return account;
-// }
-
-// scValToNative not works, temp solution
-// function decodeAddress(scVal: xdr.ScVal): string {
-//   try {
-//     return Address.account(scVal.address().accountId().ed25519()).toString();
-//   } catch (e) {
-//     return Address.contract(scVal.address().contractId()).toString();
-//   }
-// }

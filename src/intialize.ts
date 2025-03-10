@@ -1,4 +1,3 @@
-import { Asset, Networks } from "@stellar/stellar-sdk";
 import { pairTokenReservesList } from "./mappings/pairTokenRsv";
 import { SoroswapPair } from "./types";
 
@@ -7,7 +6,9 @@ const isMainnet = process.env.NETWORK === "mainnet";
 export const initializeDB = async () => {
   logger.info("🔍 Checking if XLM pair exists");
   const xlm = await SoroswapPair.getByTokenA(
-    Asset.native().contractId(isMainnet ? Networks.PUBLIC : Networks.TESTNET),
+    isMainnet
+      ? "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA"
+      : "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
     { limit: 1 }
   );
 
