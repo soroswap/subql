@@ -11,7 +11,7 @@
     "prepack": "rm -rf dist && npm run build",
     "test": "subql build && subql-node-stellar test",
     "build:develop": "NODE_ENV=develop subql codegen && NODE_ENV=develop subql build",
-    "reset": "docker compose down -v && rm -rf .data && rm -rf dist",
+    "reset": "docker compose down -v && sudo rm -rf .data && sudo rm -rf dist",
     "pairs-rsv": "ts-node scripts/pairsTokensMaker.ts",
     "subql-publish": "subql publish",
     "getData": "ts-node scripts/stellar-sdk/getContractData.ts",
