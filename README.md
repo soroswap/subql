@@ -89,6 +89,18 @@ type Pair @entity {
   reserveA: BigInt!
   reserveB: BigInt!
 }
+
+type AquaPair @entity {
+  id: ID! # User or Address
+  ledger: Int! @index
+  date: Date! @index
+  address: String! @index
+  tokenA: String! @index
+  tokenB: String! @index
+  poolType: String!
+  reserveA: BigInt!
+  reserveB: BigInt!
+}
 ```
 
 ## 📡 Accessing the GraphQL API
@@ -104,8 +116,20 @@ http://localhost:3000
 Retrieve the latest indexed pairs:
 
 ```graphql
-query GetLatestPairs {
-  pairs {
+query GetPairsSoroswap {
+  soroswapPairs (orderBy: DATE_DESC) {
+    totalCount
+    nodes {
+		  id
+      tokenA
+      tokenB
+      reserveA
+      reserveB
+    }
+  }
+}
+query GetPairsAqua {
+  aquaPairs {
     totalCount
     nodes {
       id
