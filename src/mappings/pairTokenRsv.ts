@@ -1,6 +1,8 @@
 
-// This file is generated automatically by pairsTokensMaker.ts
-// Do not modify manually
+// Este archivo fue generado automáticamente por pairsTokensMaker.ts
+// No modificar manualmente
+// Generado: 2025-03-04T19:39:27.616Z
+// Total de pares: 62
 
 export interface PairTokenReserves {
     address: string;
@@ -262,6 +264,8 @@ export const pairTokenReservesList: PairTokenReserves[] = [
     "token_b": "CBPMFYWP4FFV7PQUYHXJZBXS75EHR6FXYSYEZWH2UM7AUYSKI2Z3PTCG",
     "reserve_a": "535",
     "reserve_b": "563381"
+    "reserve_a": "535",
+    "reserve_b": "563381"
   },
   {
     "address": "CDJDRGUCHANJDXALZVJ5IZVB76HX4MWCON5SHF4DE5HB64CBBR7W2ZCD",
@@ -428,6 +432,8 @@ export const pairTokenReservesList: PairTokenReserves[] = [
     "address": "CDFD72XQSA6AHBRUHCVIMSOUXQCXKLMCFHYS2RIEGZAD64PFTYV22DMH",
     "token_a": "CBEM2CAIYLM3HBOPU5HLQL7V5BUAKM3N77DYQKX4FNHTQLQUUD2ZFBOX",
     "token_b": "CCYFFNXEMQZG4TGMYDRQYRWROCSJCDJBZI6JC6BGBTYB2SJAQKQICON5",
+    "reserve_a": "67866591304",
+    "reserve_b": "64634848857"
     "reserve_a": "67866591304",
     "reserve_b": "64634848857"
   },

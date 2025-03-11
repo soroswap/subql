@@ -3,9 +3,53 @@ import { invokeCustomContract, createToolkit } from "soroban-toolkit";
 import { Keypair, scValToNative, xdr } from "@stellar/stellar-sdk";
 import * as fs from "fs";
 import * as path from "path";
+import { performance } from 'perf_hooks';
 
 // Load environment variables at the beginning of the script
 config();
+
+// Configuración
+const CONFIG = {
+    chunkSize: 5,           // Número de pares a procesar en paralelo
+    retryAttempts: 3,        // Intentos de reintento para operaciones fallidas
+    retryDelay: 2000,        // Retraso inicial entre reintentos (ms)
+    retryBackoff: 2,         // Factor de backoff para reintentos
+    pauseBetweenChunks: 500, // Pausa entre chunks (ms)
+    checkpointInterval: 10,  // Guardar checkpoint cada N chunks
+};
+
+// Interfaces
+interface PairTokenReserves {
+    address: string;
+    token_a: string;
+    token_b: string;
+    reserve_a: string;
+    reserve_b: string;
+}
+
+interface Checkpoint {
+    lastProcessedIndex: number;
+    timestamp: Date;
+    pairsCount: number;
+}
+
+interface ProcessingStats {
+    startTime: number;
+    endTime?: number;
+    totalPairs: number;
+    processedPairs: number;
+    successfulPairs: number;
+    failedPairs: number[];
+}
+
+// Estadísticas
+const stats: ProcessingStats = {
+    startTime: performance.now(),
+    totalPairs: 0,
+    processedPairs: 0,
+    successfulPairs: 0,
+    failedPairs: []
+};
 
 // Retry function with exponential delay
 export async function retry<T>(

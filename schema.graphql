@@ -14,3 +14,18 @@ type soroswapPair @entity {
   reserveA: BigInt!
   reserveB: BigInt!
 }
+
+"""
+PairsAqua entity: Stores Aqua swap events
+"""
+type PairsAqua @entity {
+  id: ID! # User or Address
+  ledger: Int! @index
+  date: Date! @index
+  address: String! @index
+  tokenA: String! @index
+  tokenB: String! @index
+  poolType: String!
+  reserveA: BigInt!
+  reserveB: BigInt!
+}

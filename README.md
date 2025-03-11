@@ -38,8 +38,7 @@ source .env
 docker compose up -d app
 docker compose exec app sh -c "yarn install && yarn pairs-rsv"
 ```
-
-#### Start the Service
+Run
 ```bash
 source .env
 docker compose up
@@ -86,8 +85,22 @@ Access the GraphQL playground at `http://localhost:3000`
 ### Example Query
 
 ```graphql
-query GetLatestPairs {
-  pairs {
+query GetSoroswapPairs {
+  pairs (orderBy: DATE_DESC) {
+    totalCount
+    nodes {
+			id
+      tokenA
+      tokenB
+      reserveA
+      reserveB
+    }
+  }
+}
+```
+```graphql
+query GetPairsAqua {
+  pairsAquas {
     totalCount
     nodes {
       id
@@ -102,11 +115,15 @@ query GetLatestPairs {
 
 ----------------
 ----------------
-## Known Issues
+## Current issues:
 
-1. **Mapping Logic Limitation**: The ScvalToNative function doesn't work inside the subql-node container in the sandbox environment. As a workaround, we use direct event parsing. See the helper functions in the mapping for implementation details.
+1. The main issue is that if the startBlock is not the current ledger, the indexed block continues to drift further away from the current ledger.
+1.1. Slow indexing: Increasing the --batch-size and --workers parameters sometimes causes the RPC to collapse, throwing the error: ERROR: limit request. We suspect this could be due to either the RPC or the handling logic. We’d like to reduce the number of RPC queries, as we believe there are too many.
+1.2. Console logs (with log-level=debug) indicate an issue related to writing to the database.
 
-## Resources
+2. Mapping logic issue: I encountered another issue specific to the ScvalToNative function, which does not work inside the subql-node container in the sandbox. I’m not sure why. Because of this, I need to resort to "scraping" and directly parsing events. You can check the helper functions in the mapping for more details.
+
+## Support
 
 - [SubQuery Documentation](https://academy.subquery.network)
 - [SubQuery Discord Support](https://discord.com/invite/subquery) - Channel: #technical-support

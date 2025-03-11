@@ -13,7 +13,13 @@
     "build:develop": "NODE_ENV=develop subql codegen && NODE_ENV=develop subql build",
     "reset": "docker compose down -v && rm -rf .data && rm -rf dist",
     "pairs-rsv": "ts-node scripts/pairsTokensMaker.ts",
-    "subql-publish": "subql publish"
+    "subql-publish": "subql publish",
+    "getData": "ts-node scripts/stellar-sdk/getContractData.ts",
+    "getLedger": "ts-node scripts/stellar-sdk/getLedgerEntries.ts",
+    "test:addpool": "ts-node scripts/tests/exctract_addpool.ts",
+    "aqua-pools": "ts-node -r dotenv/config scripts/AquapoolsTokensMaker.ts",
+    "test:deposit": "ts-node scripts/extract-values-events/extract_deposit_aqua.ts",
+    "test:fetch": "ts-node scripts/extract-values-events/extract_deposit_aqua_test.ts"
   },
   "homepage": "https://github.com/subquery/stellar-subql-starter",
   "repository": "github:subquery/stellar-subql-starter",
@@ -25,6 +31,13 @@
   "author": "PrincesoDan",
   "license": "MIT",
   "dependencies": {
+    "@stellar/stellar-sdk": "^13.1.0",
+    "@subql/common": "latest",
+    "@subql/types-core": "^2.0.1",
+    "@subql/types-stellar": "4.3.0",
+    "@types/pg": "^8.11.11",
+    "node-fetch": "^2.6.7",
+    "pg": "^8.13.3",
     "@subql/common": "^5.4.0",
     "@subql/common-stellar": "^4.3.0",
     "@subql/types-stellar": "4.3.0",
@@ -36,6 +49,7 @@
     "@subql/testing": "latest",
     "@subql/types": "^3.11.5",
     "@types/node": "^22.13.1",
+    "@types/node-fetch": "^2.6.4",
     "dotenv": "latest",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"

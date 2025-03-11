@@ -69,9 +69,30 @@ const project: StellarProject = {
             handler: "handleSoroswapEventNewPair",
             kind: StellarHandlerKind.Event,
             filter: {
-              contractId:
-                "CA4HEQTL2WPEUYKYKCDOHCDNIV4QHNJ7EL4J4NQ6VADP7SYHVRYZ7AW2",
-              topics: ["SoroswapFactory", "new_pair"],
+              contractId: process.env.FACTORY_CONTRACT_SOROSWAP as string,
+              topics: [
+                "SoroswapFactory",
+                "new_pair"
+              ],
+            },
+          },
+          {
+            handler: "handleEventAddPoolAqua",// add pool aqua
+            kind: StellarHandlerKind.Event,
+            filter: {
+              contractId:"CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK",
+              topics: [
+                "add_pool"
+              ],
+            },
+          },
+          {
+            handler: "handleEventDepositAqua",// deposit liquidity
+            kind: StellarHandlerKind.Event,
+            filter: {
+              topics: [
+                "deposit_liquidity"
+              ],
             },
           },
         ],

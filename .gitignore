@@ -63,7 +63,7 @@ Thumbs.db
 
 .data
 .eslintcache
-apuntes.json
+apuntes.md
 
 # ENV local files
 .env.local
