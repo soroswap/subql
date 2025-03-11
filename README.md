@@ -38,14 +38,7 @@ source .env
 docker compose up -d app
 docker compose exec app sh -c "yarn install && yarn pairs-rsv"
 ```
-To recreate Pair and PairsAqua tables, run:
-```bash
-source .env 
-docker compose up -d app
-docker compose exec app sh -c "yarn install && yarn pairs-rsv && yarn aqua-pools"
-```
-
-#### Start the Service
+Run
 ```bash
 source .env
 docker compose up
@@ -122,19 +115,15 @@ query GetPairsAqua {
 
 ----------------
 ----------------
-## Known Issues
+## Current issues:
 
-**MappingHandler Limitations**: There are three specific API functionalities that don't work properly inside the subql-node container in the sandbox environment:
+1. The main issue is that if the startBlock is not the current ledger, the indexed block continues to drift further away from the current ledger.
+1.1. Slow indexing: Increasing the --batch-size and --workers parameters sometimes causes the RPC to collapse, throwing the error: ERROR: limit request. We suspect this could be due to either the RPC or the handling logic. We’d like to reduce the number of RPC queries, as we believe there are too many.
+1.2. Console logs (with log-level=debug) indicate an issue related to writing to the database.
 
-1. **ScvalToNative conversion**: Native Stellar SDK conversion functions fail to process contract data.
-2. **Axios HTTP requests**: API calls using axios library cannot connect to external endpoints.
-3. **Fetch API**: Standard fetch requests also fail to retrieve external data.
+2. Mapping logic issue: I encountered another issue specific to the ScvalToNative function, which does not work inside the subql-node container in the sandbox. I’m not sure why. Because of this, I need to resort to "scraping" and directly parsing events. You can check the helper functions in the mapping for more details.
 
-As a workaround, we've implemented direct event parsing through custom helper functions. You can see commented examples of these failing approaches in the `handleEventDepositAqua` function in `src/mappings/mappingHandlers.ts`.
-
-For implementation details of our workaround solution, see the helper functions in the mapping file.
-
-## Resources
+## Support
 
 - [SubQuery Documentation](https://academy.subquery.network)
 - [SubQuery Discord Support](https://discord.com/invite/subquery) - Channel: #technical-support
