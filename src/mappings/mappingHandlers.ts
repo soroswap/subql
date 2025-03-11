@@ -28,8 +28,6 @@ export async function handleSoroswapEventNewPair(
   return await soroswapNewPairHandler(event);
 }
 
-
-
 config();
 
 let initialized = false;

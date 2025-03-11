@@ -5,7 +5,6 @@ import 'dotenv/config';
 const SOROBAN_ENDPOINT = process.env.SOROBAN_ENDPOINT || 'https://soroban-testnet.stellar.org';
 const server = new rpc.Server(SOROBAN_ENDPOINT, { allowHttp: true });
 
-
 async function main() {
   try {
     const contractId = "CASUGCN324QMLAPWG5IUSXCFD3GZSREDEH54VJCP5MOBOEXDKWSYR2TS";
