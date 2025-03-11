@@ -5,7 +5,10 @@ import {
 } from "@subql/types-stellar";
 import { Networks } from "@stellar/stellar-sdk";
 import { config } from "dotenv";
+import { getSoroswapFactory, NETWORK } from "./src/constants";
 config();
+
+const soroswapFactory = getSoroswapFactory(process.env.NETWORK as NETWORK);
 
 /* This is your project configuration */
 const project: StellarProject = {
@@ -23,7 +26,7 @@ const project: StellarProject = {
     },
   },
   description: "Soroswap Indexer",
-  repository: "https://github.com/soroswap/subql/tree/onfinality",
+  repository: "https://github.com/soroswap/subql",
   schema: {
     file: "./schema.graphql",
   },
@@ -32,7 +35,10 @@ const project: StellarProject = {
       'Test SDF Network ; September 2015' for testnet
       'Public Global Stellar Network ; September 2015' for mainnet
       'Test SDF Future Network ; October 2022' for Future Network */
-    chainId: Networks.PUBLIC, //Networks.TESTNET,
+    chainId:
+      (process.env.NETWORK as NETWORK) === NETWORK.MAINNET
+        ? Networks.PUBLIC
+        : Networks.TESTNET,
     /**
      * These endpoint(s) should be public non-pruned archive node
      * We recommend providing more than one endpoint for improved reliability, performance, and uptime
@@ -50,7 +56,7 @@ const project: StellarProject = {
     {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
-      startBlock: 56091667,
+      startBlock: soroswapFactory.startBlock,
       mapping: {
         file: "./dist/index.js",
         handlers: [
@@ -58,19 +64,14 @@ const project: StellarProject = {
             handler: "handleSoroswapEventSync",
             kind: StellarHandlerKind.Event,
             filter: {
-              //contractId: "CDJDRGUCHANJDXALZVJ5IZVB76HX4MWCON5SHF4DE5HB64CBBR7W2ZCD",
-              topics: [
-                "SoroswapPair",
-                "sync", // Topic para el evento sync
-              ],
+              topics: ["SoroswapPair", "sync"],
             },
           },
           {
             handler: "handleSoroswapEventNewPair",
             kind: StellarHandlerKind.Event,
             filter: {
-              contractId:
-                "CA4HEQTL2WPEUYKYKCDOHCDNIV4QHNJ7EL4J4NQ6VADP7SYHVRYZ7AW2",
+              contractId: soroswapFactory.address,
               topics: ["SoroswapFactory", "new_pair"],
             },
           },

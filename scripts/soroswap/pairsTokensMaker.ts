@@ -1,62 +1,22 @@
-import { config } from "dotenv";
-import { invokeCustomContract, createToolkit } from "soroban-toolkit";
+import { invokeCustomContract } from "soroban-toolkit";
 import { Keypair, scValToNative, xdr } from "@stellar/stellar-sdk";
 import * as fs from "fs";
 import * as path from "path";
+import { NETWORK, getSoroswapFactory } from "../../src/constants";
+import { retry, toolkit } from "../toolkit";
 
-// Load environment variables at the beginning of the script
-config();
+const FACTORY_CONTRACT = getSoroswapFactory(
+  process.env.NETWORK as NETWORK
+).address;
 
-// Retry function with exponential delay
-export async function retry<T>(
-  fn: () => Promise<T>,
-  retries: number = 3,
-  delay: number = 2000,
-  backoff: number = 2
-): Promise<T> {
-  try {
-    return await fn();
-  } catch (error) {
-    if (retries === 0) throw error;
-    console.log(`⚠️ Retrying in ${delay}ms... (${retries} attempts remaining)`);
-    await new Promise((resolve) => setTimeout(resolve, delay));
-    return retry(fn, retries - 1, delay * backoff, backoff);
-  }
-}
-
-const FACTORY_CONTRACT = process.env.FACTORY_CONTRACT_SOROSWAP as string;
-
-// Add this at the top level of the file
-const mainnet = {
-  network: process.env.NETWORK as string,
-  friendbotUrl: "",
-  horizonRpcUrl: process.env.HORIZON_ENDPOINT as string,
-  sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
-  networkPassphrase: process.env.CHAIN_ID as string,
-};
-
-const sorobanToolkit = createToolkit({
-  adminSecret: process.env.SECRET_KEY_HELPER as string,
-  contractPaths: {},
-  addressBookPath: "",
-  customNetworks: [mainnet],
-  verbose: "full",
-});
-
-// Create a single instance of networkToolkit
-const networkToolkit = sorobanToolkit.getNetworkToolkit(
-  process.env.NETWORK as string
-);
-
-export async function getAllPairsLength(): Promise<number> {
+async function getAllPairsLength(): Promise<number> {
   try {
     const result = await invokeCustomContract(
-      networkToolkit,
+      toolkit,
       FACTORY_CONTRACT,
       "all_pairs_length",
       [],
-      true,
-      Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+      true
     );
     return Number(scValToNative(result.result.retval));
   } catch (error) {
@@ -65,15 +25,14 @@ export async function getAllPairsLength(): Promise<number> {
   }
 }
 
-export async function getPairAddress(index: number): Promise<string> {
+async function getPairAddress(index: number): Promise<string> {
   try {
     const result = await invokeCustomContract(
-      networkToolkit,
+      toolkit,
       FACTORY_CONTRACT,
       "all_pairs",
       [xdr.ScVal.scvU32(index)],
-      true,
-      Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+      true
     );
     return scValToNative(result.result.retval);
   } catch (error) {
@@ -82,18 +41,17 @@ export async function getPairAddress(index: number): Promise<string> {
   }
 }
 
-export async function getToken(
+async function getToken(
   pairAddress: string,
   method: "token_0" | "token_1"
 ): Promise<string> {
   try {
     const result = await invokeCustomContract(
-      networkToolkit,
+      toolkit,
       pairAddress,
       method,
       [],
-      true,
-      Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+      true
     );
     return scValToNative(result.result.retval);
   } catch (error) {
@@ -105,17 +63,14 @@ export async function getToken(
   }
 }
 
-export async function getPairReserves(
-  pairAddress: string
-): Promise<[bigint, bigint]> {
+async function getPairReserves(pairAddress: string): Promise<[bigint, bigint]> {
   try {
     const result = await invokeCustomContract(
-      networkToolkit,
+      toolkit,
       pairAddress,
       "get_reserves",
       [],
-      true,
-      Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+      true
     );
     const [reserve0, reserve1] = scValToNative(result.result.retval);
     return [BigInt(reserve0), BigInt(reserve1)];
@@ -186,9 +141,8 @@ export const pairTokenReservesList: PairTokenReserves[] = ${JSON.stringify(
       2
     )};
 `;
-
     // Write file
-    const filePath = path.join(__dirname, "../src/mappings/pairTokenRsv.ts");
+    const filePath = path.join(__dirname, "../../src/mappings/pairTokenRsv.ts");
     fs.writeFileSync(filePath, fileContent);
     console.log(`✅ pairTokenRsv.ts file generated successfully`);
   } catch (error) {
@@ -203,21 +157,3 @@ export const pairTokenReservesList: PairTokenReserves[] = ${JSON.stringify(
     }
   }
 }
-
-// Check environment variables
-if (!process.env.SOROBAN_ENDPOINT || !process.env.SECRET_KEY_HELPER) {
-  console.error(
-    "❌ Error: SOROBAN_ENDPOINT and SECRET_KEY_HELPER environment variables are required"
-  );
-  process.exit(1);
-}
-
-generatePairTokenReservesList()
-  .then(() => {
-    console.log("✨ Pairs, tokens and reserves list generated successfully");
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error("❌ Error generating list:", error);
-    process.exit(1);
-  });
