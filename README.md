@@ -32,10 +32,7 @@ cp .env.example .env
 To ensure a clean setup, remove previous configurations:
 
 ```bash
-rm -rf node_modules
-rm -rf .data dist
-docker compose down -v
-docker stop $(docker ps -aq)
+npm run reset
 ```
 
 ### 3️⃣ Install Dependencies
