@@ -29,13 +29,27 @@
     operations: [],
     effects: [],
     events: [
-      [Object], [Object], [Object],
-      [Object], [Object], [Object],
-      [Object], [Object], [Object],
-      [Object], [Object], [Object],
-      [Object], [Object], [Object],
-      [Object], [Object], [Object],
-      [Object], [Object], [Object]
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object],
+      [Object]
     ]
   },
   ledgerClosedAt: '2025-02-07T22:14:06Z',
@@ -43,8 +57,7 @@
   pagingToken: '0238946914921164800-0000000002',
   inSuccessfulContractCall: true,
   txHash: 'a72bf11a458033b4b19393918cac63da762e6e7ef004a29b3c805fabaa7c2a11',
-  topic: [
-    {
+  topic: [{
       _switch: [Object],
       _arm: 'str',
       _armType: [Object],
@@ -58,12 +71,25 @@
     }
   ],
   value: {
-    _switch: { name: 'scvMap', value: 17 },
+    _switch: {
+      name: 'scvMap',
+      value: 17
+    },
     _arm: 'map',
-    _armType: { _childType: [Object] },
-    _value: [ [Object], [Object] ]
+    _armType: {
+      _childType: [Object]
+    },
+    _value: [
+      [Object],
+      [Object]
+    ]
   },
-  contractId: { _id: { type: 'Buffer', data: [Array] } },
+  contractId: {
+    _id: {
+      type: 'Buffer',
+      data: [Array]
+    }
+  },
   transaction: {
     _links: {
       self: [Object],
@@ -94,7 +120,10 @@
     signatures: [
       'eAnWFZXBRtuiCL5phD8wxGk9WXCFXI5fRDHvmoi9Oxw5jHwYY5QbUDlQ95RXIW/c1Am58hNiTFCz5GdQN91UCw=='
     ],
-    preconditions: { timebounds: [Object], min_account_sequence: '1' },
+    preconditions: {
+      timebounds: [Object],
+      min_account_sequence: '1'
+    },
     fee_bump_transaction: {
       hash: 'a72bf11a458033b4b19393918cac63da762e6e7ef004a29b3c805fabaa7c2a11',
       signatures: [Array]
