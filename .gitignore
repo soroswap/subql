@@ -69,3 +69,4 @@ apuntes.json
 .env.local
 .env.develop.local
 .env
+.project-cid

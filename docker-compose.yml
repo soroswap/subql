@@ -1,38 +1,17 @@
 services:
-  app:
-      image: node:18.20.6  # Official Node.js 20 image
-      container_name: node-subql-app
-      working_dir: /app
-      volumes:
-        - .:/app  # Mount project directory
-      env_file:
-        - .env  # Load environment variables
-      stdin_open: true  
-      tty: true
-      command: ["/bin/sh", "-c", "rm -f /app/.ready && yarn install && yarn getLastLedger && yarn codegen && yarn build && touch /app/.ready && tail -f /dev/null"]
-      healthcheck:
-        test: ["CMD", "test", "-f", "/app/.ready"]
-        interval: 5s
-        retries: 10
-        start_period: 10s
   postgres:
     container_name: postgres
-    depends_on:
-      app:
-        condition: service_started
     build:
       context: .
       dockerfile: ./docker/pg-Dockerfile
     ports:
-      - ${POSTGRES_PORT}:5432
+      - 5432:5432
     volumes:
       - .data/postgres:/var/lib/postgresql/data
-    env_file:
-        - .env  # Load environment variables
     environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: postgres
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -43,17 +22,13 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      app:
-        condition: service_healthy
     restart: unless-stopped
-    env_file:
-      - .env  # Load environment variables
     environment:
-      DB_USER: ${POSTGRES_USER}
-      DB_PASS: ${POSTGRES_PASSWORD}
-      DB_DATABASE: ${POSTGRES_DB}
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_DATABASE: postgres
       DB_HOST: postgres
-      DB_PORT: ${POSTGRES_PORT}
+      DB_PORT: 5432
     volumes:
       - ./:/app
     command:
@@ -62,17 +37,13 @@ services:
       - --db-schema=app
       - --workers=4 # The more the faster
       - --batch-size=50 # The higher the faster, set low to avoid rate limit on SDF endpoint
-      - --debug
-      - --log-level=debug
-      - --page-limit=100 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://subquery-node:3000/ready"]
       interval: 3s
       timeout: 5s
       retries: 10
 
-
-  graphql-engine: 
+  graphql-engine:
     image: subquerynetwork/subql-query:latest
     ports:
       - 3000:3000
@@ -82,16 +53,13 @@ services:
       subquery-node:
         condition: service_healthy
     restart: always
-    env_file:
-      - .env  # Load environment variables
     environment:
-      DB_USER: ${POSTGRES_USER}
-      DB_PASS: ${POSTGRES_PASSWORD}
-      DB_DATABASE: ${POSTGRES_DB}
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_DATABASE: postgres
       DB_HOST: postgres
-      DB_PORT: ${POSTGRES_PORT}
+      DB_PORT: 5432
     command:
       - --name=app
       - --playground
       - --indexer=http://subquery-node:3000
-

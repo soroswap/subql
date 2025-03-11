@@ -3,29 +3,21 @@ import {
   StellarHandlerKind,
   StellarProject,
 } from "@subql/types-stellar";
-import { startBlock } from "./scripts/lastLedger";
-import * as dotenv from 'dotenv';
-import path from 'path';
+import { Networks } from "@stellar/stellar-sdk";
+import { config } from "dotenv";
+import { getSoroswapFactory, NETWORK } from "./src/constants";
+config();
 
-
-const mode = process.env.NODE_ENV || 'production';
-
-// Load the appropriate .env file
-const dotenvPath = path.resolve(__dirname, `.env${mode !== 'production' ? `.${mode}` : ''}`);
-dotenv.config({ path: dotenvPath });
-
+const soroswapFactory = getSoroswapFactory(process.env.NETWORK as NETWORK);
 
 /* This is your project configuration */
 const project: StellarProject = {
   specVersion: "1.0.0",
-  name: "soroban-testnet-starter",
+  name: "soroswap-indexer",
   version: "0.0.1",
   runner: {
     node: {
       name: "@subql/node-stellar",
-      options: {
-        unsafe: true
-      },
       version: "*",
     },
     query: {
@@ -33,9 +25,8 @@ const project: StellarProject = {
       version: "*",
     },
   },
-  description:
-    "This project can be use as a starting point for developing your new Stellar SubQuery project (testnet)",
-  repository: "https://github.com/subquery/stellar-subql-starter",
+  description: "Soroswap Indexer",
+  repository: "https://github.com/soroswap/subql",
   schema: {
     file: "./schema.graphql",
   },
@@ -44,7 +35,10 @@ const project: StellarProject = {
       'Test SDF Network ; September 2015' for testnet
       'Public Global Stellar Network ; September 2015' for mainnet
       'Test SDF Future Network ; October 2022' for Future Network */
-    chainId: process.env.CHAIN_ID!,
+    chainId:
+      (process.env.NETWORK as NETWORK) === NETWORK.MAINNET
+        ? Networks.PUBLIC
+        : Networks.TESTNET,
     /**
      * These endpoint(s) should be public non-pruned archive node
      * We recommend providing more than one endpoint for improved reliability, performance, and uptime
@@ -53,7 +47,7 @@ const project: StellarProject = {
      * If you use a rate limited endpoint, adjust the --batch-size and --workers parameters
      * These settings can be found in your docker-compose.yaml, they will slow indexing but prevent your project being rate limited
      */
-    endpoint: process.env.HORIZON_ENDPOINT!?.split(',') as string[] | string,
+    endpoint: process.env.HORIZON_ENDPOINT!?.split(",") as string[] | string,
     /* This is a specific Soroban endpoint
       It is only required when you are using a soroban/EventHandler */
     sorobanEndpoint: process.env.SOROBAN_ENDPOINT!,
@@ -62,30 +56,23 @@ const project: StellarProject = {
     {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
-      startBlock: parseInt(process.env.STARBLOCK!) || startBlock,
+      startBlock: soroswapFactory.startBlock,
       mapping: {
         file: "./dist/index.js",
-        handlers: [      
+        handlers: [
           {
-            handler: "handleEventSync",
+            handler: "handleSoroswapEventSync",
             kind: StellarHandlerKind.Event,
             filter: {
-              //contractId: "CDJDRGUCHANJDXALZVJ5IZVB76HX4MWCON5SHF4DE5HB64CBBR7W2ZCD",
-              topics: [
-                "SoroswapPair",
-                "sync" // Topic para el evento sync
-              ],
+              topics: ["SoroswapPair", "sync"],
             },
           },
           {
-            handler: "handleEventNewPair",
+            handler: "handleSoroswapEventNewPair",
             kind: StellarHandlerKind.Event,
             filter: {
-              contractId: process.env.FACTORY_CONTRACT_SOROSWAP as string,
-              topics: [
-                "SoroswapFactory",
-                "new_pair"
-              ],
+              contractId: soroswapFactory.address,
+              topics: ["SoroswapFactory", "new_pair"],
             },
           },
         ],
