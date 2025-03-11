@@ -1,71 +1,84 @@
-# Soroswap SubQuery Project
+# Soroswap SubQuery Indexer
 
-A [SubQuery](https://subquery.network) indexer implementation for the Soroswap project on Stellar Soroban. SubQuery is a flexible and reliable open-source data indexer that provides custom APIs for web3 projects.
+A [SubQuery](https://subquery.network) indexer implementation for the Soroswap project on Stellar Soroban. SubQuery is a powerful and flexible open-source indexing framework that provides custom APIs for web3 projects, enabling efficient and structured data retrieval.
 
-## Prerequisites
+## 🚀 Features
 
-- Docker
+- Indexes Soroswap-specific data on the Stellar Soroban network.
+- Provides a GraphQL API for querying indexed data.
+- Efficiently processes and stores blockchain data for easy access.
+- Docker-based setup for streamlined deployment.
 
-## Setup and Configuration
+## 📌 Prerequisites
 
-### 1. Initial Setup
+Ensure you have the following installed before setting up the project:
 
-Clone the repository and set up the environment:
+- [Docker](https://www.docker.com/)
+- [Node.js](https://nodejs.org/) (Recommended: v18+)
+- [NPM](https://www.npmjs.com/)
+
+## ⚙️ Setup and Configuration
+
+### 1️⃣ Clone the Repository
+
 ```bash
 git clone https://github.com/soroswap/subql.git
 cd subql
 cp .env.example .env
 ```
 
-Note: If STARTBLOCK is empty in the .env file, the indexer will start from the latest ledger in mainnet.
+### 2️⃣ Clean Previous Installation (If Necessary)
 
-### 2. Clean Previous Installation
+To ensure a clean setup, remove previous configurations:
 
-If needed, reset your environment:
 ```bash
-sudo rm -Rf node_modules
-sudo rm -rf .data && sudo rm -rf dist
-docker compose down -v
-docker stop $(docker ps -aq)
+npm run reset
 ```
 
-### 3. Initialize and Run
+### 3️⃣ Install Dependencies
 
-#### Initialize Pair Table
-To recreate the Pair table, run:
 ```bash
-source .env 
-docker compose up -d app
-docker compose exec app sh -c "yarn install && yarn pairs-rsv"
-```
-Run
-```bash
-source .env
-docker compose up
+npm install
 ```
 
-### Development Mode
+### 4️⃣ Run Initial Scripts
 
-To run with logging:
+Prepare the environment by executing:
+
 ```bash
-docker compose up | tee -a "logs_$(date +%Y%m%d_%H%M%S).txt"
-```
-    This will install all packages, do `codegen` and `build` before running subquery.
-If you want clean cache
-```bash
-docker compose up -d app
-docker compose exec app yarn cache clean
+npm run prestart
 ```
 
-## Project Configuration
+### 5️⃣ Start the Indexer
 
-The project consists of three main files:
+Launch the indexer in development mode:
 
-1. **schema.graphql**: Defines the data structure
-2. **project.ts**: Contains project configuration and mapping handlers
-3. **mapping.ts**: Contains the transformation logic
+```bash
+npm run dev
+```
 
-### Pair Table Schema
+### 6️⃣ Deploy to OnFinality
+
+To deploy to OnFinality, you first need to get the Token from [OnFinality](https://indexing.onfinality.io/). Once you have the token, add it to your `.env` file under `SUBQL_ACCESS_TOKEN` and run:
+
+```bash
+npm run subql-publish
+```
+
+This will build and upload the project to IPFS and return a hash that will be used in OnFinality's deployment.
+
+## 🛠 Project Structure
+
+The project consists of the following key files:
+
+- **`schema.graphql`**: Defines the GraphQL data schema.
+- **`project.ts`**: Contains project-specific configurations and mapping handlers.
+- **`mapping.ts`**: Implements data transformation logic for indexing.
+
+### 🗂 Pair Table Schema
+
+The following entity schema is used to index liquidity pairs:
+
 ```graphql
 type Pair @entity {
   id: ID! # Contract address
@@ -78,11 +91,17 @@ type Pair @entity {
 }
 ```
 
-## GraphQL Interface
+## 📡 Accessing the GraphQL API
 
-Access the GraphQL playground at `http://localhost:3000`
+Once the indexer is running, access the GraphQL Playground at:
 
-### Example Query
+```
+http://localhost:3000
+```
+
+### 🔍 Example Query
+
+Retrieve the latest indexed pairs:
 
 ```graphql
 query GetSoroswapPairs {
@@ -113,18 +132,12 @@ query GetPairsAqua {
 }
 ```
 
-----------------
-----------------
-## Current issues:
+## 📚 Resources
 
-1. The main issue is that if the startBlock is not the current ledger, the indexed block continues to drift further away from the current ledger.
-1.1. Slow indexing: Increasing the --batch-size and --workers parameters sometimes causes the RPC to collapse, throwing the error: ERROR: limit request. We suspect this could be due to either the RPC or the handling logic. We’d like to reduce the number of RPC queries, as we believe there are too many.
-1.2. Console logs (with log-level=debug) indicate an issue related to writing to the database.
+- 📖 [SubQuery Documentation](https://academy.subquery.network)
+- 💬 [SubQuery Discord Support](https://discord.com/invite/subquery) (Channel: #technical-support)
+- 🔗 [Soroswap Documentation](https://docs.soroswap.finance)
 
-2. Mapping logic issue: I encountered another issue specific to the ScvalToNative function, which does not work inside the subql-node container in the sandbox. I’m not sure why. Because of this, I need to resort to "scraping" and directly parsing events. You can check the helper functions in the mapping for more details.
+## 📄 License
 
-## Support
-
-- [SubQuery Documentation](https://academy.subquery.network)
-- [SubQuery Discord Support](https://discord.com/invite/subquery) - Channel: #technical-support
-- [Soroswap Documentation](https://docs.soroswap.finance)
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
