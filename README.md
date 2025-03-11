@@ -60,6 +60,16 @@ Launch the indexer in development mode:
 npm run dev
 ```
 
+### 6️⃣ Deploy to OnFinality
+
+To deploy to OnFinality, you first need to get the Token from [OnFinality](https://indexing.onfinality.io/). Once you have the token, add it to your `.env` file under `SUBQL_ACCESS_TOKEN` and run:
+
+```bash
+npm run subql-publish
+```
+
+This will build and upload the project to IPFS and return a hash that will be used in OnFinality's deployment.
+
 ## 🛠 Project Structure
 
 The project consists of the following key files:
