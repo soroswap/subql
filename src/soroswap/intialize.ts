@@ -1,9 +1,9 @@
-import { pairTokenReservesList } from "./soroswap/pairReservesData";
-import { SoroswapPair } from "./types";
+import { pairTokenReservesList } from "./pairReservesData";
+import { SoroswapPair } from "../types";
 
 const isMainnet = process.env.NETWORK === "mainnet";
 
-export const initializeDB = async () => {
+export const initializeSoroswap = async () => {
   logger.info("🔍 Checking if XLM pair exists");
   const xlm = await SoroswapPair.getByTokenA(
     isMainnet

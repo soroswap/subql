@@ -32,7 +32,7 @@ const soroswapHandlers: SubqlRuntimeHandler[] = [
 // Phoenix Handlers
 const phoenixHandlers: SubqlRuntimeHandler[] = [
   {
-    handler: "handlePhoenixEvent",
+    handler: "handlePhoenixSwapEvent",
     kind: StellarHandlerKind.Event,
     filter: {
       topics: ["swap", "sender"],

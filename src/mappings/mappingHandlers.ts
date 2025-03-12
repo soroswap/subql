@@ -1,16 +1,15 @@
 import { SorobanEvent } from "@subql/types-stellar";
-import { initializeDB } from "../intialize";
+import { initializeSoroswap } from "../soroswap/intialize";
 import { soroswapNewPairHandler, soroswapSyncHandler } from "../soroswap";
-import { extractValuesNewPair } from "../soroswap/helpers/newPairEvent";
-import { SoroswapPair } from "../types";
-import { phoenixHandler } from "../phoenix";
+import { phoenixSwapHandler } from "../phoenix";
+import { initializePhoenix } from "../phoenix/initialize";
 
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(
   event: SorobanEvent
 ): Promise<void> {
   logger.info(`🔁 Sync event received`);
-  await initializeDB();
+  await initializeSoroswap();
   return await soroswapSyncHandler(event);
 }
 
@@ -23,7 +22,10 @@ export async function handleSoroswapEventNewPair(
 }
 
 // PHOENIX EVENTS
-export async function handlePhoenixEvent(event: SorobanEvent): Promise<void> {
+export async function handlePhoenixSwapEvent(
+  event: SorobanEvent
+): Promise<void> {
   logger.info(`🔁 Phoenix Event received`);
-  return await phoenixHandler(event);
+  await initializePhoenix();
+  return await phoenixSwapHandler(event);
 }

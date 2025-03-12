@@ -23,4 +23,7 @@ type phoenixPair @entity {
   tokenB: String! @index
   reserveA: BigInt!
   reserveB: BigInt!
+  reserveLp: BigInt
+  stakeAddress: String
+  totalFeeBps: Int
 }
