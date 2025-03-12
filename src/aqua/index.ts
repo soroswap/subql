@@ -15,18 +15,19 @@ export async function aquaDepositHandler(event: SorobanEvent): Promise<void> {
         await initializeAquaDb();
         aquaInitialized = true;
     }
+    
     // // 1. Test for error example with Incomplete Data
-    // try {
-    //     const test = event.value;
-    //     logger.info(`🔍 🔴🔴🔴🔴 test: ${JSON.stringify(test)}`);
-    //     logger.info(`🔍 🔴🔴🔴🔴 testTransaction: ${JSON.stringify(event.transaction)}`);
-    //     const testResultXdr = event.transaction.result_meta_xdr;
-    //     logger.info(`🔍 🔴🔴🔴🔴 testResultMetaXdr: ${testResultXdr}`);
-    //     logger.info(`🔍 🔴🔴🔴🔴 testResultXdrString: ${testResultXdr.toString()}`);
-    // } catch (error) {
-    //     logger.error("❌🔴🔴 Error processing Aqua deposit event transaction: ${error}");
-    //     throw error;
-    // }
+    try {
+        const test = event.value;
+        logger.info(`🔍 🔴🔴🔴🔴 test: ${JSON.stringify(test)}`);
+        logger.info(`🔍 🔴🔴🔴🔴 testTransaction: ${JSON.stringify(event.transaction)}`);
+        const testResultXdr = event.transaction.result_meta_xdr;
+        logger.info(`🔍 🔴🔴🔴🔴 testResultMetaXdr: ${testResultXdr}`);
+        logger.info(`🔍 🔴🔴🔴🔴 testResultXdrString: ${testResultXdr.toString()}`);
+    } catch (error) {
+        logger.error("❌🔴🔴 Error processing Aqua deposit event transaction: ${error}");
+        throw error;
+    }
 
 
     // // 2. Test for error example with getContractData using axios

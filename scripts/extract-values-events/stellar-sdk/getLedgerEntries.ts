@@ -1,12 +1,12 @@
 import { xdr, Address, Contract } from "@stellar/stellar-sdk";
 import 'dotenv/config';
 
-//   yarn getLedger: "ts-node scripts/stellar-sdk/getLedgerEntries.ts"
+//   yarn getLedger: "ts-node scripts/extract-values-events/stellar-sdk/getLedgerEntries.ts"
 // Default Soroban endpoint
-const SOROBAN_ENDPOINT = process.env.SOROBAN_ENDPOINT || 'https://soroban-testnet.stellar.org';
+const SOROBAN_ENDPOINT = process.env.SOROBAN_ENDPOINT || 'https://soroban-mainnet.stellar.org';
 
 async function main() {
-  const contractId = "CASUGCN324QMLAPWG5IUSXCFD3GZSREDEH54VJCP5MOBOEXDKWSYR2TS";
+  const contractId = "CCSNQECGJQ7O6HZJ7IUALVIEMS7F4XUC6XPJVGEEUH2V6SCXG34M4BEI";
   const ledgerKey = getLedgerKeyContractCode(contractId);
   let requestBody = {
     "jsonrpc": "2.0",

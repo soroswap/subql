@@ -6,7 +6,7 @@ import { xdr } from '@stellar/stellar-sdk';
 config();
 
 // Default Soroban endpoint
-const SOROBAN_ENDPOINT = process.env.SOROBAN_ENDPOINT || 'https://soroban-testnet.stellar.org';
+const SOROBAN_ENDPOINT = process.env.SOROBAN_ENDPOINT || 'https://soroban-mainnet.stellar.org';
 
 export function hexToSorobanAddress(hexString: string): string {
     const buffer = Buffer.from(hexString, 'hex');
@@ -48,7 +48,7 @@ export async function getContractDataFetch(contractId: string): Promise<{reserve
                 ]
             }
         };
-        
+
         const res = await fetch(SOROBAN_ENDPOINT, {
             method: 'POST',
             headers: {
@@ -57,9 +57,14 @@ export async function getContractDataFetch(contractId: string): Promise<{reserve
             body: JSON.stringify(requestBody),
         });
         
-        const json = await res.json();
-        logger.info(`🔍 Response received from server`);
         
+        let json = await res.json();
+        logger.info(`🔍 Response received from server`);
+        logger.info("🔴🔴🔴🔴1 json : ");
+        logger.info(JSON.stringify(json));
+        logger.info("🔴🔴🔴🔴2 json.result");
+        logger.info(JSON.stringify(json.result));
+
         // Check if there are entries in the response
         if (json.result && json.result.entries) {
             let xdrData: any;
@@ -72,6 +77,7 @@ export async function getContractDataFetch(contractId: string): Promise<{reserve
                 logger.info(`🔍 XDR data retrieved`);
             } catch (error) {
                 logger.error(`❌ Error decoding XDR: ${error}`);
+                throw error;
             }
 
             try {
