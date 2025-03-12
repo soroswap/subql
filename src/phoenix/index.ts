@@ -1,4 +1,4 @@
-import { scValToNative, xdr } from "@stellar/stellar-sdk";
+import { xdr } from "@stellar/stellar-sdk";
 import { SorobanEvent } from "@subql/types-stellar";
 import { encodeContract } from "../soroswap/helpers/utils";
 import { PhoenixPair } from "../types";
