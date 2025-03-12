@@ -1,6 +1,7 @@
 import { config } from "dotenv";
 import { generatePairTokenReservesList } from "./soroswap/pairsTokensMaker";
 import { getLatestRouterLedger } from "./soroswap/latestLedger";
+import { getPhoenixPreStart } from "./phoenix/pairs";
 
 config();
 
@@ -18,8 +19,12 @@ function validateEnvVariables() {
 async function main() {
   validateEnvVariables();
   try {
+    // SOROSWAP
     await generatePairTokenReservesList();
     await getLatestRouterLedger();
+
+    // PHOENIX
+    await getPhoenixPreStart();
     console.log("✨ Pairs, tokens and reserves list generated successfully");
     process.exit(0);
   } catch (error) {

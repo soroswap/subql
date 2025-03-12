@@ -142,9 +142,12 @@ export const pairTokenReservesList: PairTokenReserves[] = ${JSON.stringify(
     )};
 `;
     // Write file
-    const filePath = path.join(__dirname, "../../src/mappings/pairTokenRsv.ts");
+    const filePath = path.join(
+      __dirname,
+      "../../src/soroswap/pairReservesData.ts"
+    );
     fs.writeFileSync(filePath, fileContent);
-    console.log(`✅ pairTokenRsv.ts file generated successfully`);
+    console.log(`✅ pairReservesData.ts file generated successfully`);
   } catch (error) {
     console.error("❌ General error:", error);
     throw error;

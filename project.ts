@@ -2,13 +2,43 @@ import {
   StellarDatasourceKind,
   StellarHandlerKind,
   StellarProject,
+  SubqlRuntimeHandler,
 } from "@subql/types-stellar";
 import { Networks } from "@stellar/stellar-sdk";
 import { config } from "dotenv";
 import { getSoroswapFactory, NETWORK } from "./src/constants";
 config();
 
+// Soroswap Handlers
 const soroswapFactory = getSoroswapFactory(process.env.NETWORK as NETWORK);
+const soroswapHandlers: SubqlRuntimeHandler[] = [
+  {
+    handler: "handleSoroswapEventSync",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["SoroswapPair", "sync"],
+    },
+  },
+  {
+    handler: "handleSoroswapEventNewPair",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      contractId: soroswapFactory.address,
+      topics: ["SoroswapFactory", "new_pair"],
+    },
+  },
+];
+
+// Phoenix Handlers
+const phoenixHandlers: SubqlRuntimeHandler[] = [
+  {
+    handler: "handlePhoenixEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["swap", "sender"],
+    },
+  },
+];
 
 /* This is your project configuration */
 const project: StellarProject = {
@@ -59,23 +89,7 @@ const project: StellarProject = {
       startBlock: soroswapFactory.startBlock,
       mapping: {
         file: "./dist/index.js",
-        handlers: [
-          {
-            handler: "handleSoroswapEventSync",
-            kind: StellarHandlerKind.Event,
-            filter: {
-              topics: ["SoroswapPair", "sync"],
-            },
-          },
-          {
-            handler: "handleSoroswapEventNewPair",
-            kind: StellarHandlerKind.Event,
-            filter: {
-              contractId: soroswapFactory.address,
-              topics: ["SoroswapFactory", "new_pair"],
-            },
-          },
-        ],
+        handlers: [...soroswapHandlers, ...phoenixHandlers],
       },
     },
   ],

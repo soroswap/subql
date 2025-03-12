@@ -1,4 +1,4 @@
-import { pairTokenReservesList } from "./mappings/pairTokenRsv";
+import { pairTokenReservesList } from "./soroswap/pairReservesData";
 import { SoroswapPair } from "./types";
 
 const isMainnet = process.env.NETWORK === "mainnet";
@@ -17,7 +17,7 @@ export const initializeDB = async () => {
   const failedPairs: string[] = [];
 
   try {
-    // Iterate over the list of pairs from the pairTokenRsv.ts file
+    // Iterate over the list of pairs from the pairReservesData.ts file
     for (const [index, pair] of pairTokenReservesList.entries()) {
       try {
         // Check if a record already exists for this pair

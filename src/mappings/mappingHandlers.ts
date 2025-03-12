@@ -3,6 +3,7 @@ import { initializeDB } from "../intialize";
 import { soroswapNewPairHandler, soroswapSyncHandler } from "../soroswap";
 import { extractValuesNewPair } from "../soroswap/helpers/newPairEvent";
 import { SoroswapPair } from "../types";
+import { phoenixHandler } from "../phoenix";
 
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(
@@ -19,4 +20,10 @@ export async function handleSoroswapEventNewPair(
 ): Promise<void> {
   logger.info(`🔁 NewPair event received`);
   return await soroswapNewPairHandler(event);
+}
+
+// PHOENIX EVENTS
+export async function handlePhoenixEvent(event: SorobanEvent): Promise<void> {
+  logger.info(`🔁 Phoenix Event received`);
+  return await phoenixHandler(event);
 }
