@@ -1,10 +1,10 @@
 import { config } from 'dotenv';
 import { invokeCustomContract, createToolkit } from 'soroban-toolkit';
-import { Address, Keypair, scValToNative, xdr, nativeToScVal, ScInt } from '@stellar/stellar-sdk';
+import { Address, Keypair, scValToNative, xdr, nativeToScVal, ScInt, rpc } from '@stellar/stellar-sdk';
 import * as fs from 'fs';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
-
+import { retry, toolkit } from "../toolkit";
 // Load environment variables
 config();
 
@@ -12,13 +12,16 @@ const FACTORY_CONTRACT_AQUA = "CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPC
 
 // Configuración
 const CONFIG = {
-    chunkSize: 10,           // Número de pools a procesar en paralelo
+    chunkSize: 5,            // Reducido para evitar rate limiting
     retryAttempts: 3,        // Intentos de reintento para operaciones fallidas
     retryDelay: 2000,        // Retraso inicial entre reintentos (ms)
     retryBackoff: 1.5,       // Factor de backoff para reintentos
-    pauseBetweenChunks: 500, // Pausa entre chunks (ms)
+    pauseBetweenChunks: 1000, // Aumentado para evitar rate limiting
     checkpointInterval: 20,  // Guardar checkpoint cada N chunks
-    cacheResults: true       // Usar caché para evitar duplicados
+    cacheResults: true,      // Usar caché para evitar duplicados
+    reserveRetryAttempts: 2, // Intentos específicos para obtener reservas
+    reserveRetryDelay: 1500, // Retraso para reintentos de reservas
+    pauseBetweenReserveRequests: 300 // Pausa entre solicitudes de reservas
 };
 
 // Interfaces
@@ -26,6 +29,8 @@ interface AquaPool {
     tokenA: string;
     tokenB: string;
     address: string;
+    reserveA?: string;
+    reserveB?: string;
 }
 
 interface Checkpoint {
@@ -66,46 +71,46 @@ const stats: ProcessingStats = {
 };
 
 // Retry function con retraso exponencial
-async function retry<T>(
-    fn: () => Promise<T>,
-    retries: number = CONFIG.retryAttempts,
-    delay: number = CONFIG.retryDelay,
-    backoff: number = CONFIG.retryBackoff
-): Promise<T> {
-    try {
-        return await fn();
-    } catch (error) {
-        if (retries === 0) throw error;
-        console.log(`⚠️ Reintentando en ${delay}ms... (${retries} intentos restantes)`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        return retry(fn, retries - 1, delay * backoff, backoff);
-    }
-}
+// async function retry<T>(
+//     fn: () => Promise<T>,
+//     retries: number = CONFIG.retryAttempts,
+//     delay: number = CONFIG.retryDelay,
+//     backoff: number = CONFIG.retryBackoff
+// ): Promise<T> {
+//     try {
+//         return await fn();
+//     } catch (error) {
+//         if (retries === 0) throw error;
+//         console.log(`⚠️ Reintentando en ${delay}ms... (${retries} intentos restantes)`);
+//         await new Promise(resolve => setTimeout(resolve, delay));
+//         return retry(fn, retries - 1, delay * backoff, backoff);
+//     }
+// }
 
 // Configuración de Soroban
-const mainnet = {
-    network: "mainnet",
-    friendbotUrl: "",
-    horizonRpcUrl: process.env.HORIZON_ENDPOINT as string,
-    sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
-    networkPassphrase: process.env.CHAIN_ID as string
-};
+// const mainnet = {
+//     network: "mainnet",
+//     friendbotUrl: "",
+//     horizonRpcUrl: process.env.HORIZON_ENDPOINT as string,
+//     sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
+//     networkPassphrase: process.env.CHAIN_ID as string
+// };
 
-const sorobanToolkit = createToolkit({
-    adminSecret: process.env.SECRET_KEY_HELPER as string,
-    contractPaths: {},
-    addressBookPath: "",
-    customNetworks: [mainnet],
-    verbose: "full"
-});
+// const sorobanToolkit = createToolkit({
+//     adminSecret: process.env.SECRET_KEY_HELPER as string,
+//     contractPaths: {},
+//     addressBookPath: "",
+//     customNetworks: [mainnet],
+//     verbose: "full"
+// });
 
-const networkToolkit = sorobanToolkit.getNetworkToolkit("mainnet");
+// const networkToolkit = sorobanToolkit.getNetworkToolkit("mainnet");
 
 // Funciones para interactuar con el contrato
 async function getTokenSetsCount(): Promise<number> {
     try {
         const result = await invokeCustomContract(
-            networkToolkit,
+            toolkit,
             FACTORY_CONTRACT_AQUA,
             'get_tokens_sets_count',
             [],
@@ -123,7 +128,7 @@ async function getTokens(index: number): Promise<string[]> {
     try {
         const indexScVal = new ScInt(BigInt(index)).toU128();
         const result = await invokeCustomContract(
-            networkToolkit,
+            toolkit,
             FACTORY_CONTRACT_AQUA,
             'get_tokens',
             [indexScVal],
@@ -144,7 +149,7 @@ async function getPools(tokens: string[]): Promise<{ [key: string]: string }> {
         );
         
         const result = await invokeCustomContract(
-            networkToolkit,
+            toolkit,
             FACTORY_CONTRACT_AQUA,
             'get_pools',
             [xdr.ScVal.scvVec(tokenScVals)],
@@ -158,10 +163,6 @@ async function getPools(tokens: string[]): Promise<{ [key: string]: string }> {
     }
 }
 
-// Funciones de utilidad
-function createPoolKey(tokenA: string, tokenB: string): string {
-    return [tokenA, tokenB].sort().join('-');
-}
 
 function isValidPoolData(pool: any): boolean {
     return (
@@ -215,8 +216,180 @@ function estimateTimeRemaining(processedSets: number, totalSets: number, elapsed
     return formatElapsedTime(remainingMs);
 }
 
+// Función mejorada para obtener datos del contrato
+async function getPoolReserves(poolAddress: string): Promise<{reserveA?: string, reserveB?: string, hasLiquidity?: boolean}> {
+    return retry(async () => {
+        try {
+            const server = new rpc.Server(process.env.SOROBAN_ENDPOINT as string, { allowHttp: true });
+            
+            // Para datos de tipo instancia, usamos scvLedgerKeyContractInstance
+            const instanceKey = xdr.ScVal.scvLedgerKeyContractInstance();
+            
+            // Obtener todos los datos de la instancia
+            const response = await server.getContractData(poolAddress, instanceKey);
+            
+            if (response) {
+                // Decodificar datos de la instancia
+                const storage = response.val.contractData().val().instance().storage();
+                
+                // Crear un objeto para almacenar todos los valores
+                const contractValues: { [key: string]: any } = {};
+                
+                // Iterar a través del almacenamiento para obtener todos los valores
+                storage?.forEach((entry) => {
+                    const key = scValToNative(entry.key());
+                    const value = scValToNative(entry.val());
+                    contractValues[key] = value;
+                });
+                
+                // Buscar nombres alternativos para las reservas
+                const reserveA = contractValues["ReserveA"]?.toString() || 
+                                contractValues["reserve_a"]?.toString() ||
+                                contractValues["reserveA"]?.toString() ||
+                                contractValues["reserve0"]?.toString() ||
+                                contractValues["Reserve0"]?.toString();
+                
+                const reserveB = contractValues["ReserveB"]?.toString() || 
+                                contractValues["reserve_b"]?.toString() ||
+                                contractValues["reserveB"]?.toString() ||
+                                contractValues["reserve1"]?.toString() ||
+                                contractValues["Reserve1"]?.toString();
+                
+                // Verificar si hay liquidez
+                const hasLiquidity = !!(reserveA && reserveB && 
+                                    (BigInt(reserveA) > 0 || BigInt(reserveB) > 0));
+                
+                return {
+                    reserveA,
+                    reserveB,
+                    hasLiquidity
+                };
+            }
+            
+            return {};
+        } catch (error) {
+            console.error(`❌ Error obteniendo reservas para pool ${poolAddress}:`, error);
+            return {};
+        }
+    }, CONFIG.reserveRetryAttempts, CONFIG.reserveRetryDelay, CONFIG.retryBackoff);
+}
+
+// Función para registrar pools sin liquidez
+function logPoolWithoutLiquidity(pool: AquaPool): void {
+    const noLiquidityPath = path.join(__dirname, '../aquapools-no-liquidity.json');
+    let noLiquidityPools: AquaPool[] = [];
+    
+    // Cargar archivo existente si existe
+    if (fs.existsSync(noLiquidityPath)) {
+        try {
+            const data = fs.readFileSync(noLiquidityPath, 'utf8');
+            noLiquidityPools = JSON.parse(data);
+        } catch (error) {
+            console.warn('⚠️ Error al cargar el archivo de pools sin liquidez:', error);
+        }
+    }
+    
+    // Añadir pool actual
+    noLiquidityPools.push(pool);
+    
+    // Guardar archivo actualizado
+    fs.writeFileSync(noLiquidityPath, JSON.stringify(noLiquidityPools, null, 2));
+}
+
+// Función para registrar pools con error al obtener reservas
+function logPoolWithReserveError(pool: AquaPool, error: any): void {
+    const errorPath = path.join(__dirname, '../aquapools-reserve-errors.json');
+    let errorPools: {pool: AquaPool, error: string}[] = [];
+    
+    // Cargar archivo existente si existe
+    if (fs.existsSync(errorPath)) {
+        try {
+            const data = fs.readFileSync(errorPath, 'utf8');
+            errorPools = JSON.parse(data);
+        } catch (error) {
+            console.warn('⚠️ Error al cargar el archivo de errores de reservas:', error);
+        }
+    }
+    
+    // Añadir pool actual con error
+    errorPools.push({
+        pool,
+        error: error?.toString() || 'Error desconocido'
+    });
+    
+    // Guardar archivo actualizado
+    fs.writeFileSync(errorPath, JSON.stringify(errorPools, null, 2));
+}
+
+async function processPoolWithReserves(index: number, totalSets: number): Promise<AquaPool | null> {
+    try {
+        console.log(`🔍 Procesando índice ${index}/${totalSets-1} (${((index+1)/totalSets*100).toFixed(1)}%)`);
+        
+        // Obtener tokens
+        const tokens = await retry(() => getTokens(index));
+        if (!tokens || tokens.length < 2) {
+            throw new Error(`Tokens inválidos para índice ${index}`);
+        }
+        
+        // Obtener pools
+        const pools = await retry(() => getPools(tokens));
+        if (!pools || Object.keys(pools).length === 0) {
+            throw new Error(`No se encontraron pools para índice ${index}`);
+        }
+        
+        const poolAddress = Object.values(pools)[0];
+        if (!poolAddress) {
+            throw new Error(`Dirección de pool inválida para índice ${index}`);
+        }
+        
+        // Crear objeto de pool
+        const poolData: AquaPool = {
+            tokenA: tokens[0],
+            tokenB: tokens[1],
+            address: poolAddress
+        };
+        
+        // Obtener reservas con pausa para evitar rate limiting
+        try {
+            // Pequeña pausa antes de solicitar reservas
+            await new Promise(resolve => setTimeout(resolve, CONFIG.pauseBetweenReserveRequests));
+            
+            const reserves = await getPoolReserves(poolAddress);
+            
+            if (reserves.reserveA) poolData.reserveA = reserves.reserveA;
+            if (reserves.reserveB) poolData.reserveB = reserves.reserveB;
+            
+            // Registrar pools sin liquidez
+            if (reserves.reserveA === '0' && reserves.reserveB === '0') {
+                console.log(`⚠️ Pool sin liquidez: ${poolAddress}`);
+                logPoolWithoutLiquidity(poolData);
+            } else if (!reserves.reserveA && !reserves.reserveB) {
+                console.log(`⚠️ No se pudieron obtener reservas para: ${poolAddress}`);
+                logPoolWithReserveError(poolData, 'No se encontraron valores de reservas');
+            }
+        } catch (error) {
+            console.warn(`⚠️ No se pudieron obtener las reservas para el pool ${poolAddress}`);
+            logPoolWithReserveError(poolData, error);
+        }
+        
+        // Validar datos
+        if (!isValidPoolData(poolData)) {
+            throw new Error(`Datos de pool inválidos para índice ${index}`);
+        }
+        
+        stats.successfulSets++;
+        return poolData;
+    } catch (error) {
+        console.error(`❌ Error en índice ${index}:`, error);
+        stats.failedSets.push(index);
+        return null;
+    } finally {
+        stats.processedSets++;
+    }
+}
+
 // Función principal
-async function generateAquaPoolsList(): Promise<void> {
+export async function generateAquaPoolsList(): Promise<void> {
     const aquaPools: AquaPool[] = [];
     let startIndex = 0;
     
@@ -246,57 +419,18 @@ async function generateAquaPoolsList(): Promise<void> {
             
             console.log(`\n📦 Procesando chunk ${Math.floor(i/CONFIG.chunkSize) + 1}/${Math.ceil(totalSets/CONFIG.chunkSize)} (índices ${i}-${i + chunk.length - 1})`);
             
-            // Procesar chunk en paralelo
-            const promises = chunk.map(async (index) => {
-                try {
-                    console.log(`🔍 Procesando índice ${index}/${totalSets-1} (${((index+1)/totalSets*100).toFixed(1)}%)`);
-                    
-                    // Obtener tokens
-                    const tokens = await retry(() => getTokens(index));
-                    if (!tokens || tokens.length < 2) {
-                        throw new Error(`Tokens inválidos para índice ${index}`);
-                    }
-                    
-                    // Obtener pools
-                    const pools = await retry(() => getPools(tokens));
-                    if (!pools || Object.keys(pools).length === 0) {
-                        throw new Error(`No se encontraron pools para índice ${index}`);
-                    }
-                    
-                    const poolAddress = Object.values(pools)[0];
-                    if (!poolAddress) {
-                        throw new Error(`Dirección de pool inválida para índice ${index}`);
-                    }
-                    
-                    // Crear objeto de pool
-                    const poolData: AquaPool = {
-                        tokenA: tokens[0],
-                        tokenB: tokens[1],
-                        address: poolAddress
-                    };
-                    
-                    // Validar datos
-                    if (!isValidPoolData(poolData)) {
-                        throw new Error(`Datos de pool inválidos para índice ${index}`);
-                    }
-                    
-                    stats.successfulSets++;
-                    return poolData;
-                } catch (error) {
-                    console.error(`❌ Error en índice ${index}:`, error);
-                    stats.failedSets.push(index);
-                    return null;
-                } finally {
-                    stats.processedSets++;
-                }
-            });
-            
-            // Esperar resultados
-            const results = await Promise.all(promises);
-            const validResults = results.filter(Boolean) as AquaPool[];
+            // Procesar chunk en serie para evitar rate limiting
+            const results = [];
+            for (const index of chunk) {
+                const result = await processPoolWithReserves(index, totalSets);
+                if (result) results.push(result);
+                
+                // Pequeña pausa entre procesamiento de pools
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
             
             // Añadir todos los resultados válidos a la lista final
-            aquaPools.push(...validResults);
+            aquaPools.push(...results);
             
             // Guardar checkpoint periódicamente
             if (i % (CONFIG.chunkSize * CONFIG.checkpointInterval) === 0 && i > 0) {
@@ -314,7 +448,7 @@ async function generateAquaPoolsList(): Promise<void> {
             console.log(`📈 Progreso: ${progress}% | Restante: ${timeRemaining}`);
             console.log(`📊 Pools: ${aquaPools.length} | Éxitos: ${stats.successfulSets}/${stats.processedSets}`);
             
-            // Pausa entre chunks
+            // Pausa entre chunks (aumentada)
             await new Promise(resolve => setTimeout(resolve, CONFIG.pauseBetweenChunks));
         }
         
@@ -332,13 +466,21 @@ export interface AquaPool {
     tokenA: string;
     tokenB: string;
     address: string;
+    reserveA?: string;
+    reserveB?: string;
 }
 
 export const aquaPoolsList: AquaPool[] = ${JSON.stringify(aquaPools, null, 2)};
 `;
 
+        // Asegurar que el directorio existe
+        const outputDir = path.join(__dirname, '../../src/mappings');
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+        }
+
         // Escribir archivo
-        const filePath = path.join(__dirname, '../src/mappings/aquaPools.ts');
+        const filePath = path.join(outputDir, 'aquaPools.ts');
         fs.writeFileSync(filePath, fileContent);
         console.log(`\n✅ aquaPools.ts generado exitosamente en ${filePath}`);
         
@@ -364,6 +506,14 @@ export const aquaPoolsList: AquaPool[] = ${JSON.stringify(aquaPools, null, 2)};
             fs.unlinkSync(checkpointPath);
             console.log(`🧹 Checkpoint eliminado`);
         }
+
+        // Generar estadísticas adicionales
+        const poolsWithReserves = aquaPools.filter(pool => pool.reserveA && pool.reserveB).length;
+        const poolsWithoutReserves = aquaPools.length - poolsWithReserves;
+        
+        console.log(`\n📊 Estadísticas de reservas:`);
+        console.log(`✅ Pools con reservas: ${poolsWithReserves} (${((poolsWithReserves/aquaPools.length)*100).toFixed(2)}%)`);
+        console.log(`⚠️ Pools sin reservas: ${poolsWithoutReserves} (${((poolsWithoutReserves/aquaPools.length)*100).toFixed(2)}%)`);
 
     } catch (error) {
         console.error("❌ Error general:", error);

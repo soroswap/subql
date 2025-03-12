@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 import { generatePairTokenReservesList } from "./soroswap/pairsTokensMaker";
 import { getLatestRouterLedger } from "./soroswap/latestLedger";
-
+import { generateAquaPoolsList } from "./aqua/AquapoolsTokensMaker";
 config();
 
 export const { SOROBAN_ENDPOINT, SECRET_KEY_HELPER, NETWORK } = process.env;
@@ -20,6 +20,7 @@ async function main() {
   try {
     await generatePairTokenReservesList();
     await getLatestRouterLedger();
+    await generateAquaPoolsList();
     console.log("✨ Pairs, tokens and reserves list generated successfully");
     process.exit(0);
   } catch (error) {

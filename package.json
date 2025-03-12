@@ -14,10 +14,10 @@
     "reset": "docker compose down -v && sudo rm -rf .data && sudo rm -rf dist",
     "prestart": "ts-node scripts/index.ts",
     "subql-publish": "subql publish",
-    "getData": "ts-node scripts/stellar-sdk/getContractData.ts",
-    "getLedger": "ts-node scripts/stellar-sdk/getLedgerEntries.ts",
+    "getData": "ts-node scripts/extract-values-events/getContractData.ts",
+    "getLedger": "ts-node scripts/extract-values-events/getLedgerEntries.ts",
     "test:addpool": "ts-node scripts/tests/exctract_addpool.ts",
-    "aqua-pools": "ts-node -r dotenv/config scripts/AquapoolsTokensMaker.ts",
+    "aqua-pools": "ts-node -r dotenv/config scripts/aqua/AquapoolsTokensMaker.ts",
     "test:deposit": "ts-node scripts/extract-values-events/extract_deposit_aqua.ts",
     "test:fetch": "ts-node scripts/extract-values-events/extract_deposit_aqua_test.ts"
   },

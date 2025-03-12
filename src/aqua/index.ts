@@ -3,7 +3,7 @@ import { AquaPair } from "../types";
 import { extractDepositAquaValues } from "./helpers/depositEvent";
 import { extractAddPoolAquaValues } from "./helpers/addPoolEvent";
 import { hexToSorobanAddress, getContractDataFetch, getLedgerKeyContractCode } from "./helpers/utils";
-import { initializeAqua } from "./helpers/initialize";
+import { initializeAquaDb } from "../intialize";
 
 // Variable para controlar la inicialización
 let aquaInitialized = false;
@@ -12,7 +12,7 @@ let aquaInitialized = false;
 export async function aquaDepositHandler(event: SorobanEvent): Promise<void> {
     logger.info(`🔄 🔴🔴🔴🔴 AQUA DEPOSIT LIQUIDITY EVENTS`);
     if (!aquaInitialized) {
-        await initializeAqua();
+        await initializeAquaDb();
         aquaInitialized = true;
     }
     // // 1. Test for error example with Incomplete Data
@@ -114,7 +114,7 @@ export async function aquaDepositHandler(event: SorobanEvent): Promise<void> {
 // AQUA ADD POOL EVENTS AQUA PROTOCOL
 export async function aquaAddPoolHandler(event: SorobanEvent): Promise<void> {
     if (!aquaInitialized) {
-        await initializeAqua();
+        await initializeAquaDb();
         aquaInitialized = true;
     }
 
