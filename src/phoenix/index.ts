@@ -68,6 +68,8 @@ export const phoenixSwapHandler = async (event: SorobanEvent) => {
     existingPair.date = currentDate;
     existingPair.ledger = event.ledger.sequence;
 
+    // TODO: Needs to update existingPair.reserveLp i think it is the rawKey.value === 3 look for it in the operations, should be another update probably
+
     await existingPair.save();
   } catch (error) {
     logger.warn(`❌ Error processing swap event: ${error}`);
