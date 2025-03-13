@@ -53,7 +53,7 @@ export async function getPhoenixPreStart(): Promise<any> {
 
   // Generate file content
   const fileContent = `
-// This file is generated automatically by pairs.ts
+// This file is generated automatically by scripts/phoenix/pairs.ts
 // Do not modify manually
 
 export interface PhoenixPairReserves {
@@ -66,6 +66,8 @@ export interface PhoenixPairReserves {
     stake_address: string;
     total_fee_bps: string;
 }
+
+export const phoenixPairsGeneratedDate = "${new Date().toISOString()}";
 
 export const phoenixPairReservesList: PhoenixPairReserves[] = ${JSON.stringify(
     newParsedPools,

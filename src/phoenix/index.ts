@@ -1,77 +1,29 @@
-import { xdr } from "@stellar/stellar-sdk";
 import { SorobanEvent } from "@subql/types-stellar";
-import { encodeContract } from "../soroswap/helpers/utils";
-import { PhoenixPair } from "../types";
+import {
+  extractReservesFromPhoenixEvent,
+  updatePairReserves,
+} from "./helpers/extractReserves";
 
-export const phoenixSwapHandler = async (event: SorobanEvent) => {
+// This handler works for SWAP, PROVIDE_LIQUIDITY, and WITHDRAW_LIQUIDITY events
+export const phoenixHandler = async (event: SorobanEvent) => {
+  const eventType = String(event.topic[0]?.value()).toUpperCase();
   const contractId = event.contractId.toString();
-
-  const resultMetaXdrString = event.transaction.result_meta_xdr;
-
-  const txMeta = xdr.TransactionMeta.fromXDR(resultMetaXdrString, "base64");
-
-  logger.info(`--------------------------------------------------------`);
-
-  const txOperations = txMeta.v3().operations()[0].changes();
-
-  logger.info(`🟢 Operations Length: ${txOperations.length}`);
-
-  const filteredOperations = txOperations.filter((operation) => {
-    const switchName = operation?.["_switch"]?.name;
-    const contractBuffer = operation?.value()?.data()?.["_value"]?._attributes
-      ?.contract?._value;
-
-    if (switchName === "ledgerEntryUpdated" && contractBuffer) {
-      const contractData = JSON.parse(JSON.stringify(contractBuffer)).data;
-      const contract = encodeContract(
-        Buffer.from(contractData).toString("hex")
-      );
-      return contract === contractId;
-    }
-    return false;
-  });
-
-  // Extract the reserve values
-  const reserves = filteredOperations.reduce((acc, operation) => {
-    const rawKey =
-      operation?.["_value"]?._attributes?.data?._value?._attributes?.key;
-    const key = rawKey?._value === 1 ? "reserveA" : "reserveB";
-    const rawReserve =
-      operation?.["_value"]?._attributes?.data?._value?._attributes?.val;
-    const reserve = rawReserve?._value?._attributes?.lo?._value;
-
-    if (key && reserve) {
-      acc[key] = reserve;
-    }
-
-    return acc;
-  }, {});
-
-  logger.info(
-    `🟢 Reserves: ${JSON.stringify(reserves, (key, value) =>
-      typeof value === "bigint" ? value.toString() : value
-    )}`
-  );
+  const reserves = extractReservesFromPhoenixEvent(event);
 
   // Store data into database
   try {
-    // Crear nuevo par o actualizar si existe
-    const existingPair = await PhoenixPair.get(contractId);
     const currentDate = new Date(event.ledgerClosedAt);
-    if (existingPair && new Date(existingPair.date) > currentDate) {
-      logger.info(`⏭️ Existing pair data is more recent, NOT updating`);
-      return;
-    }
+    await updatePairReserves(
+      contractId,
+      currentDate,
+      event.ledger.sequence,
+      reserves["reserveA"],
+      reserves["reserveB"],
+      reserves["reserveLp"]
+    );
 
-    existingPair.reserveA = reserves["reserveA"];
-    existingPair.reserveB = reserves["reserveB"];
-    existingPair.date = currentDate;
-    existingPair.ledger = event.ledger.sequence;
-
-    // TODO: Needs to update existingPair.reserveLp i think it is the rawKey.value === 3 look for it in the operations, should be another update probably
-
-    await existingPair.save();
+    logger.info(`[PHOENIX] ✨ Updated reserves for pair ${contractId}`);
   } catch (error) {
-    logger.warn(`❌ Error processing swap event: ${error}`);
+    logger.error(`[PHOENIX] ❌ Error processing ${eventType} event: ${error}`);
   }
 };

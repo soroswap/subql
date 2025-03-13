@@ -1,15 +1,15 @@
 import { SorobanEvent } from "@subql/types-stellar";
 import { initializeSoroswap } from "../soroswap/intialize";
 import { soroswapNewPairHandler, soroswapSyncHandler } from "../soroswap";
-import { phoenixSwapHandler } from "../phoenix";
+import { phoenixHandler } from "../phoenix";
 import { initializePhoenix } from "../phoenix/initialize";
 
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(
   event: SorobanEvent
 ): Promise<void> {
-  logger.info(`🔁 Sync event received`);
-  await initializeSoroswap();
+  logger.info(`[SOROSWAP] 🔁 Sync event received`);
+  await initializeSoroswap(event.contractId.toString());
   return await soroswapSyncHandler(event);
 }
 
@@ -17,15 +17,18 @@ export async function handleSoroswapEventSync(
 export async function handleSoroswapEventNewPair(
   event: SorobanEvent
 ): Promise<void> {
-  logger.info(`🔁 NewPair event received`);
+  logger.info(`[SOROSWAP] 🔁 NewPair event received`);
+  await initializeSoroswap(event.contractId.toString());
   return await soroswapNewPairHandler(event);
 }
 
 // PHOENIX EVENTS
-export async function handlePhoenixSwapEvent(
-  event: SorobanEvent
-): Promise<void> {
-  logger.info(`🔁 Phoenix Event received`);
-  await initializePhoenix();
-  return await phoenixSwapHandler(event);
+export async function handlePhoenixEvent(event: SorobanEvent): Promise<void> {
+  logger.info(
+    `[PHOENIX] 🔁 ${String(
+      event.topic[0]?.value()
+    ).toUpperCase()} Event received`
+  );
+  await initializePhoenix(event.contractId.toString());
+  return await phoenixHandler(event);
 }

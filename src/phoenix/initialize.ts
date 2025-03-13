@@ -1,18 +1,15 @@
-import { phoenixPairReservesList } from "./pairReservesData";
+import {
+  phoenixPairReservesList,
+  phoenixPairsGeneratedDate,
+} from "./pairReservesData";
 import { PhoenixPair } from "../types";
 
 const isMainnet = process.env.NETWORK === "mainnet";
 
-export const initializePhoenix = async () => {
-  logger.info("🔍 Checking if XLM pair exists");
-  const xlm = await PhoenixPair.getByTokenA(
-    isMainnet
-      ? "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA"
-      : "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
-    { limit: 1 }
-  );
-
-  if (xlm.length >= 1) return;
+export const initializePhoenix = async (contractId: string) => {
+  // logger.info("🔍 Checking if Phoenix is initialized");
+  let xlm = await PhoenixPair.get(contractId);
+  if (xlm) return;
 
   const failedPairs: string[] = [];
 
@@ -34,7 +31,7 @@ export const initializePhoenix = async () => {
           const newPair = PhoenixPair.create({
             id: pair.address,
             ledger: 55735990 + index,
-            date: new Date(Date.now()),
+            date: new Date(phoenixPairsGeneratedDate),
             tokenA: pair.token_a,
             tokenB: pair.token_b,
             reserveA: BigInt(pair.reserve_a),
@@ -57,7 +54,7 @@ export const initializePhoenix = async () => {
     }
 
     // Final summary
-    logger.info("\n📊 Initialization summary:");
+    logger.info("📊 Initialization summary:");
     logger.info(
       `✅ Successfully processed pairs: ${
         phoenixPairReservesList.length - failedPairs.length
