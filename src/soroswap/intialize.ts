@@ -1,23 +1,18 @@
-import { pairTokenReservesList } from "./mappings/pairTokenRsv";
-import { SoroswapPair } from "./types";
+import {
+  pairTokenReservesList,
+  soroswapPairsGeneratedDate,
+} from "./pairReservesData";
+import { SoroswapPair } from "../types";
 
-const isMainnet = process.env.NETWORK === "mainnet";
-
-export const initializeDB = async () => {
-  logger.info("🔍 Checking if XLM pair exists");
-  const xlm = await SoroswapPair.getByTokenA(
-    isMainnet
-      ? "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA"
-      : "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
-    { limit: 1 }
-  );
-
-  if (xlm.length >= 1) return;
+export const initializeSoroswap = async (contractId: string) => {
+  // logger.info("🔍 Checking if Soroswap is initialized");
+  let xlm = await SoroswapPair.get(contractId);
+  if (xlm) return;
 
   const failedPairs: string[] = [];
 
   try {
-    // Iterate over the list of pairs from the pairTokenRsv.ts file
+    // Iterate over the list of pairs from the pairReservesData.ts file
     for (const [index, pair] of pairTokenReservesList.entries()) {
       try {
         // Check if a record already exists for this pair
@@ -34,7 +29,7 @@ export const initializeDB = async () => {
           const newPair = SoroswapPair.create({
             id: pair.address,
             ledger: 55735990 + index,
-            date: new Date(Date.now()),
+            date: new Date(soroswapPairsGeneratedDate),
             tokenA: pair.token_a,
             tokenB: pair.token_b,
             reserveA: BigInt(pair.reserve_a),
@@ -54,7 +49,7 @@ export const initializeDB = async () => {
     }
 
     // Final summary
-    logger.info("\n📊 Initialization summary:");
+    logger.info("📊 Initialization summary:");
     logger.info(
       `✅ Successfully processed pairs: ${
         pairTokenReservesList.length - failedPairs.length

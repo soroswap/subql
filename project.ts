@@ -2,13 +2,70 @@ import {
   StellarDatasourceKind,
   StellarHandlerKind,
   StellarProject,
+  SubqlRuntimeHandler,
 } from "@subql/types-stellar";
 import { Networks } from "@stellar/stellar-sdk";
 import { config } from "dotenv";
-import { getSoroswapFactory, NETWORK } from "./src/constants";
+import {
+  getPhoenixFactory,
+  getSoroswapFactory,
+  NETWORK,
+} from "./src/constants";
 config();
 
+// Soroswap Handlers
 const soroswapFactory = getSoroswapFactory(process.env.NETWORK as NETWORK);
+const soroswapHandlers: SubqlRuntimeHandler[] = [
+  {
+    handler: "handleSoroswapEventSync",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["SoroswapPair", "sync"],
+    },
+  },
+  {
+    handler: "handleSoroswapEventNewPair",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      contractId: soroswapFactory.address,
+      topics: ["SoroswapFactory", "new_pair"],
+    },
+  },
+];
+
+// Phoenix Handlers
+const phoenixFactory = getPhoenixFactory(process.env.NETWORK as NETWORK);
+const phoenixHandlers: SubqlRuntimeHandler[] = [
+  {
+    handler: "handlePhoenixEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["swap", "sender"],
+    },
+  },
+  {
+    handler: "handlePhoenixEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["provide_liquidity", "sender"],
+    },
+  },
+  {
+    handler: "handlePhoenixEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["withdraw_liquidity", "sender"],
+    },
+  },
+  {
+    handler: "handlePhoenixCreateLPEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      contractId: phoenixFactory,
+      topics: ["create", "liquidity_pool"],
+    },
+  },
+];
 
 /* This is your project configuration */
 const project: StellarProject = {
@@ -59,23 +116,7 @@ const project: StellarProject = {
       startBlock: soroswapFactory.startBlock,
       mapping: {
         file: "./dist/index.js",
-        handlers: [
-          {
-            handler: "handleSoroswapEventSync",
-            kind: StellarHandlerKind.Event,
-            filter: {
-              topics: ["SoroswapPair", "sync"],
-            },
-          },
-          {
-            handler: "handleSoroswapEventNewPair",
-            kind: StellarHandlerKind.Event,
-            filter: {
-              contractId: soroswapFactory.address,
-              topics: ["SoroswapFactory", "new_pair"],
-            },
-          },
-        ],
+        handlers: [...soroswapHandlers, ...phoenixHandlers],
       },
     },
   ],

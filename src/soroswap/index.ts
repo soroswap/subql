@@ -37,9 +37,9 @@ export const soroswapSyncHandler = async (event: SorobanEvent) => {
     existingPair.ledger = event.ledger.sequence;
 
     await existingPair.save();
-    logger.info(`✨ Updated reserves for pair ${address}`);
+    logger.info(`[SOROSWAP] ✨ Updated reserves for pair ${address}`);
   } catch (error) {
-    logger.error(`❌🔴🔴 Error processing sync event: ${error}`);
+    logger.error(`[SOROSWAP] ❌ Error processing sync event: ${error}`);
     throw error;
   }
 };
@@ -50,15 +50,14 @@ export const soroswapNewPairHandler = async (event: SorobanEvent) => {
       JSON.parse(JSON.stringify(event))
     );
 
-    logger.info(`🟣🟣🟣🟣 NewPair event: ${address}`);
-    logger.info(`🟣 Token A: ${tokenA}`);
-    logger.info(`🟣 Token B: ${tokenB}`);
     // Crear nuevo par o actualizar si existe
     const existingPair = await SoroswapPair.get(address);
     const currentDate = new Date(event.ledgerClosedAt);
 
     if (existingPair && new Date(existingPair.date) > currentDate) {
-      logger.info(`⏭️ Existing pair data is more recent, NOT updating`);
+      logger.info(
+        `[SOROSWAP] ⏭️ Existing pair data is more recent, NOT updating`
+      );
       return;
     }
 
@@ -73,9 +72,9 @@ export const soroswapNewPairHandler = async (event: SorobanEvent) => {
     });
 
     await pair.save();
-    logger.info(`✅ Pair ${address} created/updated`);
+    logger.info(`[SOROSWAP] ✅ Pair ${address} created/updated`);
   } catch (error) {
-    logger.error(`❌🔴🔴 Error processing NewPair event: ${error}`);
+    logger.error(`[SOROSWAP] ❌ Error processing NewPair event: ${error}`);
     throw error;
   }
 };

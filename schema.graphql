@@ -14,3 +14,16 @@ type soroswapPair @entity {
   reserveA: BigInt!
   reserveB: BigInt!
 }
+
+type phoenixPair @entity {
+  id: ID! # Contract address
+  ledger: Int!
+  date: Date!
+  tokenA: String! @index
+  tokenB: String! @index
+  reserveA: BigInt!
+  reserveB: BigInt!
+  reserveLp: BigInt
+  stakeAddress: String
+  totalFeeBps: Int
+}

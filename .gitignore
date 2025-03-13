@@ -32,10 +32,6 @@ dist/
 src/types
 project.yaml
 
-# Archivos generados automáticamente
-scripts/lastLedger.ts
-src/mappings/pairTokenRsv.ts
-
 # JetBrains IDE
 .idea/
 
