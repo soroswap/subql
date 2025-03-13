@@ -1,7 +1,5 @@
 import { pairTokenReservesList } from "./mappings/pairTokenRsv";
 import { SoroswapPair } from "./types";
-import { AquaPair } from "./types";
-import { aquaPoolsList } from "./mappings/aquaPools";
 
 const isMainnet = process.env.NETWORK === "mainnet";
 

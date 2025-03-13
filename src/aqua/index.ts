@@ -3,6 +3,61 @@ import { AquaPair } from "../types";
 import { extractDepositAquaValues } from "./helpers/depositEvent";
 import { extractAddPoolAquaValues } from "./helpers/addPoolEvent";
 import { extractWithdrawAquaValues } from "./helpers/withdrawEvent";
+import { extractSwapAquaValues } from "./helpers/swapEvent";
+// AQUA SWAP LIQUIDITY EVENTS
+export async function aquaSwapHandler(event: SorobanEvent): Promise<void> {
+    try {    
+        const swapData = await extractSwapAquaValues(JSON.parse(JSON.stringify(event)));
+        if (!swapData.address) {
+            logger.error(`[AQUA] ❌ No contract address found in deposit event`);
+            return;
+        }
+        // Look for the pool in the database
+        const existingPool = await AquaPair.get(swapData.address);
+        if (!existingPool) {
+            logger.info(`[AQUA] ⚠️ Pool ${swapData.address} not found in database, creating new record`);
+            
+            // Create a new record if it doesn't exist
+            const newPool = AquaPair.create({
+                id: swapData.address,
+                ledger: event.ledger.sequence,
+                date: new Date(event.ledgerClosedAt),
+                address: swapData.address,
+                tokenA: swapData.tokenA,
+                tokenB: swapData.tokenB,
+                poolType: 'unknown', // We could get this from another source
+                fee: BigInt(0),
+                reserveA: swapData.reserveA || BigInt(0),
+                reserveB: swapData.reserveB || BigInt(0)
+            });
+            
+            await newPool.save();
+            logger.info(`[AQUA] ✅ Created new pool record for ${swapData.address}`);
+            return;
+        }
+        
+        // Check if the event is more recent than existing data
+        const currentDate = new Date(event.ledgerClosedAt);
+        if (new Date(existingPool.date) > currentDate) {
+            logger.info(`[AQUA] ⏭️ Existing pool data is more recent, NOT updating`);
+            return;
+        }
+        
+        // Update the existing record with new data
+        existingPool.reserveA = swapData.reserveA;
+        existingPool.reserveB = swapData.reserveB;
+        existingPool.date = currentDate;
+        existingPool.ledger = event.ledger.sequence;
+        existingPool.fee = swapData.fee;
+    
+        await existingPool.save();
+        logger.info(`[AQUA] ✨ Updated reserves for pool ${swapData.address}`);
+        
+    } catch (error) {
+        logger.error(`[AQUA] ❌ Error processing Aqua swap event: ${error}`);
+        throw error;
+    }}
+
 
 // AQUA WITHDRAW LIQUIDITY EVENTS
 export async function aquaWithdrawHandler(event: SorobanEvent): Promise<void> {

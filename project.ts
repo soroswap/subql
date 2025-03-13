@@ -58,6 +58,15 @@ const aquaHandlers: SubqlRuntimeHandler[] = [
       ],
     },
   },
+  {
+    handler: "handleEventSwapAqua",// swap liquidity
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: [
+        "trade"
+      ],
+    },
+  },
 ]
 
 /* This is your project configuration */
@@ -110,7 +119,7 @@ const project: StellarProject = {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
       //startBlock: soroswapFactory.startBlock,
-      startBlock: 56135017,
+      startBlock: 56132496,
       mapping: {
         file: "./dist/index.js",
         handlers: [...soroswapHandlers, ...aquaHandlers],

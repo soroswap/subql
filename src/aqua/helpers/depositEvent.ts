@@ -63,6 +63,11 @@ export async function extractDepositAquaValues(event: any): Promise<{
                 result.reserveB = contractData.reserveB;
                 logger.info(`→ ReserveB from contract: ${result.reserveB.toString()}`);
             }
+
+            if (contractData.fee !== undefined) {
+                result.fee = contractData.fee;
+                logger.info(`→ Fee from contract: ${result.fee.toString()}`);
+            }
             
             // If no data is found, use default values
             if (result.reserveA === undefined && result.reserveB === undefined) {

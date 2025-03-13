@@ -1,7 +1,7 @@
 import { hexToSorobanAddress, getTransactionData} from './utils';
 
-// Helper function to extract values from withdraw event
-export async function extractWithdrawAquaValues(event: any): Promise<{
+// Helper function to extract values from swap event
+export async function extractSwapAquaValues(event: any): Promise<{
     address: string;
     tokenA: string;
     tokenB: string;
@@ -74,6 +74,7 @@ export async function extractWithdrawAquaValues(event: any): Promise<{
                 result.reserveA = BigInt(0);
                 result.reserveB = BigInt(0);
             }
+
         }
 
 

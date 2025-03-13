@@ -1,5 +1,5 @@
 import { AquaPair } from "../types";
-import { aquaPoolsList } from "../mappings/aquaPools";
+import { aquaPoolsList, aquaPoolsGeneratedDate } from "./aquaPools";
 
 const isMainnet = process.env.NETWORK === "mainnet";
 
@@ -49,7 +49,7 @@ export async function initializeAquaDb(contractId: string): Promise<void> {
                         aquaPair = AquaPair.create({
                             id: pool.address,
                             ledger: 0, // Will be updated with real events
-                            date: new Date(),
+                            date: new Date(aquaPoolsGeneratedDate),
                             address: pool.address,
                             tokenA: pool.tokenA,
                             tokenB: pool.tokenB,
