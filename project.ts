@@ -6,7 +6,11 @@ import {
 } from "@subql/types-stellar";
 import { Networks } from "@stellar/stellar-sdk";
 import { config } from "dotenv";
-import { getSoroswapFactory, NETWORK } from "./src/constants";
+import {
+  getPhoenixFactory,
+  getSoroswapFactory,
+  NETWORK,
+} from "./src/constants";
 config();
 
 // Soroswap Handlers
@@ -30,6 +34,7 @@ const soroswapHandlers: SubqlRuntimeHandler[] = [
 ];
 
 // Phoenix Handlers
+const phoenixFactory = getPhoenixFactory(process.env.NETWORK as NETWORK);
 const phoenixHandlers: SubqlRuntimeHandler[] = [
   {
     handler: "handlePhoenixEvent",
@@ -50,6 +55,14 @@ const phoenixHandlers: SubqlRuntimeHandler[] = [
     kind: StellarHandlerKind.Event,
     filter: {
       topics: ["withdraw_liquidity", "sender"],
+    },
+  },
+  {
+    handler: "handlePhoenixCreateLPEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      contractId: phoenixFactory,
+      topics: ["create", "liquidity_pool"],
     },
   },
 ];

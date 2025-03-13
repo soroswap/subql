@@ -17,6 +17,9 @@ export async function getLatestRouterLedger(): Promise<any> {
     let startLedger = latestLedger - 50;
     const endLedger = latestLedger;
 
+    let tries = 0;
+    const maxTries = 20;
+
     do {
       console.log("startLedger:", startLedger);
       events = await toolkit.rpc.getEvents({
@@ -56,8 +59,11 @@ export async function getLatestRouterLedger(): Promise<any> {
       } else {
         console.log("🚀 « No events found, retrying with 50 earlier ledgers");
         startLedger -= 50; // Subtract more to the startLedger
+        tries++;
       }
-    } while (events.events.length === 0 && startLedger > 0);
+    } while (events.events.length === 0 && startLedger > 0 && tries < maxTries);
+
+    return startLedger;
   } catch (error) {
     console.log("🚀 « error:", error);
     return latestLedger;

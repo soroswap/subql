@@ -32,3 +32,10 @@ export async function handlePhoenixEvent(event: SorobanEvent): Promise<void> {
   await initializePhoenix(event.contractId.toString());
   return await phoenixHandler(event);
 }
+
+export async function handlePhoenixCreateLPEvent(
+  event: SorobanEvent
+): Promise<void> {
+  logger.info(`[PHOENIX] 🔁 Create LP Event received`);
+  // TODO: Create lp handler
+}
