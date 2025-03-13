@@ -27,3 +27,13 @@ type phoenixPair @entity {
   stakeAddress: String
   totalFeeBps: Int
 }
+
+type cometPair @entity {
+  id: ID! # Contract address
+  ledger: Int!
+  date: Date!
+  tokenA: String! @index
+  tokenB: String! @index
+  reserveA: BigInt!
+  reserveB: BigInt!
+}

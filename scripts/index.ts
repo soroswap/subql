@@ -2,6 +2,7 @@ import { config } from "dotenv";
 import { generatePairTokenReservesList } from "./soroswap/pairsTokensMaker";
 import { getLatestRouterLedger } from "./soroswap/latestLedger";
 import { getPhoenixPreStart } from "./phoenix/pairs";
+import { getCometPreStart } from "./comet/pairs";
 
 config();
 
@@ -25,6 +26,9 @@ async function main() {
 
     // PHOENIX
     await getPhoenixPreStart();
+
+    // COMET
+    await getCometPreStart();
     console.log("✨ Pairs, tokens and reserves list generated successfully");
     process.exit(0);
   } catch (error) {

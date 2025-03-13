@@ -67,6 +67,17 @@ const phoenixHandlers: SubqlRuntimeHandler[] = [
   },
 ];
 
+const cometHandlers: SubqlRuntimeHandler[] = [
+  {
+    handler: "handlePhoenixCreateLPEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      contractId: "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM",
+      topics: ["create", "liquidity_pool"],
+    },
+  },
+];
+
 /* This is your project configuration */
 const project: StellarProject = {
   specVersion: "1.0.0",
