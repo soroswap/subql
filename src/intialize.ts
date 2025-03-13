@@ -97,58 +97,54 @@ export async function initializeAquaDb(): Promise<void> {
         for (let i = 0; i < aquaPoolsList.length; i += batchSize) {
             const batch = aquaPoolsList.slice(i, i + batchSize);
             
-            // Crear registros para este lote
+            // Crear o actualizar registros para este lote
             const poolPromises = batch.map(async (pool, index) => {
                 try {
-                    // Verificar si este pool ya existe
-                    const existingPool = await AquaPair.get(pool.address);
-                    if (existingPool) {
-                        // Actualizar campos si el pool ya existe pero faltan datos
-                        if (pool.poolType && !existingPool.poolType) {
-                            existingPool.poolType = pool.poolType;
-                            await existingPool.save();
-                            logger.info(`🔄 Actualizado tipo de pool para ${pool.address}: ${pool.poolType}`);
+                    // Intentar obtener el pool existente
+                    let aquaPair = await AquaPair.get(pool.address);
+                    
+                    if (aquaPair) {
+                        // Actualizar el pool existente con los nuevos datos
+                        if (pool.poolType) {
+                            aquaPair.poolType = pool.poolType;
                         }
                         
-                        if (pool.fee && existingPool.fee === BigInt(0)) {
-                            existingPool.fee = BigInt(pool.fee);
-                            await existingPool.save();
-                            logger.info(`🔄 Actualizado fee para ${pool.address}: ${pool.fee}`);
+                        if (pool.fee) {
+                            aquaPair.fee = BigInt(pool.fee);
                         }
                         
-                        if (pool.reserveA && existingPool.reserveA === BigInt(0)) {
-                            existingPool.reserveA = BigInt(pool.reserveA);
-                            await existingPool.save();
-                            logger.info(`🔄 Actualizada reserveA para ${pool.address}: ${pool.reserveA}`);
+                        if (pool.reserveA) {
+                            aquaPair.reserveA = BigInt(pool.reserveA);
                         }
                         
-                        if (pool.reserveB && existingPool.reserveB === BigInt(0)) {
-                            existingPool.reserveB = BigInt(pool.reserveB);
-                            await existingPool.save();
-                            logger.info(`🔄 Actualizada reserveB para ${pool.address}: ${pool.reserveB}`);
+                        if (pool.reserveB) {
+                            aquaPair.reserveB = BigInt(pool.reserveB);
                         }
                         
-                        return null; // Ya existe, no crear nuevo
+                        await aquaPair.save();
+                        logger.info(`🔄 Actualizado pool: ${pool.address}`);
+                    } else {
+                        // Crear nuevo registro
+                        aquaPair = AquaPair.create({
+                            id: pool.address,
+                            ledger: 0, // Se actualizará con eventos reales
+                            date: new Date(),
+                            address: pool.address,
+                            tokenA: pool.tokenA,
+                            tokenB: pool.tokenB,
+                            poolType: pool.poolType || '', // Usar valor del archivo o cadena vacía
+                            fee: pool.fee ? BigInt(pool.fee) : BigInt(0), // Usar valor del archivo o 0
+                            reserveA: pool.reserveA ? BigInt(pool.reserveA) : BigInt(0), // Usar valor del archivo o 0
+                            reserveB: pool.reserveB ? BigInt(pool.reserveB) : BigInt(0)  // Usar valor del archivo o 0
+                        });
+                        
+                        await aquaPair.save();
+                        logger.info(`✨ Creado nuevo pool: ${pool.address}`);
                     }
                     
-                    // Crear nuevo registro con todos los campos disponibles
-                    const newPool = AquaPair.create({
-                        id: pool.address,
-                        ledger: 0, // Se actualizará con eventos reales
-                        date: new Date(),
-                        address: pool.address,
-                        tokenA: pool.tokenA,
-                        tokenB: pool.tokenB,
-                        poolType: pool.poolType || '', // Usar valor del archivo o cadena vacía
-                        fee: pool.fee ? BigInt(pool.fee) : BigInt(0), // Usar valor del archivo o 0
-                        reserveA: pool.reserveA ? BigInt(pool.reserveA) : BigInt(0), // Usar valor del archivo o 0
-                        reserveB: pool.reserveB ? BigInt(pool.reserveB) : BigInt(0)  // Usar valor del archivo o 0
-                    });
-                    
-                    await newPool.save();
                     return pool.address;
                 } catch (error) {
-                    logger.error(`❌ Error inicializando pool de Aqua ${pool.address}: ${error}`);
+                    logger.error(`❌ Error procesando pool de Aqua ${pool.address}: ${error}`);
                     failedPools.push(pool.address);
                     return null;
                 }

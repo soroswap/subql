@@ -7,7 +7,7 @@ config();
 
 // Default Soroban endpoint
 // const SOROBAN_ENDPOINT = process.env.SOROBAN_ENDPOINT || 'https://soroban-mainnet.stellar.org';
-const SOROBAN_ENDPOINT = "https://newest-autumn-energy.stellar-mainnet.quiknode.pro/b9c096bbb70d53afa791ad08425ddb2f65fa2559"
+const SOROBAN_ENDPOINT = process.env.SOROBAN_ENDPOINT_FETCH || 'https://soroban-mainnet.stellar.org';
 export function hexToSorobanAddress(hexString: string): string {
     const buffer = Buffer.from(hexString, 'hex');
     return StrKey.encodeContract(buffer);
@@ -125,7 +125,7 @@ export async function getContractDataFetch(contractId: string): Promise<{reserve
                                         const reserveAVal = contractValues["ReserveA"];
                                         if (reserveAVal.switch().name === 'scvU128') {
                                             reserveA = BigInt(reserveAVal.u128().lo().toString());
-                                            console.log(`→ ReserveA : ${reserveA.toString()}`);                                        
+                                            logger.info(`→ ReserveA : ${reserveA.toString()}`);                                        
                                         }
                                     
                                 }
@@ -135,7 +135,7 @@ export async function getContractDataFetch(contractId: string): Promise<{reserve
                                         const reserveBVal = contractValues["ReserveB"];
                                         if (reserveBVal.switch().name === 'scvU128') {
                                             reserveB = BigInt(reserveBVal.u128().lo().toString());
-                                            console.log(`→ ReserveB : ${reserveB.toString()}`);
+                                            logger.info(`→ ReserveB : ${reserveB.toString()}`);
                                         }
                                 
                                     
@@ -144,24 +144,22 @@ export async function getContractDataFetch(contractId: string): Promise<{reserve
                                 if (contractValues["Reserves"] !== undefined) {
                                     reserveA = contractValues["Reserves"][0];
                                     reserveB = contractValues["Reserves"][1];
-                                    console.log(`→ ReserveA : ${reserveA}`);
-                                    console.log(`→ ReserveB : ${reserveB}`);
+                                    logger.info(`→ ReserveA : ${reserveA}`);
+                                    logger.info(`→ ReserveB : ${reserveB}`);
                                 }
                                 
                                 // search fee
                                 
                                 if (contractValues["Fee"] !== undefined) {
                                         const fee = contractValues["Fee"];
-                                        console.log(`→ Fee : ${fee}`);
+                                        logger.info(`→ Fee : ${fee}`);
                                     }
                                 
                                 // search feeFraction
-                                const feeFractionNames = ["FeeFraction"];
-                                
-                                    if (contractValues["FeeFraction"] !== undefined) {
-                                        const fee = contractValues["FeeFraction"];
-                                        console.log(`→ FeeFraction : ${fee}`);
-                                    }
+                                if (contractValues["FeeFraction"] !== undefined) {
+                                    const fee = contractValues["FeeFraction"];
+                                    logger.info(`→ FeeFraction : ${fee}`);
+                                }
                                 
                                 return {
                                     reserveA,
@@ -173,13 +171,13 @@ export async function getContractDataFetch(contractId: string): Promise<{reserve
                     }
                 }
             } catch (error) {
-                console.error("❌ Error decoding XDR:", error);
+                logger.error("❌ Error decoding XDR:", error);
             }
         }
         
         return {};
     } catch (error) {
-        console.error("❌ Error getting contract data:", error);
+        logger.error("❌ Error getting contract data:", error);
         return {};
     }
 }

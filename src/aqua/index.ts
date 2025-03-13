@@ -3,12 +3,10 @@ import { AquaPair } from "../types";
 import { extractDepositAquaValues } from "./helpers/depositEvent";
 import { extractAddPoolAquaValues } from "./helpers/addPoolEvent";
 
-// Variable para controlar la inicialización
-let aquaInitialized = false;
 
 // AQUA DEPOSIT LIQUIDITY EVENTS
 export async function aquaDepositHandler(event: SorobanEvent): Promise<void> {
-    logger.info(`🔄 🔴🔴🔴🔴 AQUA DEPOSIT LIQUIDITY EVENTS`);
+    logger.info(`🔄 AQUA DEPOSIT LIQUIDITY EVENTS`);
     // // 1. Test for error example with Incomplete Data
     // try {
     //     const test = event.value;
@@ -44,9 +42,6 @@ export async function aquaDepositHandler(event: SorobanEvent): Promise<void> {
     // }
     try {
         logger.info(`🔄 Processing AQUA DEPOSIT LIQUIDITY EVENT`);
-        
-        const typePool = await AquaPair.get(event.contractId.toString());
-
         // Extract data from the event
         const depositData = await extractDepositAquaValues(JSON.parse(JSON.stringify(event)));
         
@@ -55,7 +50,6 @@ export async function aquaDepositHandler(event: SorobanEvent): Promise<void> {
             logger.error(`❌ No contract address found in deposit event`);
             return;
         }
-        
         // Look for the pool in the database
         const existingPool = await AquaPair.get(depositData.address);
         if (!existingPool) {
@@ -88,17 +82,12 @@ export async function aquaDepositHandler(event: SorobanEvent): Promise<void> {
         }
         
         // Update the existing record with new data
-        if (depositData.reserveA !== undefined) {
-            existingPool.reserveA = depositData.reserveA;
-        }
-        
-        if (depositData.reserveB !== undefined) {
-            existingPool.reserveB = depositData.reserveB;
-        }
-        
+        existingPool.reserveA = depositData.reserveA;
+        existingPool.reserveB = depositData.reserveB;
         existingPool.date = currentDate;
         existingPool.ledger = event.ledger.sequence;
-        
+        existingPool.fee = depositData.fee;
+    
         await existingPool.save();
         logger.info(`✨ Updated reserves for pool ${depositData.address}`);
         
@@ -146,3 +135,5 @@ export async function aquaAddPoolHandler(event: SorobanEvent): Promise<void> {
         throw error;
     }
 }
+
+
