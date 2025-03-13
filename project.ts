@@ -8,7 +8,7 @@ import { Networks } from "@stellar/stellar-sdk";
 import { config } from "dotenv";
 import { getSoroswapFactory, NETWORK } from "./src/constants";
 config();
-
+// Soroswap handlers
 const soroswapFactory = getSoroswapFactory(process.env.NETWORK as NETWORK);
 const soroswapHandlers: SubqlRuntimeHandler[] = [
   {

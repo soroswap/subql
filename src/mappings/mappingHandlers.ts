@@ -1,7 +1,7 @@
 import { SorobanEvent } from "@subql/types-stellar";
-import { initializeAquaDb, initializeDB } from "../intialize";
+import { initializeDB } from "../intialize";
 import { soroswapNewPairHandler, soroswapSyncHandler } from "../soroswap";
-
+import { initializeAquaDb } from "../aqua/initialize";
 // Importar las funciones de Aqua
 import { aquaDepositHandler, aquaAddPoolHandler, aquaWithdrawHandler } from "../aqua";
 
@@ -29,8 +29,8 @@ export async function handleSoroswapEventNewPair(
 export async function handleEventDepositAqua(
   event: SorobanEvent
 ): Promise<void> {
-  logger.info(`🔄 Aqua deposit event received`);
-  await initializeAquaDb();
+  logger.info(`[AQUA] 🔄 deposit event received`);
+  await initializeAquaDb(event.contractId.toString());
   return await aquaDepositHandler(event);
 }
 
@@ -38,7 +38,8 @@ export async function handleEventDepositAqua(
 export async function handleEventWithdrawAqua(
   event: SorobanEvent
 ): Promise<void> {
-  logger.info(`🔄 Aqua withdraw event received`);
+  logger.info(`[AQUA] 🔄 withdraw event received`);
+  await initializeAquaDb(event.contractId.toString());
   return await aquaWithdrawHandler(event);
 }
 
@@ -46,6 +47,7 @@ export async function handleEventWithdrawAqua(
 export async function handleEventAddPoolAqua(
   event: SorobanEvent
 ): Promise<void> {
-  logger.info(`🔄 Aqua add pool event received`);
+  logger.info(`[AQUA] 🔄 add pool event received`);
+  await initializeAquaDb(event.contractId.toString());
   return await aquaAddPoolHandler(event);
 }
