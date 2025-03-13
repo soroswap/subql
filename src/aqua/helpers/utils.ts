@@ -6,8 +6,8 @@ import { xdr } from '@stellar/stellar-sdk';
 config();
 
 // Default Soroban endpoint
-const SOROBAN_ENDPOINT = process.env.SOROBAN_ENDPOINT || 'https://soroban-mainnet.stellar.org';
-
+// const SOROBAN_ENDPOINT = process.env.SOROBAN_ENDPOINT || 'https://soroban-mainnet.stellar.org';
+const SOROBAN_ENDPOINT = "https://newest-autumn-energy.stellar-mainnet.quiknode.pro/b9c096bbb70d53afa791ad08425ddb2f65fa2559"
 export function hexToSorobanAddress(hexString: string): string {
     const buffer = Buffer.from(hexString, 'hex');
     return StrKey.encodeContract(buffer);
@@ -34,7 +34,7 @@ export function getLedgerKeyContractCode(contractId: string): string {
 }
 
 // Function to get contract data using getLedgerEntries
-export async function getContractDataFetch(contractId: string): Promise<{reserveA?: bigint, reserveB?: bigint}> {
+export async function getContractDataFetch(contractId: string): Promise<{reserveA?: bigint, reserveB?: bigint, fee?: bigint}> {
     try {
         logger.info(`🔍 Getting contract data for: ${contractId}`);
         const ledgerKey = getLedgerKeyContractCode(contractId);
@@ -60,20 +60,13 @@ export async function getContractDataFetch(contractId: string): Promise<{reserve
         
         let json = await res.json();
         logger.info(`🔍 Response received from server`);
-        logger.info("🔴🔴🔴🔴1 json : ");
-        logger.info(JSON.stringify(json));
-        logger.info("🔴🔴🔴🔴2 json.result");
-        logger.info(JSON.stringify(json.result));
 
         // Check if there are entries in the response
         if (json.result && json.result.entries) {
             let xdrData: any;
             try {
                 // Get the XDR from the first entry
-                const jsonResult = json.result; 
-                const jsonEntries = jsonResult.entries;
-                const jsonEntry = jsonEntries[0];
-                xdrData = jsonEntry.xdr;
+                xdrData = json.result.entries[0].xdr;
                 logger.info(`🔍 XDR data retrieved`);
             } catch (error) {
                 logger.error(`❌ Error decoding XDR: ${error}`);
@@ -117,6 +110,7 @@ export async function getContractDataFetch(contractId: string): Promise<{reserve
                                             
                                             // Store in the values object
                                             contractValues[symbolText] = val;
+                                            logger.info(`→ ${symbolText}: ${val}`);
                                         }
                                     }
                                 }
@@ -124,38 +118,55 @@ export async function getContractDataFetch(contractId: string): Promise<{reserve
                                 // search reserves - they can have different names depending on the contract
                                 let reserveA: bigint | undefined;
                                 let reserveB: bigint | undefined;
-                                
-                                // possible names for reserves
-                                const reserveANames = ["ReserveA", "reserve_a", "reserve0", "Reserve0"];
-                                const reserveBNames = ["ReserveB", "reserve_b", "reserve1", "Reserve1"];
-                                
+                                let fee: bigint | undefined;
+                                   
                                 // search reserveA
-                                for (const name of reserveANames) {
-                                    if (contractValues[name] !== undefined) {
-                                        const reserveAVal = contractValues[name];
+                                if (contractValues["ReserveA"] !== undefined) {
+                                        const reserveAVal = contractValues["ReserveA"];
                                         if (reserveAVal.switch().name === 'scvU128') {
                                             reserveA = BigInt(reserveAVal.u128().lo().toString());
-                                            console.log(`→ ReserveA (${name}): ${reserveA.toString()}`);
-                                            break;
+                                            console.log(`→ ReserveA : ${reserveA.toString()}`);                                        
                                         }
-                                    }
+                                    
                                 }
                                 
                                 // search reserveB
-                                for (const name of reserveBNames) {
-                                    if (contractValues[name] !== undefined) {
-                                        const reserveBVal = contractValues[name];
+                                if (contractValues["ReserveB"] !== undefined) {
+                                        const reserveBVal = contractValues["ReserveB"];
                                         if (reserveBVal.switch().name === 'scvU128') {
                                             reserveB = BigInt(reserveBVal.u128().lo().toString());
-                                            console.log(`→ ReserveB (${name}): ${reserveB.toString()}`);
-                                            break;
+                                            console.log(`→ ReserveB : ${reserveB.toString()}`);
                                         }
-                                    }
+                                
+                                    
                                 }
+                                // search reserveA and reserveB
+                                if (contractValues["Reserves"] !== undefined) {
+                                    reserveA = contractValues["Reserves"][0];
+                                    reserveB = contractValues["Reserves"][1];
+                                    console.log(`→ ReserveA : ${reserveA}`);
+                                    console.log(`→ ReserveB : ${reserveB}`);
+                                }
+                                
+                                // search fee
+                                
+                                if (contractValues["Fee"] !== undefined) {
+                                        const fee = contractValues["Fee"];
+                                        console.log(`→ Fee : ${fee}`);
+                                    }
+                                
+                                // search feeFraction
+                                const feeFractionNames = ["FeeFraction"];
+                                
+                                    if (contractValues["FeeFraction"] !== undefined) {
+                                        const fee = contractValues["FeeFraction"];
+                                        console.log(`→ FeeFraction : ${fee}`);
+                                    }
                                 
                                 return {
                                     reserveA,
-                                    reserveB
+                                    reserveB,
+                                    fee
                                 };
                             }
                         }
@@ -172,3 +183,4 @@ export async function getContractDataFetch(contractId: string): Promise<{reserve
         return {};
     }
 }
+

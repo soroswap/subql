@@ -75,8 +75,18 @@ export const initializeDB = async () => {
 };
 
 
+
 export async function initializeAquaDb(): Promise<void> {
     logger.info("🚀 Inicializando pools de Aqua...");
+    logger.info("🔍 Checking if XLM pair exists");
+    const xlm = await AquaPair.getByTokenB(
+      isMainnet
+        ? "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA"
+        : "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+      { limit: 1 }
+    );
+  
+    if (xlm.length >= 1) return;
     const failedPools: string[] = [];
     
     try {
@@ -93,10 +103,35 @@ export async function initializeAquaDb(): Promise<void> {
                     // Verificar si este pool ya existe
                     const existingPool = await AquaPair.get(pool.address);
                     if (existingPool) {
-                        return null; // Ya existe, no hacer nada
+                        // Actualizar campos si el pool ya existe pero faltan datos
+                        if (pool.poolType && !existingPool.poolType) {
+                            existingPool.poolType = pool.poolType;
+                            await existingPool.save();
+                            logger.info(`🔄 Actualizado tipo de pool para ${pool.address}: ${pool.poolType}`);
+                        }
+                        
+                        if (pool.fee && existingPool.fee === BigInt(0)) {
+                            existingPool.fee = BigInt(pool.fee);
+                            await existingPool.save();
+                            logger.info(`🔄 Actualizado fee para ${pool.address}: ${pool.fee}`);
+                        }
+                        
+                        if (pool.reserveA && existingPool.reserveA === BigInt(0)) {
+                            existingPool.reserveA = BigInt(pool.reserveA);
+                            await existingPool.save();
+                            logger.info(`🔄 Actualizada reserveA para ${pool.address}: ${pool.reserveA}`);
+                        }
+                        
+                        if (pool.reserveB && existingPool.reserveB === BigInt(0)) {
+                            existingPool.reserveB = BigInt(pool.reserveB);
+                            await existingPool.save();
+                            logger.info(`🔄 Actualizada reserveB para ${pool.address}: ${pool.reserveB}`);
+                        }
+                        
+                        return null; // Ya existe, no crear nuevo
                     }
                     
-                    // Crear nuevo registro
+                    // Crear nuevo registro con todos los campos disponibles
                     const newPool = AquaPair.create({
                         id: pool.address,
                         ledger: 0, // Se actualizará con eventos reales
@@ -104,9 +139,10 @@ export async function initializeAquaDb(): Promise<void> {
                         address: pool.address,
                         tokenA: pool.tokenA,
                         tokenB: pool.tokenB,
-                        poolType: '',
-                        reserveA: BigInt(0), // Inicializado en 0
-                        reserveB: BigInt(0)  // Inicializado en 0
+                        poolType: pool.poolType || '', // Usar valor del archivo o cadena vacía
+                        fee: pool.fee ? BigInt(pool.fee) : BigInt(0), // Usar valor del archivo o 0
+                        reserveA: pool.reserveA ? BigInt(pool.reserveA) : BigInt(0), // Usar valor del archivo o 0
+                        reserveB: pool.reserveB ? BigInt(pool.reserveB) : BigInt(0)  // Usar valor del archivo o 0
                     });
                     
                     await newPool.save();

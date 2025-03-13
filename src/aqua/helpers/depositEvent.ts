@@ -1,4 +1,4 @@
-import { hexToSorobanAddress, getContractDataFetch } from './utils';
+import { hexToSorobanAddress, getContractDataFetch} from './utils';
 
 // Helper function to extract values from deposit event
 export async function extractDepositAquaValues(event: any): Promise<{
@@ -7,7 +7,7 @@ export async function extractDepositAquaValues(event: any): Promise<{
     tokenB: string;
     reserveA?: bigint;
     reserveB?: bigint;
-    effects?: any[];
+    fee?: bigint;
 }> {
     let result = {
         address: '',
@@ -15,12 +15,14 @@ export async function extractDepositAquaValues(event: any): Promise<{
         tokenB: '',
         reserveA: undefined as bigint | undefined,
         reserveB: undefined as bigint | undefined,
-        effects: []
+        fee: undefined as bigint | undefined,
     };
 
     try {
         logger.info("\n🔄 Processing Aqua Deposit event values:");
 
+        
+                
         // User address (first value of the value)
         const contractBuffer = event?.contractId?._id?.data;
         if (contractBuffer) {
@@ -69,8 +71,11 @@ export async function extractDepositAquaValues(event: any): Promise<{
             }
         }
 
+
         return result;
-    } catch (error) {
+    
+    } 
+    catch (error) {
         logger.error(`❌ Error extracting Aqua Deposit values: ${error}`);
         return result;
     }

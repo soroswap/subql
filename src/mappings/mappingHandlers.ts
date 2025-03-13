@@ -1,12 +1,11 @@
 import { SorobanEvent } from "@subql/types-stellar";
-import { initializeDB } from "../intialize";
+import { initializeAquaDb, initializeDB } from "../intialize";
 import { soroswapNewPairHandler, soroswapSyncHandler } from "../soroswap";
 
 // Importar las funciones de Aqua
 import { aquaDepositHandler, aquaAddPoolHandler } from "../aqua";
 
 // Default Soroban endpoint
-
 
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(
@@ -31,6 +30,7 @@ export async function handleEventDepositAqua(
   event: SorobanEvent
 ): Promise<void> {
   logger.info(`🔄 Aqua deposit event received`);
+  await initializeAquaDb();
   return await aquaDepositHandler(event);
 }
 

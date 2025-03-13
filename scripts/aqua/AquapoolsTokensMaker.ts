@@ -5,11 +5,19 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
 import { retry, toolkit } from "../toolkit";
+import { NETWORK } from '../../src/constants';
+import { getAquaFactory } from '../../src/constants/AquaContracts';
+
+// "npm run aqua-pools": "ts-node -r dotenv/config scripts/aqua/AquapoolsTokensMaker.ts",
 // Load environment variables
 config();
 
-const FACTORY_CONTRACT_AQUA = "CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK";
-
+//const FACTORY_CONTRACT_AQUA = "CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK";
+const FACTORY_CONTRACT_AQUA = getAquaFactory(
+    process.env.NETWORK as NETWORK
+  ).address;
+console.log("FACTORY_CONTRACT_AQUA", FACTORY_CONTRACT_AQUA);
+ 
 // Configuración
 const CONFIG = {
     chunkSize: 5,            // Reducido para evitar rate limiting
@@ -31,6 +39,8 @@ interface AquaPool {
     address: string;
     reserveA?: string;
     reserveB?: string;
+    poolType?: string;
+    fee?: string;
 }
 
 interface Checkpoint {
@@ -69,42 +79,6 @@ const stats: ProcessingStats = {
     uniquePools: 0,
     duplicatePools: 0
 };
-
-// Retry function con retraso exponencial
-// async function retry<T>(
-//     fn: () => Promise<T>,
-//     retries: number = CONFIG.retryAttempts,
-//     delay: number = CONFIG.retryDelay,
-//     backoff: number = CONFIG.retryBackoff
-// ): Promise<T> {
-//     try {
-//         return await fn();
-//     } catch (error) {
-//         if (retries === 0) throw error;
-//         console.log(`⚠️ Reintentando en ${delay}ms... (${retries} intentos restantes)`);
-//         await new Promise(resolve => setTimeout(resolve, delay));
-//         return retry(fn, retries - 1, delay * backoff, backoff);
-//     }
-// }
-
-// Configuración de Soroban
-// const mainnet = {
-//     network: "mainnet",
-//     friendbotUrl: "",
-//     horizonRpcUrl: process.env.HORIZON_ENDPOINT as string,
-//     sorobanRpcUrl: process.env.SOROBAN_ENDPOINT as string,
-//     networkPassphrase: process.env.CHAIN_ID as string
-// };
-
-// const sorobanToolkit = createToolkit({
-//     adminSecret: process.env.SECRET_KEY_HELPER as string,
-//     contractPaths: {},
-//     addressBookPath: "",
-//     customNetworks: [mainnet],
-//     verbose: "full"
-// });
-
-// const networkToolkit = sorobanToolkit.getNetworkToolkit("mainnet");
 
 // Funciones para interactuar con el contrato
 async function getTokenSetsCount(): Promise<number> {
@@ -162,9 +136,32 @@ async function getPools(tokens: string[]): Promise<{ [key: string]: string }> {
         throw error;
     }
 }
+async function getPoolType(contract: string): Promise<string> {
+    const result = await invokeCustomContract(
+        toolkit,
+        contract,
+        'pool_type',
+        [],
+        true,
+        Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+    );
+    
+    return scValToNative(result.result.retval) as string;
+}
 
+async function getPoolFee(contract: string): Promise<string> {
+    const result = await invokeCustomContract(
+        toolkit,
+        contract,
+        'get_fee_fraction',
+        [],
+        true,
+        Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+    );
+    return scValToNative(result.result.retval) as string;
+}
 
-function isValidPoolData(pool: any): boolean {
+    function isValidPoolData(pool: any): boolean {
     return (
         typeof pool === 'object' &&
         typeof pool.tokenA === 'string' &&
@@ -217,7 +214,7 @@ function estimateTimeRemaining(processedSets: number, totalSets: number, elapsed
 }
 
 // Función mejorada para obtener datos del contrato
-async function getPoolReserves(poolAddress: string): Promise<{reserveA?: string, reserveB?: string, hasLiquidity?: boolean}> {
+async function getPoolReserves(poolAddress: string, poolType?: string): Promise<{reserveA?: string, reserveB?: string, hasLiquidity?: boolean}> {
     return retry(async () => {
         try {
             const server = new rpc.Server(process.env.SOROBAN_ENDPOINT as string, { allowHttp: true });
@@ -242,28 +239,52 @@ async function getPoolReserves(poolAddress: string): Promise<{reserveA?: string,
                     contractValues[key] = value;
                 });
                 
-                // Buscar nombres alternativos para las reservas
-                const reserveA = contractValues["ReserveA"]?.toString() || 
-                                contractValues["reserve_a"]?.toString() ||
-                                contractValues["reserveA"]?.toString() ||
-                                contractValues["reserve0"]?.toString() ||
-                                contractValues["Reserve0"]?.toString();
-                
-                const reserveB = contractValues["ReserveB"]?.toString() || 
-                                contractValues["reserve_b"]?.toString() ||
-                                contractValues["reserveB"]?.toString() ||
-                                contractValues["reserve1"]?.toString() ||
-                                contractValues["Reserve1"]?.toString();
-                
-                // Verificar si hay liquidez
-                const hasLiquidity = !!(reserveA && reserveB && 
-                                    (BigInt(reserveA) > 0 || BigInt(reserveB) > 0));
-                
-                return {
-                    reserveA,
-                    reserveB,
-                    hasLiquidity
-                };
+                // Verificar si es un pool de tipo stable
+                if (poolType === "stable") {
+                    // Para pools stable, buscar el array de Reserves
+                    const reserves = contractValues["Reserves"] || 
+                                    contractValues["reserves"] || 
+                                    contractValues["RESERVES"];
+                    
+                    if (Array.isArray(reserves) && reserves.length >= 2) {
+                        console.log(`ℹ️ Pool stable encontrado con reservas: [${reserves[0]}, ${reserves[1]}]`);
+                        
+                        // Verificar si hay liquidez
+                        const hasLiquidity = !!(reserves[0] && reserves[1] && 
+                                            (BigInt(reserves[0]) > 0 || BigInt(reserves[1]) > 0));
+                        
+                        return {
+                            reserveA: reserves[0]?.toString(),
+                            reserveB: reserves[1]?.toString(),
+                            hasLiquidity
+                        };
+                    } else {
+                        console.log(`⚠️ Pool stable sin array de reservas válido: ${poolAddress}`);
+                    }
+                } else {
+                    // Para pools constant_product, buscar nombres individuales
+                    const reserveA = contractValues["ReserveA"]?.toString() || 
+                                    contractValues["reserve_a"]?.toString() ||
+                                    contractValues["reserveA"]?.toString() ||
+                                    contractValues["reserve0"]?.toString() ||
+                                    contractValues["Reserve0"]?.toString();
+                    
+                    const reserveB = contractValues["ReserveB"]?.toString() || 
+                                    contractValues["reserve_b"]?.toString() ||
+                                    contractValues["reserveB"]?.toString() ||
+                                    contractValues["reserve1"]?.toString() ||
+                                    contractValues["Reserve1"]?.toString();
+                    
+                    // Verificar si hay liquidez
+                    const hasLiquidity = !!(reserveA && reserveB && 
+                                        (BigInt(reserveA) > 0 || BigInt(reserveB) > 0));
+                    
+                    return {
+                        reserveA,
+                        reserveB,
+                        hasLiquidity
+                    };
+                }
             }
             
             return {};
@@ -274,27 +295,6 @@ async function getPoolReserves(poolAddress: string): Promise<{reserveA?: string,
     }, CONFIG.reserveRetryAttempts, CONFIG.reserveRetryDelay, CONFIG.retryBackoff);
 }
 
-// Función para registrar pools sin liquidez
-function logPoolWithoutLiquidity(pool: AquaPool): void {
-    const noLiquidityPath = path.join(__dirname, '../aquapools-no-liquidity.json');
-    let noLiquidityPools: AquaPool[] = [];
-    
-    // Cargar archivo existente si existe
-    if (fs.existsSync(noLiquidityPath)) {
-        try {
-            const data = fs.readFileSync(noLiquidityPath, 'utf8');
-            noLiquidityPools = JSON.parse(data);
-        } catch (error) {
-            console.warn('⚠️ Error al cargar el archivo de pools sin liquidez:', error);
-        }
-    }
-    
-    // Añadir pool actual
-    noLiquidityPools.push(pool);
-    
-    // Guardar archivo actualizado
-    fs.writeFileSync(noLiquidityPath, JSON.stringify(noLiquidityPools, null, 2));
-}
 
 // Función para registrar pools con error al obtener reservas
 function logPoolWithReserveError(pool: AquaPool, error: any): void {
@@ -349,20 +349,46 @@ async function processPoolWithReserves(index: number, totalSets: number): Promis
             address: poolAddress
         };
         
+        // Obtener tipo de pool primero
+        let poolType: string | undefined;
+        try {
+            poolType = await retry(() => getPoolType(poolAddress), 1);
+            if (poolType) {
+                poolData.poolType = poolType;
+                console.log(`ℹ️ Tipo de pool para ${poolAddress}: ${poolType}`);
+            }
+        } catch (error) {
+            console.warn(`⚠️ No se pudo obtener el tipo de pool para ${poolAddress}`);
+        }
+        
+        // Obtener fee del pool
+        try {
+            // Pequeña pausa antes de solicitar el fee
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const fee = await retry(() => getPoolFee(poolAddress), 1);
+            if (fee) {
+                poolData.fee = fee.toString();
+                console.log(`💰 Fee del pool ${poolAddress}: ${fee}`);
+            }
+        } catch (error) {
+            console.warn(`⚠️ No se pudo obtener el fee para el pool ${poolAddress}`);
+        }
+        
         // Obtener reservas con pausa para evitar rate limiting
         try {
             // Pequeña pausa antes de solicitar reservas
             await new Promise(resolve => setTimeout(resolve, CONFIG.pauseBetweenReserveRequests));
             
-            const reserves = await getPoolReserves(poolAddress);
+            // Pasar el tipo de pool a la función getPoolReserves
+            const reserves = await getPoolReserves(poolAddress, poolType);
             
             if (reserves.reserveA) poolData.reserveA = reserves.reserveA;
             if (reserves.reserveB) poolData.reserveB = reserves.reserveB;
             
-            // Registrar pools sin liquidez
+            // Registrar pools sin liquidez en log pero no en archivo
             if (reserves.reserveA === '0' && reserves.reserveB === '0') {
                 console.log(`⚠️ Pool sin liquidez: ${poolAddress}`);
-                logPoolWithoutLiquidity(poolData);
             } else if (!reserves.reserveA && !reserves.reserveB) {
                 console.log(`⚠️ No se pudieron obtener reservas para: ${poolAddress}`);
                 logPoolWithReserveError(poolData, 'No se encontraron valores de reservas');
@@ -468,6 +494,8 @@ export interface AquaPool {
     address: string;
     reserveA?: string;
     reserveB?: string;
+    poolType?: string;
+    fee?: string;
 }
 
 export const aquaPoolsList: AquaPool[] = ${JSON.stringify(aquaPools, null, 2)};
@@ -510,10 +538,18 @@ export const aquaPoolsList: AquaPool[] = ${JSON.stringify(aquaPools, null, 2)};
         // Generar estadísticas adicionales
         const poolsWithReserves = aquaPools.filter(pool => pool.reserveA && pool.reserveB).length;
         const poolsWithoutReserves = aquaPools.length - poolsWithReserves;
+        const poolsWithType = aquaPools.filter(pool => pool.poolType).length;
+        const poolsWithFee = aquaPools.filter(pool => pool.fee).length;
+        const poolsWithZeroReserves = aquaPools.filter(pool => 
+            pool.reserveA === '0' && pool.reserveB === '0'
+        ).length;
         
-        console.log(`\n📊 Estadísticas de reservas:`);
+        console.log(`\n📊 Estadísticas de pools:`);
         console.log(`✅ Pools con reservas: ${poolsWithReserves} (${((poolsWithReserves/aquaPools.length)*100).toFixed(2)}%)`);
         console.log(`⚠️ Pools sin reservas: ${poolsWithoutReserves} (${((poolsWithoutReserves/aquaPools.length)*100).toFixed(2)}%)`);
+        console.log(`ℹ️ Pools con tipo: ${poolsWithType} (${((poolsWithType/aquaPools.length)*100).toFixed(2)}%)`);
+        console.log(`💰 Pools con fee: ${poolsWithFee} (${((poolsWithFee/aquaPools.length)*100).toFixed(2)}%)`);
+        console.log(`⚠️ Pools con reservas en cero: ${poolsWithZeroReserves} (${((poolsWithZeroReserves/aquaPools.length)*100).toFixed(2)}%)`);
 
     } catch (error) {
         console.error("❌ Error general:", error);

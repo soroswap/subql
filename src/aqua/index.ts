@@ -2,8 +2,6 @@ import { SorobanEvent } from "@subql/types-stellar";
 import { AquaPair } from "../types";
 import { extractDepositAquaValues } from "./helpers/depositEvent";
 import { extractAddPoolAquaValues } from "./helpers/addPoolEvent";
-import { hexToSorobanAddress, getContractDataFetch, getLedgerKeyContractCode } from "./helpers/utils";
-import { initializeAquaDb } from "../intialize";
 
 // Variable para controlar la inicialización
 let aquaInitialized = false;
@@ -11,23 +9,18 @@ let aquaInitialized = false;
 // AQUA DEPOSIT LIQUIDITY EVENTS
 export async function aquaDepositHandler(event: SorobanEvent): Promise<void> {
     logger.info(`🔄 🔴🔴🔴🔴 AQUA DEPOSIT LIQUIDITY EVENTS`);
-    if (!aquaInitialized) {
-        await initializeAquaDb();
-        aquaInitialized = true;
-    }
-    
     // // 1. Test for error example with Incomplete Data
-    try {
-        const test = event.value;
-        logger.info(`🔍 🔴🔴🔴🔴 test: ${JSON.stringify(test)}`);
-        logger.info(`🔍 🔴🔴🔴🔴 testTransaction: ${JSON.stringify(event.transaction)}`);
-        const testResultXdr = event.transaction.result_meta_xdr;
-        logger.info(`🔍 🔴🔴🔴🔴 testResultMetaXdr: ${testResultXdr}`);
-        logger.info(`🔍 🔴🔴🔴🔴 testResultXdrString: ${testResultXdr.toString()}`);
-    } catch (error) {
-        logger.error("❌🔴🔴 Error processing Aqua deposit event transaction: ${error}");
-        throw error;
-    }
+    // try {
+    //     const test = event.value;
+    //     logger.info(`🔍 🔴🔴🔴🔴 test: ${JSON.stringify(test)}`);
+    //     logger.info(`🔍 🔴🔴🔴🔴 testTransaction: ${JSON.stringify(event.transaction)}`);
+    //     const testResultXdr = event.transaction.result_meta_xdr;
+    //     logger.info(`🔍 🔴🔴🔴🔴 testResultMetaXdr: ${testResultXdr}`);
+    //     logger.info(`🔍 🔴🔴🔴🔴 testResultXdrString: ${testResultXdr.toString()}`);
+    // } catch (error) {
+    //     logger.error("❌🔴🔴 Error processing Aqua deposit event transaction: ${error}");
+    //     throw error;
+    // }
 
 
     // // 2. Test for error example with getContractData using axios
@@ -52,6 +45,8 @@ export async function aquaDepositHandler(event: SorobanEvent): Promise<void> {
     try {
         logger.info(`🔄 Processing AQUA DEPOSIT LIQUIDITY EVENT`);
         
+        const typePool = await AquaPair.get(event.contractId.toString());
+
         // Extract data from the event
         const depositData = await extractDepositAquaValues(JSON.parse(JSON.stringify(event)));
         
@@ -75,6 +70,7 @@ export async function aquaDepositHandler(event: SorobanEvent): Promise<void> {
                 tokenA: depositData.tokenA,
                 tokenB: depositData.tokenB,
                 poolType: 'unknown', // We could get this from another source
+                fee: BigInt(0),
                 reserveA: depositData.reserveA || BigInt(0),
                 reserveB: depositData.reserveB || BigInt(0)
             });
@@ -114,10 +110,6 @@ export async function aquaDepositHandler(event: SorobanEvent): Promise<void> {
 
 // AQUA ADD POOL EVENTS AQUA PROTOCOL
 export async function aquaAddPoolHandler(event: SorobanEvent): Promise<void> {
-    if (!aquaInitialized) {
-        await initializeAquaDb();
-        aquaInitialized = true;
-    }
 
     try {
         const eventData = extractAddPoolAquaValues(JSON.parse(JSON.stringify(event)));
@@ -141,6 +133,7 @@ export async function aquaAddPoolHandler(event: SorobanEvent): Promise<void> {
             tokenA: eventData.tokenA,
             tokenB: eventData.tokenB,
             poolType: eventData.poolType,
+            fee: BigInt(0),
             reserveA: BigInt(0), // Initialized in 0
             reserveB: BigInt(0)  // Initialized in 0
         });
