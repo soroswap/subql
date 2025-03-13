@@ -16,11 +16,11 @@ export function getTransactionData(event: any, contractId: string): any {
       
         const txMeta = xdr.TransactionMeta.fromXDR(resultMetaXdrString, "base64");
       
-        logger.info(`--------------------------------------------------------`);
+        logger.debug(`--------------------------------------------------------`);
       
         const txOperations = txMeta.v3().operations()[0].changes();
       
-        logger.info(`[AQUA] 🟢 Operations Length: ${txOperations.length}`);
+        logger.debug(`[AQUA] 🟢 Operations Length: ${txOperations.length}`);
       
         // Buscar las operaciones que actualizan el contrato específico
         const filteredOperations = txOperations.filter((operation) => {
@@ -37,21 +37,21 @@ export function getTransactionData(event: any, contractId: string): any {
           }
           return false;
         });      
-        // Buscar los valores de ReserveA, ReserveB y FeeFraction en el contrato
+        // Found the values of ReserveA, ReserveB and FeeFraction in the contract
         let reserveA: bigint | undefined;
         let reserveB: bigint | undefined;
         let fee: bigint | undefined;
         let poolType: string | undefined;
         let reserves: any | undefined;
-        // Buscar en las operaciones filtradas        
+        // Search in the filtered operations        
         for (const operation of filteredOperations) {
-          // Verificar si es una actualización del contrato instance
+          // Verify if it is an update of the contract instance
           const val = operation?.["_value"]?._attributes?.data?._value?._attributes?.val;
           if (val?._switch?.name === "scvContractInstance") { // find data storage from contract instance
             const storage = val?.instance()?._attributes?.storage;
             
             if (storage && Array.isArray(storage)) {
-              // Recorrer el almacenamiento buscando las claves que nos interesan
+              // Iterate over the storage to find the keys that we are interested in
               for (const item of storage) {
                 const key = item?.key();
                 const keyVec = key?.vec?.();
@@ -63,29 +63,28 @@ export function getTransactionData(event: any, contractId: string): any {
                     const symbolName = firstElement.sym().toString();
                     const itemValue = item.val();
                     
-                    // Extraer los valores según el nombre del símbolo
+                    // Extract the values according to the symbol name
                     if (symbolName === "ReserveA" && itemValue?.switch?.().name === "scvU128") {
                       reserveA = BigInt(itemValue.u128().lo().toString());
-                      logger.info(`[AQUA] 🔍 Found ReserveA: ${reserveA.toString()}`);
+                      logger.debug(`[AQUA] 🔍 Found ReserveA: ${reserveA.toString()}`);
                     }
                      
                     else if (symbolName === "ReserveB" && itemValue?.switch?.().name === "scvU128") {
                       reserveB = BigInt(itemValue.u128().lo().toString());
-                      logger.info(`[AQUA] 🔍 Found ReserveB: ${reserveB.toString()}`);
+                      logger.debug(`[AQUA] 🔍 Found ReserveB: ${reserveB.toString()}`);
                     }
                     else if (symbolName === "Fee" && itemValue?.switch?.().name === "scvU32") {
                         fee = BigInt(itemValue.u32().toString());
-                        logger.info(`[AQUA] 🔍 Found Fee: ${fee.toString()}`);
+                        logger.debug(`[AQUA] 🔍 Found Fee: ${fee.toString()}`);
                       }
                     else if (symbolName === "Reserves") {
                         reserveA = BigInt(itemValue.vec()[0].u128().lo().toString());
                         reserveB = BigInt(itemValue.vec()[1].u128().lo().toString());
-                        logger.info(`[AQUA] 🔍 Found Reserves: ${reserveA.toString()}, ${reserveB.toString()}`);
+                        logger.debug(`[AQUA] 🔍 Found Reserves: ${reserveA.toString()}, ${reserveB.toString()}`);
                       }      
-
                     else if (symbolName === "FeeFraction" && itemValue?.switch?.().name === "scvU32") {
                       fee = BigInt(itemValue.u32().toString());
-                      logger.info(`[AQUA] 🔍 Found FeeFraction: ${fee.toString()}`);
+                      logger.debug(`[AQUA] 🔍 Found FeeFraction: ${fee.toString()}`);
                     }
                   }
                 }
@@ -94,7 +93,7 @@ export function getTransactionData(event: any, contractId: string): any {
           }
         }
         
-        // Si no encontramos las reservas en el contrato instance, intentamos buscarlas en el formato anterior
+        // If we don't find the reserves in the contract instance, we try to find them in the previous format
         if (!reserveA || !reserveB) {
           reserves = filteredOperations.reduce((acc, operation) => {
             const rawKey =
@@ -111,7 +110,7 @@ export function getTransactionData(event: any, contractId: string): any {
             return acc;
           }, {});
           
-          // Usar los valores encontrados en el formato anterior si no se encontraron en el contrato instance
+          // Use the values found in the previous format if they were not found in the contract instance
           if (!reserveA && reserves.reserveA) {
             reserveA = BigInt(reserves.reserveA);
           }
@@ -120,7 +119,7 @@ export function getTransactionData(event: any, contractId: string): any {
           }
         }
       
-        logger.info(
+        logger.debug(
           `[AQUA] 🟢 Reserves: ReserveA=${reserveA?.toString() || "not found"}, ReserveB=${reserveB?.toString() || "not found"}, Fee=${fee?.toString() || "not found"}`
         );
       
@@ -143,7 +142,7 @@ export function getLedgerKeyContractCode(contractId: string): string {
         // Convert to XDR in base64 format
         const xdrBase64 = footprint.toXDR("base64");
         
-        logger.info(`[AQUA] 🔍 Generated ledger key for ${contractId}: ${xdrBase64}`);
+        logger.debug(`[AQUA] 🔍 Generated ledger key for ${contractId}: ${xdrBase64}`);
         
         return xdrBase64;
     } catch (error) {

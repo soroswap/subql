@@ -1,6 +1,6 @@
 import { hexToSorobanAddress } from './utils';
 
-// Helper function para extraer valores del evento add_pool
+// Helper function to extract values from the add_pool event
 export function extractAddPoolAquaValues(event: any): {
     address: string;
     tokenA: string;
@@ -15,25 +15,25 @@ export function extractAddPoolAquaValues(event: any): {
     };
 
     try {
-        // Extraer user del value
+        // Extract user from value
         const values = event?.value?._value;
         if (!Array.isArray(values)) {
             throw new Error('No values array found in AddPool event');
         }
 
-        logger.info("\n🔄 Processing Aqua AddPool event values:");
+        logger.debug("\n🔄 Processing Aqua AddPool event values:");
 
-        // User address (primer valor del value)
+        // User address (first value of value)
         const userBuffer = values[0]?._value?._value?.data;
         if (userBuffer) {
             result.address = hexToSorobanAddress(Buffer.from(userBuffer).toString('hex'));
-            logger.info(`→ User address: ${result.address}`);
+            logger.debug(`→ User address: ${result.address}`);
         }
         // pool type
         const poolType = values[1]?._value?.data;
         if (poolType) {
             result.poolType = Buffer.from(poolType).toString('utf8');
-            logger.info(`→ Pool type: ${result.poolType}`);
+            logger.debug(`→ Pool type: ${result.poolType}`);
         }
 
         // Tokens del topic[1]
@@ -43,14 +43,14 @@ export function extractAddPoolAquaValues(event: any): {
             const tokenABuffer = topicTokens[0]?._value?._value?.data;
             if (tokenABuffer) {
                 result.tokenA = hexToSorobanAddress(Buffer.from(tokenABuffer).toString('hex'));
-                logger.info(`→ Token A: ${result.tokenA}`);
+                logger.debug(`→ Token A: ${result.tokenA}`);
             }
 
             // Token B
             const tokenBBuffer = topicTokens[1]?._value?._value?.data;
             if (tokenBBuffer) {
                 result.tokenB = hexToSorobanAddress(Buffer.from(tokenBBuffer).toString('hex'));
-                logger.info(`→ Token B: ${result.tokenB}`);
+                logger.debug(`→ Token B: ${result.tokenB}`);
             }
         }
 
