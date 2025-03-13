@@ -3,6 +3,8 @@ import { initializeSoroswap } from "../soroswap/intialize";
 import { soroswapNewPairHandler, soroswapSyncHandler } from "../soroswap";
 import { phoenixHandler } from "../phoenix";
 import { initializePhoenix } from "../phoenix/initialize";
+import { initializeAquaDb } from "../aqua/initialize";
+import { aquaEventHandler, aquaAddPoolHandler } from "../aqua";
 
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(

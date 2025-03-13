@@ -66,23 +66,6 @@ const phoenixHandlers: SubqlRuntimeHandler[] = [
     },
   },
 ];
-const soroswapHandlers: SubqlRuntimeHandler[] = [
-  {
-    handler: "handleSoroswapEventSync",
-    kind: StellarHandlerKind.Event,
-    filter: {
-      topics: ["SoroswapPair", "sync"],
-    },
-  },
-  {
-    handler: "handleSoroswapEventNewPair",
-    kind: StellarHandlerKind.Event,
-    filter: {
-      contractId: soroswapFactory.address,
-      topics: ["SoroswapFactory", "new_pair"],
-    },
-  },
-];
 
 //Aqua handlers
 const aquaHandlers: SubqlRuntimeHandler[] = [
