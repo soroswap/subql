@@ -92,9 +92,6 @@ type SoroswapPair @entity {
   reserveB: BigInt!
 }
 
-"""
-AquaPair entity: Stores Aqua swap events
-"""
 type AquaPair @entity {
   id: ID! # User or Address
   ledger: Int! @index
@@ -106,7 +103,6 @@ type AquaPair @entity {
   reserveA: BigInt!
   reserveB: BigInt!
 }
-
 ```
 
 ## 📡 Accessing the GraphQL API
@@ -126,7 +122,7 @@ query GetPairsSoroswap {
   soroswapPairs (orderBy: DATE_DESC) {
     totalCount
     nodes {
-			id
+		  id
       tokenA
       tokenB
       reserveA

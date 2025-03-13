@@ -124,7 +124,7 @@ export async function generatePairTokenReservesList(): Promise<void> {
 
     // Generate file content
     const fileContent = `
-// This file is generated automatically by pairsTokensMaker.ts
+// This file is generated automatically by scripts/soroswap/pairsTokensMaker.ts
 // Do not modify manually
 
 export interface PairTokenReserves {
@@ -135,6 +135,8 @@ export interface PairTokenReserves {
     reserve_b: string;
 }
 
+export const soroswapPairsGeneratedDate = "${new Date().toISOString()}";
+
 export const pairTokenReservesList: PairTokenReserves[] = ${JSON.stringify(
       pairTokenReserves,
       null,
@@ -142,9 +144,12 @@ export const pairTokenReservesList: PairTokenReserves[] = ${JSON.stringify(
     )};
 `;
     // Write file
-    const filePath = path.join(__dirname, "../../src/mappings/pairTokenRsv.ts");
+    const filePath = path.join(
+      __dirname,
+      "../../src/soroswap/pairReservesData.ts"
+    );
     fs.writeFileSync(filePath, fileContent);
-    console.log(`✅ pairTokenRsv.ts file generated successfully`);
+    console.log(`✅ pairReservesData.ts file generated successfully`);
   } catch (error) {
     console.error("❌ General error:", error);
     throw error;

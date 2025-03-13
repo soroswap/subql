@@ -32,10 +32,6 @@ dist/
 src/types
 project.yaml
 
-# Archivos generados automáticamente
-scripts/lastLedger.ts
-src/mappings/pairTokenRsv.ts
-
 # JetBrains IDE
 .idea/
 
@@ -71,3 +67,4 @@ scripts/extract-values-events/
 .env.develop.local
 .env
 .project-cid
+.stellar

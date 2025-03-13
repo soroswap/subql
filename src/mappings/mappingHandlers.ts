@@ -1,16 +1,15 @@
 import { SorobanEvent } from "@subql/types-stellar";
-import { initializeDB } from "../intialize";
+import { initializeSoroswap } from "../soroswap/intialize";
 import { soroswapNewPairHandler, soroswapSyncHandler } from "../soroswap";
-import { initializeAquaDb } from "../aqua/initialize";
-// Importar las funciones de Aqua
-import { aquaAddPoolHandler, aquaEventHandler } from "../aqua";
+import { phoenixHandler } from "../phoenix";
+import { initializePhoenix } from "../phoenix/initialize";
 
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(
   event: SorobanEvent
 ): Promise<void> {
-  logger.info(`🔁 Sync event received`);
-  await initializeDB();
+  logger.info(`[SOROSWAP] 🔁 Sync event received`);
+  await initializeSoroswap(event.contractId.toString());
   return await soroswapSyncHandler(event);
 }
 
@@ -18,8 +17,27 @@ export async function handleSoroswapEventSync(
 export async function handleSoroswapEventNewPair(
   event: SorobanEvent
 ): Promise<void> {
-  logger.info(`🔁 NewPair event received`);
+  logger.info(`[SOROSWAP] 🔁 NewPair event received`);
+  await initializeSoroswap(event.contractId.toString());
   return await soroswapNewPairHandler(event);
+}
+
+// PHOENIX EVENTS
+export async function handlePhoenixEvent(event: SorobanEvent): Promise<void> {
+  logger.info(
+    `[PHOENIX] 🔁 ${String(
+      event.topic[0]?.value()
+    ).toUpperCase()} Event received`
+  );
+  await initializePhoenix(event.contractId.toString());
+  return await phoenixHandler(event);
+}
+
+export async function handlePhoenixCreateLPEvent(
+  event: SorobanEvent
+): Promise<void> {
+  logger.info(`[PHOENIX] 🔁 Create LP Event received`);
+  // TODO: Create lp handler
 }
 
 
