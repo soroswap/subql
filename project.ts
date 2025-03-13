@@ -2,6 +2,7 @@ import {
   StellarDatasourceKind,
   StellarHandlerKind,
   StellarProject,
+  SubqlRuntimeHandler,
 } from "@subql/types-stellar";
 import { Networks } from "@stellar/stellar-sdk";
 import { config } from "dotenv";
@@ -9,6 +10,55 @@ import { getSoroswapFactory, NETWORK } from "./src/constants";
 config();
 
 const soroswapFactory = getSoroswapFactory(process.env.NETWORK as NETWORK);
+const soroswapHandlers: SubqlRuntimeHandler[] = [
+  {
+    handler: "handleSoroswapEventSync",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["SoroswapPair", "sync"],
+    },
+  },
+  {
+    handler: "handleSoroswapEventNewPair",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      contractId: soroswapFactory.address,
+      topics: ["SoroswapFactory", "new_pair"],
+    },
+  },
+];
+
+//Aqua handlers
+const aquaHandlers: SubqlRuntimeHandler[] = [
+  {
+    handler: "handleEventAddPoolAqua",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      contractId:"CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK",
+      topics: [
+        "add_pool"
+      ],
+    },
+  },
+  {
+    handler: "handleEventDepositAqua",// deposit liquidity
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: [
+        "deposit_liquidity"
+      ],
+    },
+  },
+  {
+    handler: "handleEventWithdrawAqua",// withdraw liquidity
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: [
+        "withdraw_liquidity"
+      ],
+    },
+  },
+]
 
 /* This is your project configuration */
 const project: StellarProject = {
@@ -60,57 +110,10 @@ const project: StellarProject = {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
       //startBlock: soroswapFactory.startBlock,
-      startBlock: 56132153,
+      startBlock: 56135017,
       mapping: {
         file: "./dist/index.js",
-        handlers: [
-          {
-            handler: "handleSoroswapEventSync",
-            kind: StellarHandlerKind.Event,
-            filter: {
-              topics: ["SoroswapPair", "sync"],
-            },
-          },
-          {
-            handler: "handleSoroswapEventNewPair",
-            kind: StellarHandlerKind.Event,
-            filter: {
-              contractId: process.env.FACTORY_CONTRACT_SOROSWAP as string,
-              topics: [
-                "SoroswapFactory",
-                "new_pair"
-              ],
-            },
-          },
-          {
-            handler: "handleEventAddPoolAqua",// add pool aqua
-            kind: StellarHandlerKind.Event,
-            filter: {
-              contractId:"CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK",
-              topics: [
-                "add_pool"
-              ],
-            },
-          },
-          {
-            handler: "handleEventDepositAqua",// deposit liquidity
-            kind: StellarHandlerKind.Event,
-            filter: {
-              topics: [
-                "deposit_liquidity"
-              ],
-            },
-          },
-          {
-            handler: "handleEventWithdrawAqua",// withdraw liquidity
-            kind: StellarHandlerKind.Event,
-            filter: {
-              topics: [
-                "withdraw_liquidity"
-              ],
-            },
-          },
-        ],
+        handlers: [...soroswapHandlers, ...aquaHandlers],
       },
     },
   ],

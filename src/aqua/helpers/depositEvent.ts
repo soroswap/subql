@@ -1,4 +1,4 @@
-import { hexToSorobanAddress, getContractDataFetch, getTransactionData} from './utils';
+import { hexToSorobanAddress, getTransactionData} from './utils';
 
 // Helper function to extract values from deposit event
 export async function extractDepositAquaValues(event: any): Promise<{

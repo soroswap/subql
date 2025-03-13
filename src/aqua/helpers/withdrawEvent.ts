@@ -1,4 +1,4 @@
-import { hexToSorobanAddress, getContractDataFetch} from './utils';
+import { hexToSorobanAddress, getTransactionData} from './utils';
 
 // Helper function to extract values from withdraw event
 export async function extractWithdrawAquaValues(event: any): Promise<{
@@ -51,7 +51,7 @@ export async function extractWithdrawAquaValues(event: any): Promise<{
         // Get contract data using getLedgerEntries
         if (result.address) {
             logger.info(`🔍 Fetching contract data for ${result.address}...`);
-            let contractData = await getContractDataFetch(result.address);
+            let contractData = await getTransactionData(event,result.address);
             
             if (contractData.reserveA !== undefined) {
                 result.reserveA = contractData.reserveA;
