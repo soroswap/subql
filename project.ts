@@ -101,6 +101,15 @@ const project: StellarProject = {
               ],
             },
           },
+          {
+            handler: "handleEventWithdrawAqua",// withdraw liquidity
+            kind: StellarHandlerKind.Event,
+            filter: {
+              topics: [
+                "withdraw_liquidity"
+              ],
+            },
+          },
         ],
       },
     },

@@ -3,7 +3,7 @@ import { initializeAquaDb, initializeDB } from "../intialize";
 import { soroswapNewPairHandler, soroswapSyncHandler } from "../soroswap";
 
 // Importar las funciones de Aqua
-import { aquaDepositHandler, aquaAddPoolHandler } from "../aqua";
+import { aquaDepositHandler, aquaAddPoolHandler, aquaWithdrawHandler } from "../aqua";
 
 // Default Soroban endpoint
 
@@ -32,6 +32,14 @@ export async function handleEventDepositAqua(
   logger.info(`🔄 Aqua deposit event received`);
   await initializeAquaDb();
   return await aquaDepositHandler(event);
+}
+
+// AQUA WITHDRAW LIQUIDITY EVENTS
+export async function handleEventWithdrawAqua(
+  event: SorobanEvent
+): Promise<void> {
+  logger.info(`🔄 Aqua withdraw event received`);
+  return await aquaWithdrawHandler(event);
 }
 
 // AQUA ADD POOL EVENTS

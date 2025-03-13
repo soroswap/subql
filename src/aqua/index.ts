@@ -2,7 +2,15 @@ import { SorobanEvent } from "@subql/types-stellar";
 import { AquaPair } from "../types";
 import { extractDepositAquaValues } from "./helpers/depositEvent";
 import { extractAddPoolAquaValues } from "./helpers/addPoolEvent";
+import { extractWithdrawAquaValues } from "./helpers/withdrawEvent";
 
+// AQUA WITHDRAW LIQUIDITY EVENTS
+export async function aquaWithdrawHandler(event: SorobanEvent): Promise<void> {
+    logger.info(`🔄 AQUA WITHDRAW LIQUIDITY EVENTS`);
+    const withdrawData = await extractWithdrawAquaValues(JSON.parse(JSON.stringify(event)));
+    logger.info(`🔍 🔴🔴🔴🔴 withdrawData: ${JSON.stringify(withdrawData)}`);
+
+}
 
 // AQUA DEPOSIT LIQUIDITY EVENTS
 export async function aquaDepositHandler(event: SorobanEvent): Promise<void> {
