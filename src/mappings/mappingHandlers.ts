@@ -3,9 +3,7 @@ import { initializeDB } from "../intialize";
 import { soroswapNewPairHandler, soroswapSyncHandler } from "../soroswap";
 import { initializeAquaDb } from "../aqua/initialize";
 // Importar las funciones de Aqua
-import { aquaDepositHandler, aquaAddPoolHandler, aquaWithdrawHandler, aquaSwapHandler } from "../aqua";
-
-// Default Soroban endpoint
+import { aquaAddPoolHandler, aquaEventHandler } from "../aqua";
 
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(
@@ -25,31 +23,35 @@ export async function handleSoroswapEventNewPair(
 }
 
 
-// AQUA DEPOSIT LIQUIDITY EVENTS
-export async function handleEventDepositAqua(
-  event: SorobanEvent
-): Promise<void> {
-  logger.info(`[AQUA] 🔄 deposit event received`);
-  await initializeAquaDb(event.contractId.toString());
-  return await aquaDepositHandler(event);
-}
+// // AQUA DEPOSIT LIQUIDITY EVENTS
+// export async function handleEventDepositAqua(
+//   event: SorobanEvent
+// ): Promise<void> {
+//   logger.info(`[AQUA] 🔄 deposit event received`);
+//   await initializeAquaDb(event.contractId.toString());
+//   return await aquaDepositHandler(event);
+// }
 
-// AQUA WITHDRAW LIQUIDITY EVENTS
-export async function handleEventWithdrawAqua(
-  event: SorobanEvent
-): Promise<void> {
-  logger.info(`[AQUA] 🔄 withdraw event received`);
-  await initializeAquaDb(event.contractId.toString());
-  return await aquaWithdrawHandler(event);
-}
+// // AQUA WITHDRAW LIQUIDITY EVENTS
+// export async function handleEventWithdrawAqua(
+//   event: SorobanEvent
+// ): Promise<void> {
+//   logger.info(`[AQUA] 🔄 withdraw event received`);
+//   await initializeAquaDb(event.contractId.toString());
+//   return await aquaWithdrawHandler(event);
+// }
 
 // AQUA SWAP LIQUIDITY EVENTS
-export async function handleEventSwapAqua(
+export async function handleEventAqua(
   event: SorobanEvent
 ): Promise<void> {
-  logger.info(`[AQUA] 🔄 swap event received`);
+  logger.info(
+    `[AQUA] 🔁 ${String(
+      event.topic[0]?.value()
+    ).toUpperCase()} Event received`
+  );
   await initializeAquaDb(event.contractId.toString());
-  return await aquaSwapHandler(event);
+  return await aquaEventHandler(event);
 }
 
 // AQUA ADD POOL EVENTS

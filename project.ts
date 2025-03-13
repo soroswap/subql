@@ -41,7 +41,7 @@ const aquaHandlers: SubqlRuntimeHandler[] = [
     },
   },
   {
-    handler: "handleEventDepositAqua",// deposit liquidity
+    handler: "handleEventAqua",// deposit liquidity
     kind: StellarHandlerKind.Event,
     filter: {
       topics: [
@@ -50,7 +50,7 @@ const aquaHandlers: SubqlRuntimeHandler[] = [
     },
   },
   {
-    handler: "handleEventWithdrawAqua",// withdraw liquidity
+    handler: "handleEventAqua",// withdraw liquidity
     kind: StellarHandlerKind.Event,
     filter: {
       topics: [
@@ -59,7 +59,7 @@ const aquaHandlers: SubqlRuntimeHandler[] = [
     },
   },
   {
-    handler: "handleEventSwapAqua",// swap liquidity
+    handler: "handleEventAqua",// swap liquidity
     kind: StellarHandlerKind.Event,
     filter: {
       topics: [
@@ -119,7 +119,7 @@ const project: StellarProject = {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
       //startBlock: soroswapFactory.startBlock,
-      startBlock: 56132496,
+      startBlock: 56132154,
       mapping: {
         file: "./dist/index.js",
         handlers: [...soroswapHandlers, ...aquaHandlers],

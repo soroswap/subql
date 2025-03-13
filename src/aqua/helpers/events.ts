@@ -1,7 +1,7 @@
 import { hexToSorobanAddress, getTransactionData} from './utils';
 
-// Helper function to extract values from withdraw event
-export async function extractWithdrawAquaValues(event: any): Promise<{
+// Helper function to extract values from deposit event
+export async function extractAquaValues(event: any): Promise<{
     address: string;
     tokenA: string;
     tokenB: string;
@@ -19,7 +19,7 @@ export async function extractWithdrawAquaValues(event: any): Promise<{
     };
 
     try {
-        logger.info("\n🔄 Processing Aqua Deposit event values:");
+        logger.info("\n🔄 Processing Aqua event values:");
 
         
                 
@@ -45,13 +45,14 @@ export async function extractWithdrawAquaValues(event: any): Promise<{
         }
         
         if (!result.address || !result.tokenA || !result.tokenB) {
-            throw new Error('Incomplete data in Deposit event');
+            throw new Error('Incomplete data in event');
         }
 
         // Get contract data using getLedgerEntries
         if (result.address) {
             logger.info(`🔍 Fetching contract data for ${result.address}...`);
-            let contractData = await getTransactionData(event,result.address);
+            // let contractData = await getContractDataFetch(result.address);
+            let contractData = await getTransactionData(event, result.address); 
             
             if (contractData.reserveA !== undefined) {
                 result.reserveA = contractData.reserveA;
@@ -81,7 +82,7 @@ export async function extractWithdrawAquaValues(event: any): Promise<{
     
     } 
     catch (error) {
-        logger.error(`❌ Error extracting Aqua Deposit values: ${error}`);
+        logger.error(`❌ Error extracting Aqua values: ${error}`);
         return result;
     }
 } 
