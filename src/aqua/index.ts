@@ -17,9 +17,6 @@ export async function aquaDepositHandler(event: SorobanEvent): Promise<void> {
     logger.info(`🔄 AQUA DEPOSIT LIQUIDITY EVENTS`);
     // // 1. Test for error example with Incomplete Data
     // try {
-    //     const test = event.value;
-    //     logger.info(`🔍 🔴🔴🔴🔴 test: ${JSON.stringify(test)}`);
-    //     logger.info(`🔍 🔴🔴🔴🔴 testTransaction: ${JSON.stringify(event.transaction)}`);
     //     const testResultXdr = event.transaction.result_meta_xdr;
     //     logger.info(`🔍 🔴🔴🔴🔴 testResultMetaXdr: ${testResultXdr}`);
     //     logger.info(`🔍 🔴🔴🔴🔴 testResultXdrString: ${testResultXdr.toString()}`);
