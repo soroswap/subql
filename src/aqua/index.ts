@@ -13,37 +13,18 @@ export async function aquaEventHandler(event: SorobanEvent): Promise<void> {
             logger.error(`[AQUA] ❌ No contract address found in event`);
             return;
         }
-        // Look for the pool in the database
+        // check if contract exist in database
         const existingPool = await AquaPair.get(eventData.address);
-        if (!existingPool) {
-            logger.info(`[AQUA] ⚠️ Pool ${eventData.address} not found in database, creating new record`);
-            
-            // Create a new record if it doesn't exist
-            const newPool = AquaPair.create({
-                id: eventData.address,
-                ledger: event.ledger.sequence,
-                date: new Date(event.ledgerClosedAt),
-                address: eventData.address,
-                tokenA: eventData.tokenA,
-                tokenB: eventData.tokenB,
-                poolType: 'unknown', // We could get this from another source
-                fee: BigInt(0),
-                reserveA: eventData.reserveA || BigInt(0),
-                reserveB: eventData.reserveB || BigInt(0)
-            });
-            
-            await newPool.save();
-            logger.info(`[AQUA] ✅ Created new pool record for ${eventData.address}`);
+        if (!existingPool.id) {
+            logger.error(`[AQUA] ❌ Error: Pool ${eventData.address} not found, this contract is not a valid AQUA pool`);      
             return;
         }
-        
         // Check if the event is more recent than existing data
         const currentDate = new Date(event.ledgerClosedAt);
         if (new Date(existingPool.date) > currentDate) {
             logger.info(`[AQUA] ⏭️ Existing pool data is more recent, NOT updating`);
             return;
         }
-        
         // Update the existing record with new data
         existingPool.reserveA = eventData.reserveA;
         existingPool.reserveB = eventData.reserveB;
