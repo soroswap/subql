@@ -42,33 +42,10 @@ export async function handlePhoenixCreateLPEvent(
   // TODO: Create lp handler
 }
 
-
-// // AQUA DEPOSIT LIQUIDITY EVENTS
-// export async function handleEventDepositAqua(
-//   event: SorobanEvent
-// ): Promise<void> {
-//   logger.info(`[AQUA] 🔄 deposit event received`);
-//   await initializeAquaDb(event.contractId.toString());
-//   return await aquaDepositHandler(event);
-// }
-
-// // AQUA WITHDRAW LIQUIDITY EVENTS
-// export async function handleEventWithdrawAqua(
-//   event: SorobanEvent
-// ): Promise<void> {
-//   logger.info(`[AQUA] 🔄 withdraw event received`);
-//   await initializeAquaDb(event.contractId.toString());
-//   return await aquaWithdrawHandler(event);
-// }
-
 // AQUA SWAP LIQUIDITY EVENTS
-export async function handleEventAqua(
-  event: SorobanEvent
-): Promise<void> {
+export async function handleEventAqua(event: SorobanEvent): Promise<void> {
   logger.info(
-    `[AQUA] 🔁 ${String(
-      event.topic[0]?.value()
-    ).toUpperCase()} Event received`
+    `[AQUA] 🔁 ${String(event.topic[0]?.value()).toUpperCase()} Event received`
   );
   await initializeAquaDb(event.contractId.toString());
   return await aquaEventHandler(event);
