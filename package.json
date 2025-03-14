@@ -13,13 +13,7 @@
     "build:develop": "NODE_ENV=develop subql codegen && NODE_ENV=develop subql build",
     "reset": "docker compose down -v && sudo rm -rf .data && sudo rm -rf dist",
     "prestart": "ts-node scripts/index.ts",
-    "subql-publish": "subql publish",
-    "getData": "ts-node scripts/extract-values-events/stellar-sdk/getContractData.ts",
-    "getLedger": "ts-node scripts/extract-values-events/stellar-sdk/getLedgerEntries.ts",
-    "test:addpool": "ts-node scripts/tests/exctract_addpool.ts",
-    "aqua-pools": "ts-node -r dotenv/config scripts/aqua/AquapoolsTokensMaker.ts",
-    "test:deposit": "ts-node scripts/extract-values-events/extract_deposit_aqua.ts",
-    "test:fetch": "ts-node scripts/extract-values-events/extract_deposit_aqua_test.ts"
+    "subql-publish": "subql publish"
   },
   "homepage": "https://github.com/subquery/stellar-subql-starter",
   "repository": "github:subquery/stellar-subql-starter",
@@ -43,7 +37,6 @@
     "@subql/testing": "latest",
     "@subql/types": "^3.11.5",
     "@types/node": "^22.13.1",
-    "@types/node-fetch": "^2.6.4",
     "dotenv": "latest",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"

@@ -1,6 +1,6 @@
 import { NETWORK } from ".";
 
-const aquaFactory= {
+const aquaFactory = {
   mainnet: {
     address: "CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK",
   },
