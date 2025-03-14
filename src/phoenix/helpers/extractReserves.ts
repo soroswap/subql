@@ -1,7 +1,7 @@
 import { xdr } from "@stellar/stellar-sdk";
-import { encodeContract } from "../../soroswap/helpers/utils";
 import { SorobanEvent } from "@subql/types-stellar";
 import { PhoenixPair } from "../../types";
+import { hexToSorobanAddress } from "../../utils";
 
 export const extractReservesFromPhoenixEvent = (event: SorobanEvent) => {
   const contractId = event.contractId.toString();
@@ -17,7 +17,7 @@ export const extractReservesFromPhoenixEvent = (event: SorobanEvent) => {
 
     if (switchName === "ledgerEntryUpdated" && contractBuffer) {
       const contractData = JSON.parse(JSON.stringify(contractBuffer)).data;
-      const contract = encodeContract(
+      const contract = hexToSorobanAddress(
         Buffer.from(contractData).toString("hex")
       );
       return contract === contractId;

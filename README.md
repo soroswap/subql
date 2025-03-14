@@ -80,7 +80,7 @@ The project consists of the following key files:
 The following entity schema is used to index liquidity pairs:
 
 ```graphql
-type Pair @entity {
+type SoroswapPair @entity {
   id: ID! # Contract address
   ledger: Int!
   date: Date!
@@ -101,6 +101,19 @@ type AquaPair @entity {
   reserveA: BigInt!
   reserveB: BigInt!
 }
+
+type phoenixPair @entity {
+  id: ID! # Contract address
+  ledger: Int!
+  date: Date!
+  tokenA: String! @index
+  tokenB: String! @index
+  reserveA: BigInt!
+  reserveB: BigInt!
+  reserveLp: BigInt
+  stakeAddress: String
+  totalFeeBps: Int
+}
 ```
 
 ## 📡 Accessing the GraphQL API
@@ -120,7 +133,7 @@ query GetPairsSoroswap {
   soroswapPairs (orderBy: DATE_DESC) {
     totalCount
     nodes {
-		  id
+			id
       tokenA
       tokenB
       reserveA
@@ -129,15 +142,29 @@ query GetPairsSoroswap {
   }
 }
 query GetPairsAqua {
-  aquaPairs {
+  aquaPairs (orderBy: DATE_DESC){
     totalCount
     nodes {
       id
       tokenA
       tokenB
+      fee
       reserveA
       reserveB
+      poolType      
     }
+  }
+}
+query {
+  phoenixPairs (orderBy: DATE_DESC){
+    id
+    tokenA
+    tokenB
+    reserveA
+    reserveB
+    reserveLp
+    stakeAddress
+    totalFeeBps
   }
 }
 ```

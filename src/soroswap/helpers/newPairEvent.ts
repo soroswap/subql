@@ -1,4 +1,4 @@
-import { encodeContract } from "./utils";
+import { hexToSorobanAddress } from "../../utils";
 
 export const extractValuesNewPair = (
   event: any
@@ -43,7 +43,7 @@ export const extractValuesNewPair = (
           const tokenABuffer = entry?._attributes?.val?._value?._value?.data;
           if (tokenABuffer) {
             const tokenAHex = Buffer.from(tokenABuffer).toString("hex");
-            tokenA = encodeContract(tokenAHex);
+            tokenA = hexToSorobanAddress(tokenAHex);
             //logger.info('→ Token A (hex):', tokenAHex);
             logger.info("→ Token A (Soroban):", tokenA);
           }
@@ -52,7 +52,7 @@ export const extractValuesNewPair = (
           const tokenBBuffer = entry?._attributes?.val?._value?._value?.data;
           if (tokenBBuffer) {
             const tokenBHex = Buffer.from(tokenBBuffer).toString("hex");
-            tokenB = encodeContract(tokenBHex);
+            tokenB = hexToSorobanAddress(tokenBHex);
             //logger.info('→ Token B (hex):', tokenBHex);
             logger.info("→ Token B (Soroban):", tokenB);
           }
@@ -61,7 +61,7 @@ export const extractValuesNewPair = (
           const pairBuffer = entry?._attributes?.val?._value?._value?.data;
           if (pairBuffer) {
             const pairHex = Buffer.from(pairBuffer).toString("hex");
-            address = encodeContract(pairHex);
+            address = hexToSorobanAddress(pairHex);
             //logger.info('→ Par (hex):', pairHex);
             logger.info("→ Par (Soroban):", address);
           }

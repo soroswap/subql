@@ -67,6 +67,39 @@ const phoenixHandlers: SubqlRuntimeHandler[] = [
   },
 ];
 
+//Aqua handlers
+const aquaHandlers: SubqlRuntimeHandler[] = [
+  {
+    handler: "handleEventAddPoolAqua",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      contractId: "CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK",
+      topics: ["add_pool"],
+    },
+  },
+  {
+    handler: "handleEventAqua", // deposit liquidity
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["deposit_liquidity"],
+    },
+  },
+  {
+    handler: "handleEventAqua", // withdraw liquidity
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["withdraw_liquidity"],
+    },
+  },
+  {
+    handler: "handleEventAqua", // swap liquidity
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["trade"],
+    },
+  },
+];
+
 /* This is your project configuration */
 const project: StellarProject = {
   specVersion: "1.0.0",
@@ -116,7 +149,7 @@ const project: StellarProject = {
       startBlock: soroswapFactory.startBlock,
       mapping: {
         file: "./dist/index.js",
-        handlers: [...soroswapHandlers, ...phoenixHandlers],
+        handlers: [...aquaHandlers],
       },
     },
   ],
