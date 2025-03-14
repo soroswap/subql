@@ -3,7 +3,7 @@ import { initializeSoroswap } from "../soroswap/intialize";
 import { soroswapNewPairHandler, soroswapSyncHandler } from "../soroswap";
 import { phoenixHandler } from "../phoenix";
 import { initializePhoenix } from "../phoenix/initialize";
-
+import { cometLiquidityHandler } from "../comet";
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(
   event: SorobanEvent
@@ -38,4 +38,14 @@ export async function handlePhoenixCreateLPEvent(
 ): Promise<void> {
   logger.info(`[PHOENIX] 🔁 Create LP Event received`);
   // TODO: Create lp handler
+}
+// COMET EVENTS
+export async function handleCometEvent(event: SorobanEvent): Promise<void> {
+  logger.info(
+    `[COMET] 🔁 ${String(
+      event.topic[1]?.value()
+    ).toUpperCase()} Event received`
+  );
+
+  return await cometLiquidityHandler(event);
 }

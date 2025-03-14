@@ -68,15 +68,25 @@ const phoenixHandlers: SubqlRuntimeHandler[] = [
 ];
 
 const cometHandlers: SubqlRuntimeHandler[] = [
+  // {
+  //   handler: "handlePhoenixEvent",
+  //   kind: StellarHandlerKind.Event,
+  //   filter: {
+  //     contractId: "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM",
+  //     topics: ["create", "liquidity_pool"],
+  //   },
+  // },
   {
-    handler: "handlePhoenixCreateLPEvent",
+    handler: "handleCometEvent",
     kind: StellarHandlerKind.Event,
     filter: {
       contractId: "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM",
-      topics: ["create", "liquidity_pool"],
+      topics: ["POOL", "deposit"],
     },
   },
 ];
+
+
 
 /* This is your project configuration */
 const project: StellarProject = {
@@ -124,10 +134,11 @@ const project: StellarProject = {
     {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
-      startBlock: soroswapFactory.startBlock,
+      //startBlock: soroswapFactory.startBlock,
+      startBlock: 56146246,
       mapping: {
         file: "./dist/index.js",
-        handlers: [...soroswapHandlers, ...phoenixHandlers],
+        handlers: [...soroswapHandlers, ...phoenixHandlers, ...cometHandlers],
       },
     },
   ],

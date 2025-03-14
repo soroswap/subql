@@ -1,0 +1,1581 @@
+{
+    "v3": {
+      "ext": "v0",
+      "tx_changes_before": [
+        {
+          "state": {
+            "last_modified_ledger_seq": 56146246,
+            "data": {
+              "account": {
+                "account_id": "GBE4FY6RLT4KYM35MR47ZXATCG67ONZ7VKESEMHFPF2QF3VVHV2QM6L2",
+                "balance": 137043643,
+                "seq_num": 152337709690519951,
+                "num_sub_entries": 7,
+                "inflation_dest": null,
+                "flags": 0,
+                "home_domain": "",
+                "thresholds": "01000000",
+                "signers": [],
+                "ext": {
+                  "v1": {
+                    "liabilities": {
+                      "buying": 0,
+                      "selling": 0
+                    },
+                    "ext": {
+                      "v2": {
+                        "num_sponsored": 0,
+                        "num_sponsoring": 0,
+                        "signer_sponsoring_i_ds": [],
+                        "ext": {
+                          "v3": {
+                            "ext": "v0",
+                            "seq_ledger": 56131506,
+                            "seq_time": 1741868131
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "ext": "v0"
+          }
+        },
+        {
+          "updated": {
+            "last_modified_ledger_seq": 56146246,
+            "data": {
+              "account": {
+                "account_id": "GBE4FY6RLT4KYM35MR47ZXATCG67ONZ7VKESEMHFPF2QF3VVHV2QM6L2",
+                "balance": 137043643,
+                "seq_num": 152337709690519952,
+                "num_sub_entries": 7,
+                "inflation_dest": null,
+                "flags": 0,
+                "home_domain": "",
+                "thresholds": "01000000",
+                "signers": [],
+                "ext": {
+                  "v1": {
+                    "liabilities": {
+                      "buying": 0,
+                      "selling": 0
+                    },
+                    "ext": {
+                      "v2": {
+                        "num_sponsored": 0,
+                        "num_sponsoring": 0,
+                        "signer_sponsoring_i_ds": [],
+                        "ext": {
+                          "v3": {
+                            "ext": "v0",
+                            "seq_ledger": 56146246,
+                            "seq_time": 1741953884
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "ext": "v0"
+          }
+        }
+      ],
+      "operations": [
+        {
+          "changes": [
+            {
+              "state": {
+                "last_modified_ledger_seq": 56145836,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CD25MNVTZDL4Y3XBCPCJXGXATV5WUHHOWMYFF4YBEGU5FCPGMYTVG5JY",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "Balance"
+                        },
+                        {
+                          "address": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3"
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "amount"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 32477870143105
+                            }
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "authorized"
+                          },
+                          "val": {
+                            "bool": true
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "clawback"
+                          },
+                          "val": {
+                            "bool": false
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "updated": {
+                "last_modified_ledger_seq": 56146246,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CD25MNVTZDL4Y3XBCPCJXGXATV5WUHHOWMYFF4YBEGU5FCPGMYTVG5JY",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "Balance"
+                        },
+                        {
+                          "address": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3"
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "amount"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 32476787204474
+                            }
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "authorized"
+                          },
+                          "val": {
+                            "bool": true
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "clawback"
+                          },
+                          "val": {
+                            "bool": false
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "state": {
+                "last_modified_ledger_seq": 56146226,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "TotalShares"
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "i128": {
+                        "hi": 0,
+                        "lo": 56174025253227
+                      }
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "updated": {
+                "last_modified_ledger_seq": 56146246,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "TotalShares"
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "i128": {
+                        "hi": 0,
+                        "lo": 56174216029151
+                      }
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "state": {
+                "last_modified_ledger_seq": 56145836,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "Balance"
+                        },
+                        {
+                          "address": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3"
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "i128": {
+                        "hi": 0,
+                        "lo": 54998999694023
+                      }
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "updated": {
+                "last_modified_ledger_seq": 56146246,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "Balance"
+                        },
+                        {
+                          "address": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3"
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "i128": {
+                        "hi": 0,
+                        "lo": 54999190469947
+                      }
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "state": {
+                "last_modified_ledger_seq": 56146014,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CD25MNVTZDL4Y3XBCPCJXGXATV5WUHHOWMYFF4YBEGU5FCPGMYTVG5JY",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "Balance"
+                        },
+                        {
+                          "address": "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM"
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "amount"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 254944104312295
+                            }
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "authorized"
+                          },
+                          "val": {
+                            "bool": true
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "clawback"
+                          },
+                          "val": {
+                            "bool": false
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "updated": {
+                "last_modified_ledger_seq": 56146246,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CD25MNVTZDL4Y3XBCPCJXGXATV5WUHHOWMYFF4YBEGU5FCPGMYTVG5JY",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "Balance"
+                        },
+                        {
+                          "address": "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM"
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "amount"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 254945187250926
+                            }
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "authorized"
+                          },
+                          "val": {
+                            "bool": true
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "clawback"
+                          },
+                          "val": {
+                            "bool": false
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "state": {
+                "last_modified_ledger_seq": 56143804,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "PoolBalance"
+                        },
+                        {
+                          "address": "CBP7NO6F7FRDHSOFQBT2L2UWYIZ2PU76JKVRYAQTG3KZSQLYAOKIF2WB"
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "q4w"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 7522286425038
+                            }
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "shares"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 21285299322644
+                            }
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "tokens"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 22271908631082
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "updated": {
+                "last_modified_ledger_seq": 56146246,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "PoolBalance"
+                        },
+                        {
+                          "address": "CBP7NO6F7FRDHSOFQBT2L2UWYIZ2PU76JKVRYAQTG3KZSQLYAOKIF2WB"
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "q4w"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 7522286425038
+                            }
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "shares"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 21285481647505
+                            }
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "tokens"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 22272099407006
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "state": {
+                "last_modified_ledger_seq": 56146226,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "AllRecordData"
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "address": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75"
+                          },
+                          "val": {
+                            "map": [
+                              {
+                                "key": {
+                                  "symbol": "balance"
+                                },
+                                "val": {
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 4469227324325
+                                  }
+                                }
+                              },
+                              {
+                                "key": {
+                                  "symbol": "index"
+                                },
+                                "val": {
+                                  "u32": 1
+                                }
+                              },
+                              {
+                                "key": {
+                                  "symbol": "scalar"
+                                },
+                                "val": {
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 100000000000
+                                  }
+                                }
+                              },
+                              {
+                                "key": {
+                                  "symbol": "weight"
+                                },
+                                "val": {
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 2000000
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "key": {
+                            "address": "CD25MNVTZDL4Y3XBCPCJXGXATV5WUHHOWMYFF4YBEGU5FCPGMYTVG5JY"
+                          },
+                          "val": {
+                            "map": [
+                              {
+                                "key": {
+                                  "symbol": "balance"
+                                },
+                                "val": {
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 254944104312295
+                                  }
+                                }
+                              },
+                              {
+                                "key": {
+                                  "symbol": "index"
+                                },
+                                "val": {
+                                  "u32": 0
+                                }
+                              },
+                              {
+                                "key": {
+                                  "symbol": "scalar"
+                                },
+                                "val": {
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 100000000000
+                                  }
+                                }
+                              },
+                              {
+                                "key": {
+                                  "symbol": "weight"
+                                },
+                                "val": {
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 8000000
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "updated": {
+                "last_modified_ledger_seq": 56146246,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "AllRecordData"
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "address": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75"
+                          },
+                          "val": {
+                            "map": [
+                              {
+                                "key": {
+                                  "symbol": "balance"
+                                },
+                                "val": {
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 4469227324325
+                                  }
+                                }
+                              },
+                              {
+                                "key": {
+                                  "symbol": "index"
+                                },
+                                "val": {
+                                  "u32": 1
+                                }
+                              },
+                              {
+                                "key": {
+                                  "symbol": "scalar"
+                                },
+                                "val": {
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 100000000000
+                                  }
+                                }
+                              },
+                              {
+                                "key": {
+                                  "symbol": "weight"
+                                },
+                                "val": {
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 2000000
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "key": {
+                            "address": "CD25MNVTZDL4Y3XBCPCJXGXATV5WUHHOWMYFF4YBEGU5FCPGMYTVG5JY"
+                          },
+                          "val": {
+                            "map": [
+                              {
+                                "key": {
+                                  "symbol": "balance"
+                                },
+                                "val": {
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 254945187250926
+                                  }
+                                }
+                              },
+                              {
+                                "key": {
+                                  "symbol": "index"
+                                },
+                                "val": {
+                                  "u32": 0
+                                }
+                              },
+                              {
+                                "key": {
+                                  "symbol": "scalar"
+                                },
+                                "val": {
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 100000000000
+                                  }
+                                }
+                              },
+                              {
+                                "key": {
+                                  "symbol": "weight"
+                                },
+                                "val": {
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 8000000
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "state": {
+                "last_modified_ledger_seq": 56145836,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CD25MNVTZDL4Y3XBCPCJXGXATV5WUHHOWMYFF4YBEGU5FCPGMYTVG5JY",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "Allowance"
+                        },
+                        {
+                          "map": [
+                            {
+                              "key": {
+                                "symbol": "from"
+                              },
+                              "val": {
+                                "address": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "spender"
+                              },
+                              "val": {
+                                "address": "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "durability": "temporary",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "amount"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 0
+                            }
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "live_until_ledger"
+                          },
+                          "val": {
+                            "u32": 56200000
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "updated": {
+                "last_modified_ledger_seq": 56146246,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CD25MNVTZDL4Y3XBCPCJXGXATV5WUHHOWMYFF4YBEGU5FCPGMYTVG5JY",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "Allowance"
+                        },
+                        {
+                          "map": [
+                            {
+                              "key": {
+                                "symbol": "from"
+                              },
+                              "val": {
+                                "address": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "spender"
+                              },
+                              "val": {
+                                "address": "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "durability": "temporary",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "amount"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 0
+                            }
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "live_until_ledger"
+                          },
+                          "val": {
+                            "u32": 56200000
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "state": {
+                "last_modified_ledger_seq": 56131502,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "UserBalance"
+                        },
+                        {
+                          "map": [
+                            {
+                              "key": {
+                                "symbol": "pool"
+                              },
+                              "val": {
+                                "address": "CBP7NO6F7FRDHSOFQBT2L2UWYIZ2PU76JKVRYAQTG3KZSQLYAOKIF2WB"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "user"
+                              },
+                              "val": {
+                                "address": "GBE4FY6RLT4KYM35MR47ZXATCG67ONZ7VKESEMHFPF2QF3VVHV2QM6L2"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "q4w"
+                          },
+                          "val": {
+                            "vec": [
+                              {
+                                "map": [
+                                  {
+                                    "key": {
+                                      "symbol": "amount"
+                                    },
+                                    "val": {
+                                      "i128": {
+                                        "hi": 0,
+                                        "lo": 583330499
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "key": {
+                                      "symbol": "exp"
+                                    },
+                                    "val": {
+                                      "u64": 1743509285
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "shares"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 68683873375
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "updated": {
+                "last_modified_ledger_seq": 56146246,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "UserBalance"
+                        },
+                        {
+                          "map": [
+                            {
+                              "key": {
+                                "symbol": "pool"
+                              },
+                              "val": {
+                                "address": "CBP7NO6F7FRDHSOFQBT2L2UWYIZ2PU76JKVRYAQTG3KZSQLYAOKIF2WB"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "user"
+                              },
+                              "val": {
+                                "address": "GBE4FY6RLT4KYM35MR47ZXATCG67ONZ7VKESEMHFPF2QF3VVHV2QM6L2"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "q4w"
+                          },
+                          "val": {
+                            "vec": [
+                              {
+                                "map": [
+                                  {
+                                    "key": {
+                                      "symbol": "amount"
+                                    },
+                                    "val": {
+                                      "i128": {
+                                        "hi": 0,
+                                        "lo": 583330499
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "key": {
+                                      "symbol": "exp"
+                                    },
+                                    "val": {
+                                      "u64": 1743509285
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "shares"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 68866198236
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "state": {
+                "last_modified_ledger_seq": 56131502,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "UEmisData"
+                        },
+                        {
+                          "map": [
+                            {
+                              "key": {
+                                "symbol": "pool"
+                              },
+                              "val": {
+                                "address": "CBP7NO6F7FRDHSOFQBT2L2UWYIZ2PU76JKVRYAQTG3KZSQLYAOKIF2WB"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "user"
+                              },
+                              "val": {
+                                "address": "GBE4FY6RLT4KYM35MR47ZXATCG67ONZ7VKESEMHFPF2QF3VVHV2QM6L2"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "accrued"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 0
+                            }
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "index"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 54117735
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "updated": {
+                "last_modified_ledger_seq": 56146246,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "UEmisData"
+                        },
+                        {
+                          "map": [
+                            {
+                              "key": {
+                                "symbol": "pool"
+                              },
+                              "val": {
+                                "address": "CBP7NO6F7FRDHSOFQBT2L2UWYIZ2PU76JKVRYAQTG3KZSQLYAOKIF2WB"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "user"
+                              },
+                              "val": {
+                                "address": "GBE4FY6RLT4KYM35MR47ZXATCG67ONZ7VKESEMHFPF2QF3VVHV2QM6L2"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "accrued"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 0
+                            }
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "index"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 54275405
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "state": {
+                "last_modified_ledger_seq": 56143804,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "BEmisData"
+                        },
+                        {
+                          "address": "CBP7NO6F7FRDHSOFQBT2L2UWYIZ2PU76JKVRYAQTG3KZSQLYAOKIF2WB"
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "index"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 54249468
+                            }
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "last_time"
+                          },
+                          "val": {
+                            "u64": 1741939667
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            },
+            {
+              "updated": {
+                "last_modified_ledger_seq": 56146246,
+                "data": {
+                  "contract_data": {
+                    "ext": "v0",
+                    "contract": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3",
+                    "key": {
+                      "vec": [
+                        {
+                          "symbol": "BEmisData"
+                        },
+                        {
+                          "address": "CBP7NO6F7FRDHSOFQBT2L2UWYIZ2PU76JKVRYAQTG3KZSQLYAOKIF2WB"
+                        }
+                      ]
+                    },
+                    "durability": "persistent",
+                    "val": {
+                      "map": [
+                        {
+                          "key": {
+                            "symbol": "index"
+                          },
+                          "val": {
+                            "i128": {
+                              "hi": 0,
+                              "lo": 54275405
+                            }
+                          }
+                        },
+                        {
+                          "key": {
+                            "symbol": "last_time"
+                          },
+                          "val": {
+                            "u64": 1741953884
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "ext": "v0"
+              }
+            }
+          ]
+        }
+      ],
+      "tx_changes_after": [
+        {
+          "state": {
+            "last_modified_ledger_seq": 56146246,
+            "data": {
+              "account": {
+                "account_id": "GBE4FY6RLT4KYM35MR47ZXATCG67ONZ7VKESEMHFPF2QF3VVHV2QM6L2",
+                "balance": 137043643,
+                "seq_num": 152337709690519952,
+                "num_sub_entries": 7,
+                "inflation_dest": null,
+                "flags": 0,
+                "home_domain": "",
+                "thresholds": "01000000",
+                "signers": [],
+                "ext": {
+                  "v1": {
+                    "liabilities": {
+                      "buying": 0,
+                      "selling": 0
+                    },
+                    "ext": {
+                      "v2": {
+                        "num_sponsored": 0,
+                        "num_sponsoring": 0,
+                        "signer_sponsoring_i_ds": [],
+                        "ext": {
+                          "v3": {
+                            "ext": "v0",
+                            "seq_ledger": 56146246,
+                            "seq_time": 1741953884
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "ext": "v0"
+          }
+        },
+        {
+          "updated": {
+            "last_modified_ledger_seq": 56146246,
+            "data": {
+              "account": {
+                "account_id": "GBE4FY6RLT4KYM35MR47ZXATCG67ONZ7VKESEMHFPF2QF3VVHV2QM6L2",
+                "balance": 137146129,
+                "seq_num": 152337709690519952,
+                "num_sub_entries": 7,
+                "inflation_dest": null,
+                "flags": 0,
+                "home_domain": "",
+                "thresholds": "01000000",
+                "signers": [],
+                "ext": {
+                  "v1": {
+                    "liabilities": {
+                      "buying": 0,
+                      "selling": 0
+                    },
+                    "ext": {
+                      "v2": {
+                        "num_sponsored": 0,
+                        "num_sponsoring": 0,
+                        "signer_sponsoring_i_ds": [],
+                        "ext": {
+                          "v3": {
+                            "ext": "v0",
+                            "seq_ledger": 56146246,
+                            "seq_time": 1741953884
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "ext": "v0"
+          }
+        }
+      ],
+      "soroban_meta": {
+        "ext": "v0",
+        "events": [
+          {
+            "ext": "v0",
+            "contract_id": "25b2afd35e54331a4890c36319f79edb18f0789e47fc387b3b30ef2e69a54d1a",
+            "type_": "contract",
+            "body": {
+              "v0": {
+                "topics": [
+                  {
+                    "symbol": "POOL"
+                  },
+                  {
+                    "symbol": "deposit"
+                  }
+                ],
+                "data": {
+                  "map": [
+                    {
+                      "key": {
+                        "symbol": "caller"
+                      },
+                      "val": {
+                        "address": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3"
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "token_amount_in"
+                      },
+                      "val": {
+                        "i128": {
+                          "hi": 0,
+                          "lo": 1082938631
+                        }
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "token_in"
+                      },
+                      "val": {
+                        "address": "CD25MNVTZDL4Y3XBCPCJXGXATV5WUHHOWMYFF4YBEGU5FCPGMYTVG5JY"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "ext": "v0",
+            "contract_id": "f5d636b3c8d7cc6ee113c49b9ae09d7b6a1ceeb33052f30121a9d289e6662753",
+            "type_": "contract",
+            "body": {
+              "v0": {
+                "topics": [
+                  {
+                    "symbol": "approve"
+                  },
+                  {
+                    "address": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3"
+                  },
+                  {
+                    "address": "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM"
+                  },
+                  {
+                    "string": "BLND:GDJEHTBE6ZHUXSWFI642DCGLUOECLHPF3KSXHPXTSTJ7E3JF6MQ5EZYY"
+                  }
+                ],
+                "data": {
+                  "vec": [
+                    {
+                      "i128": {
+                        "hi": 0,
+                        "lo": 1082938631
+                      }
+                    },
+                    {
+                      "u32": 56200000
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "ext": "v0",
+            "contract_id": "f5d636b3c8d7cc6ee113c49b9ae09d7b6a1ceeb33052f30121a9d289e6662753",
+            "type_": "contract",
+            "body": {
+              "v0": {
+                "topics": [
+                  {
+                    "symbol": "transfer"
+                  },
+                  {
+                    "address": "CAO3AGAMZVRMHITL36EJ2VZQWKYRPWMQAPDQD5YEOF3GIF7T44U4JAL3"
+                  },
+                  {
+                    "address": "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM"
+                  },
+                  {
+                    "string": "BLND:GDJEHTBE6ZHUXSWFI642DCGLUOECLHPF3KSXHPXTSTJ7E3JF6MQ5EZYY"
+                  }
+                ],
+                "data": {
+                  "i128": {
+                    "hi": 0,
+                    "lo": 1082938631
+                  }
+                }
+              }
+            }
+          },
+          {
+            "ext": "v0",
+            "contract_id": "1db0180ccd62c3a26bdf889d5730b2b117d99003c701f70471766417f3e729c4",
+            "type_": "contract",
+            "body": {
+              "v0": {
+                "topics": [
+                  {
+                    "symbol": "deposit"
+                  },
+                  {
+                    "address": "CBP7NO6F7FRDHSOFQBT2L2UWYIZ2PU76JKVRYAQTG3KZSQLYAOKIF2WB"
+                  },
+                  {
+                    "address": "GBE4FY6RLT4KYM35MR47ZXATCG67ONZ7VKESEMHFPF2QF3VVHV2QM6L2"
+                  }
+                ],
+                "data": {
+                  "vec": [
+                    {
+                      "i128": {
+                        "hi": 0,
+                        "lo": 190775924
+                      }
+                    },
+                    {
+                      "i128": {
+                        "hi": 0,
+                        "lo": 182324861
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "ext": "v0",
+            "contract_id": "1db0180ccd62c3a26bdf889d5730b2b117d99003c701f70471766417f3e729c4",
+            "type_": "contract",
+            "body": {
+              "v0": {
+                "topics": [
+                  {
+                    "symbol": "claim"
+                  },
+                  {
+                    "address": "GBE4FY6RLT4KYM35MR47ZXATCG67ONZ7VKESEMHFPF2QF3VVHV2QM6L2"
+                  }
+                ],
+                "data": {
+                  "i128": {
+                    "hi": 0,
+                    "lo": 1082938631
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "return_value": {
+          "i128": {
+            "hi": 0,
+            "lo": 1082938631
+          }
+        },
+        "diagnostic_events": []
+      }
+    }
+  }

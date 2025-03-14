@@ -59,7 +59,8 @@ Thumbs.db
 
 .data
 .eslintcache
-apuntes.json
+apuntes.md 
+scripts/extract-values-events/
 
 # ENV local files
 .env.local
