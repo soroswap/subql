@@ -7,6 +7,7 @@ import {
 import { Networks } from "@stellar/stellar-sdk";
 import { config } from "dotenv";
 import {
+  getCometFactory,
   getPhoenixFactory,
   getSoroswapFactory,
   NETWORK,
@@ -67,26 +68,24 @@ const phoenixHandlers: SubqlRuntimeHandler[] = [
   },
 ];
 
+const cometFactory = getCometFactory(process.env.NETWORK as NETWORK);
 const cometHandlers: SubqlRuntimeHandler[] = [
-  // {
-  //   handler: "handlePhoenixEvent",
-  //   kind: StellarHandlerKind.Event,
-  //   filter: {
-  //     contractId: "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM",
-  //     topics: ["create", "liquidity_pool"],
-  //   },
-  // },
   {
     handler: "handleCometEvent",
     kind: StellarHandlerKind.Event,
     filter: {
-      contractId: "CAS3FL6TLZKDGGSISDBWGGPXT3NRR4DYTZD7YOD3HMYO6LTJUVGRVEAM",
       topics: ["POOL", "deposit"],
     },
   },
+  {
+    handler: "handleNewPoolCometEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      contractId: cometFactory,
+      topics: ["LOG", "NEW_POOL"],
+    },
+  },
 ];
-
-
 
 /* This is your project configuration */
 const project: StellarProject = {

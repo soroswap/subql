@@ -39,13 +39,20 @@ export async function handlePhoenixCreateLPEvent(
   logger.info(`[PHOENIX] 🔁 Create LP Event received`);
   // TODO: Create lp handler
 }
+
 // COMET EVENTS
 export async function handleCometEvent(event: SorobanEvent): Promise<void> {
   logger.info(
-    `[COMET] 🔁 ${String(
-      event.topic[1]?.value()
-    ).toUpperCase()} Event received`
+    `[COMET] 🔁 ${String(event.topic[1]?.value()).toUpperCase()} Event received`
   );
 
   return await cometLiquidityHandler(event);
+}
+
+export async function handleNewPoolCometEvent(
+  event: SorobanEvent
+): Promise<void> {
+  logger.info(
+    `[COMET] 🔁 ${String(event.topic[1]?.value()).toUpperCase()} Event received`
+  );
 }
