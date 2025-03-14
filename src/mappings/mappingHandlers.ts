@@ -47,6 +47,7 @@ export async function handleEventAqua(event: SorobanEvent): Promise<void> {
   logger.info(
     `[AQUA] 🔁 ${String(event.topic[0]?.value()).toUpperCase()} Event received`
   );
+  logger.info(`AQUIIIII_ ${event.contractId.toString()}`);
   await initializeAquaDb(event.contractId.toString());
   return await aquaEventHandler(event);
 }

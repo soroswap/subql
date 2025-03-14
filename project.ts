@@ -73,40 +73,32 @@ const aquaHandlers: SubqlRuntimeHandler[] = [
     handler: "handleEventAddPoolAqua",
     kind: StellarHandlerKind.Event,
     filter: {
-      contractId:"CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK",
-      topics: [
-        "add_pool"
-      ],
+      contractId: "CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK",
+      topics: ["add_pool"],
     },
   },
   {
-    handler: "handleEventAqua",// deposit liquidity
+    handler: "handleEventAqua", // deposit liquidity
     kind: StellarHandlerKind.Event,
     filter: {
-      topics: [
-        "deposit_liquidity"
-      ],
+      topics: ["deposit_liquidity"],
     },
   },
   {
-    handler: "handleEventAqua",// withdraw liquidity
+    handler: "handleEventAqua", // withdraw liquidity
     kind: StellarHandlerKind.Event,
     filter: {
-      topics: [
-        "withdraw_liquidity"
-      ],
+      topics: ["withdraw_liquidity"],
     },
   },
   {
-    handler: "handleEventAqua",// swap liquidity
+    handler: "handleEventAqua", // swap liquidity
     kind: StellarHandlerKind.Event,
     filter: {
-      topics: [
-        "trade"
-      ],
+      topics: ["trade"],
     },
   },
-]
+];
 
 /* This is your project configuration */
 const project: StellarProject = {
@@ -116,9 +108,6 @@ const project: StellarProject = {
   runner: {
     node: {
       name: "@subql/node-stellar",
-      options: {
-        unsafe: true
-      },
       version: "*",
     },
     query: {
@@ -157,11 +146,10 @@ const project: StellarProject = {
     {
       kind: StellarDatasourceKind.Runtime,
       /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
-      //startBlock: soroswapFactory.startBlock,
-      startBlock: 56132154,
+      startBlock: soroswapFactory.startBlock,
       mapping: {
         file: "./dist/index.js",
-        handlers: [...soroswapHandlers, ...aquaHandlers],
+        handlers: [...aquaHandlers],
       },
     },
   ],

@@ -21,10 +21,10 @@ export async function extractAquaValues(event: any): Promise<{
 
   try {
     // User address (first value of the value)
-    const contractId = event?.contractId.toString();
-    if (contractId) {
+    const contractBuffer = event?.contractId?._id?.data;
+    if (contractBuffer) {
       result.address = hexToSorobanAddress(
-        Buffer.from(contractId).toString("hex")
+        Buffer.from(contractBuffer).toString("hex")
       );
       logger.debug(`→ Contract address: ${result.address}`);
     }
