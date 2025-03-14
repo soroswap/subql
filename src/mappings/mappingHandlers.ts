@@ -4,6 +4,7 @@ import { soroswapNewPairHandler, soroswapSyncHandler } from "../soroswap";
 import { phoenixHandler } from "../phoenix";
 import { initializePhoenix } from "../phoenix/initialize";
 import { cometLiquidityHandler } from "../comet";
+import { initializeComet } from "../comet/initialize";
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(
   event: SorobanEvent
@@ -45,6 +46,7 @@ export async function handleCometEvent(event: SorobanEvent): Promise<void> {
   logger.info(
     `[COMET] 🔁 ${String(event.topic[1]?.value()).toUpperCase()} Event received`
   );
+  await initializeComet(event.contractId.toString());
 
   return await cometLiquidityHandler(event);
 }
@@ -55,4 +57,5 @@ export async function handleNewPoolCometEvent(
   logger.info(
     `[COMET] 🔁 ${String(event.topic[1]?.value()).toUpperCase()} Event received`
   );
+  await initializeComet(event.contractId.toString());
 }
