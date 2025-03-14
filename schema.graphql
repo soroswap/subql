@@ -35,11 +35,10 @@ type AquaPair @entity {
   id: ID! # Address
   ledger: Int! @index
   date: Date! @index
-  address: String! @index
   tokenA: String! @index
   tokenB: String! @index
-  poolType: String!
-  fee: BigInt!
   reserveA: BigInt!
   reserveB: BigInt!
+  poolType: String!
+  fee: BigInt!
 }

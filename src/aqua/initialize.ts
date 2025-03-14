@@ -45,13 +45,12 @@ export async function initializeAquaDb(contractId: string): Promise<void> {
               id: pool.address,
               ledger: 0, // Will be updated with real events
               date: new Date(aquaPoolsGeneratedDate),
-              address: pool.address,
               tokenA: pool.tokenA,
               tokenB: pool.tokenB,
-              poolType: pool.poolType || "", // Use value from file or empty string
-              fee: pool.fee ? BigInt(pool.fee) : BigInt(0), // Use value from file or 0
               reserveA: pool.reserveA ? BigInt(pool.reserveA) : BigInt(0), // Use value from file or 0
               reserveB: pool.reserveB ? BigInt(pool.reserveB) : BigInt(0), // Use value from file or 0
+              poolType: pool.poolType || "", // Use value from file or empty string
+              fee: pool.fee ? BigInt(pool.fee) : BigInt(0), // Use value from file or 0
             });
 
             await aquaPair.save();

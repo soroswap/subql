@@ -5,16 +5,18 @@ import { hexToSorobanAddress } from "../../utils";
 export function getTransactionData(
   event: any,
   contractId: string
-): { reserveA?: bigint; reserveB?: bigint; fee?: bigint } {
+): {
+  tokenA?: string;
+  tokenB?: string;
+  reserveA?: bigint;
+  reserveB?: bigint;
+  fee?: bigint;
+} {
   const resultMetaXdrString = event.transaction.result_meta_xdr;
 
   const txMeta = xdr.TransactionMeta.fromXDR(resultMetaXdrString, "base64");
 
-  logger.debug(`--------------------------------------------------------`);
-
   const txOperations = txMeta.v3().operations()[0].changes();
-
-  logger.debug(`[AQUA] 🟢 Operations Length: ${txOperations.length}`);
 
   // Buscar las operaciones que actualizan el contrato específico
   const filteredOperations = txOperations.filter((operation) => {
@@ -30,17 +32,22 @@ export function getTransactionData(
     }
     return false;
   });
+
+  logger.info(`filteredOperations: ${filteredOperations.length}`);
+
   // Found the values of ReserveA, ReserveB and FeeFraction in the contract
+  let tokenA: string | undefined;
+  let tokenB: string | undefined;
   let reserveA: bigint | undefined;
   let reserveB: bigint | undefined;
   let fee: bigint | undefined;
-  let poolType: string | undefined;
   let reserves: any | undefined;
   // Search in the filtered operations
   for (const operation of filteredOperations) {
     // Verify if it is an update of the contract instance
     const val =
       operation?.["_value"]?._attributes?.data?._value?._attributes?.val;
+
     if (val?._switch?.name === "scvContractInstance") {
       // find data storage from contract instance
       const storage = val?.instance()?._attributes?.storage;
@@ -60,6 +67,30 @@ export function getTransactionData(
 
               // Extract the values according to the symbol name
               if (
+                symbolName === "TokenA" &&
+                itemValue?.switch?.().name === "scvAddress"
+              ) {
+                tokenA = hexToSorobanAddress(
+                  Buffer.from(
+                    JSON.parse(JSON.stringify(itemValue.value().value())).data
+                  ).toString("hex")
+                );
+                logger.debug(
+                  `[AQUA] 🔍 Found TokenA: ${JSON.stringify(tokenA)}`
+                );
+              } else if (
+                symbolName === "TokenB" &&
+                itemValue?.switch?.().name === "scvAddress"
+              ) {
+                tokenB = hexToSorobanAddress(
+                  Buffer.from(
+                    JSON.parse(JSON.stringify(itemValue.value().value())).data
+                  ).toString("hex")
+                );
+                logger.debug(
+                  `[AQUA] 🔍 Found TokenB: ${JSON.stringify(tokenB)}`
+                );
+              } else if (
                 symbolName === "ReserveA" &&
                 itemValue?.switch?.().name === "scvU128"
               ) {
@@ -93,6 +124,29 @@ export function getTransactionData(
               ) {
                 fee = BigInt(itemValue.u32().toString());
                 logger.debug(`[AQUA] 🔍 Found FeeFraction: ${fee.toString()}`);
+              } else if (symbolName === "Tokens") {
+                tokenA = itemValue.vec()[0];
+
+                tokenA = hexToSorobanAddress(
+                  Buffer.from(
+                    JSON.parse(
+                      JSON.stringify(itemValue.vec()[0].value().value())
+                    ).data
+                  ).toString("hex")
+                );
+                tokenB = hexToSorobanAddress(
+                  Buffer.from(
+                    JSON.parse(
+                      JSON.stringify(itemValue.vec()[1].value().value())
+                    ).data
+                  ).toString("hex")
+                );
+
+                logger.debug(
+                  `[AQUA] 🔍 Found Tokens: ${JSON.stringify(
+                    tokenA
+                  )}, ${JSON.stringify(tokenB)}`
+                );
               }
             }
           }
@@ -136,6 +190,8 @@ export function getTransactionData(
   );
 
   return {
+    tokenA,
+    tokenB,
     reserveA,
     reserveB,
     fee,

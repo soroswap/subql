@@ -20,36 +20,9 @@ export async function extractAquaValues(event: any): Promise<{
   };
 
   try {
+    logger.info(`txHash: ${event.txHash.toString()}`);
     // User address (first value of the value)
-    const contractBuffer = event?.contractId?._id?.data;
-    if (contractBuffer) {
-      result.address = hexToSorobanAddress(
-        Buffer.from(contractBuffer).toString("hex")
-      );
-      logger.debug(`→ Contract address: ${result.address}`);
-    }
-    // Token A
-    const topicTokens1 = event?.topic?.[1]?._value;
-    const tokenABuffer = topicTokens1?._value?.data;
-    if (tokenABuffer) {
-      result.tokenA = hexToSorobanAddress(
-        Buffer.from(tokenABuffer).toString("hex")
-      );
-      logger.debug(`→ Token A: ${result.tokenA}`);
-    }
-    // Token B
-    const topicTokens2 = event?.topic?.[2]?._value;
-    const tokenBBuffer = topicTokens2?._value?.data;
-    if (tokenBBuffer) {
-      result.tokenB = hexToSorobanAddress(
-        Buffer.from(tokenBBuffer).toString("hex")
-      );
-      logger.debug(`→ Token B: ${result.tokenB}`);
-    }
-
-    if (!result.address || !result.tokenA || !result.tokenB) {
-      throw new Error("Incomplete data in event");
-    }
+    result.address = event.contractId.toString();
 
     // Get contract data using getLedgerEntries
     if (result.address) {
@@ -57,19 +30,37 @@ export async function extractAquaValues(event: any): Promise<{
       // let contractData = await getContractDataFetch(result.address);
       let contractData = getTransactionData(event, result.address);
 
+      if (contractData.tokenA !== undefined) {
+        result.tokenA = contractData.tokenA;
+        logger.debug(
+          `[AQUA] → TokenA from contract: ${result.tokenA.toString()}`
+        );
+      }
+
+      if (contractData.tokenB !== undefined) {
+        result.tokenB = contractData.tokenB;
+        logger.debug(
+          `[AQUA] → TokenB from contract: ${result.tokenB.toString()}`
+        );
+      }
+
       if (contractData.reserveA !== undefined) {
         result.reserveA = contractData.reserveA;
-        logger.debug(`→ ReserveA from contract: ${result.reserveA.toString()}`);
+        logger.debug(
+          `[AQUA] → ReserveA from contract: ${result.reserveA.toString()}`
+        );
       }
 
       if (contractData.reserveB !== undefined) {
         result.reserveB = contractData.reserveB;
-        logger.debug(`→ ReserveB from contract: ${result.reserveB.toString()}`);
+        logger.debug(
+          `[AQUA] → ReserveB from contract: ${result.reserveB.toString()}`
+        );
       }
 
       if (contractData.fee !== undefined) {
         result.fee = contractData.fee;
-        logger.debug(`→ Fee from contract: ${result.fee.toString()}`);
+        logger.debug(`[AQUA] → Fee from contract: ${result.fee.toString()}`);
       }
 
       // If no data is found, use default values
