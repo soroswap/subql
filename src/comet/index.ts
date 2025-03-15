@@ -28,9 +28,7 @@ export const cometLiquidityHandler = async (event: SorobanEvent) => {
   logger.info(`[COMET] 🔍 Contract ID: ${contractId}`);
   const cometData = extractValuesCometEvent(event);
   logger.info(`[COMET] 🔍 cometData: ${cometData}`);
-  logger.info(`[COMET] 🔍 cometData json: ${JSON.stringify(cometData)}`);
-
-  // Store data into database
+    // Store data into database
   try {
     const currentDate = new Date(event.ledgerClosedAt);
     await updatePairReserves(
