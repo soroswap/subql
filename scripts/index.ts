@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import { generatePairTokenReservesList } from "./soroswap/pairsTokensMaker";
 import { getLatestRouterLedger } from "./soroswap/latestLedger";
 import { getPhoenixPreStart } from "./phoenix/pairs";
-import { getAquaPreStart } from "./aqua/AquapoolsTokensMaker";
+import { getAquaPreStart } from "./aqua/aquaPoolsTokensMaker";
 config();
 
 export const { SOROBAN_ENDPOINT, SECRET_KEY_HELPER, NETWORK } = process.env;
@@ -20,11 +20,11 @@ async function main() {
   validateEnvVariables();
   try {
     // SOROSWAP
-    await generatePairTokenReservesList();
-    await getLatestRouterLedger();
+    // await generatePairTokenReservesList();
+    // await getLatestRouterLedger();
 
-    // PHOENIX
-    await getPhoenixPreStart();
+    // // PHOENIX
+    // await getPhoenixPreStart();
 
     // AQUA
     await getAquaPreStart();
