@@ -10,9 +10,7 @@ export const cometEventHandler = async (event: SorobanEvent) => {
 
   
   const contractId = event.contractId.toString();
-  logger.info(`[COMET] 🔍 Contract ID: ${contractId}`);
   const cometData = extractValuesCometEvent(event);
-  logger.info(`[COMET] 🔍 cometData: ${cometData}`);
     // Store data into database
   try {
     const currentDate = new Date(event.ledgerClosedAt);
@@ -26,7 +24,7 @@ export const cometEventHandler = async (event: SorobanEvent) => {
       BigInt(cometData.reserveB)
     );
 
-    logger.info(`[COMET] ✨ Updated reserves for pair ${cometData.id}`);
+    
   } catch (error) {
     logger.error(`[COMET] ❌ Error processing ${eventType} event: ${error}`);
   }

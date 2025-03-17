@@ -19,10 +19,10 @@ export function getTransactionData(event: any, contractId: string): {
   const resultMetaXdrString = event.transaction.result_meta_xdr;
 
   const txMeta = xdr.TransactionMeta.fromXDR(resultMetaXdrString, "base64");
-  logger.info(`--------------------------------------------------------`);
+  logger.debug(`--------------------------------------------------------`);
 
   const txOperations = txMeta.v3().operations()[0].changes();
-  logger.info(`[COMET] 🟢 Operations Length: ${txOperations.length}`);
+  logger.debug(`[COMET] 🟢 Operations Length: ${txOperations.length}`);
 
   const filteredOperations = txOperations.filter((operation) => {
     const switchName = operation?.["_switch"]?.name;    
@@ -39,14 +39,13 @@ export function getTransactionData(event: any, contractId: string): {
     return false;
   });
   
-  logger.info(`[COMET] 🔍 Operations filtered: ${filteredOperations.length}`);
+  logger.debug(`[COMET] 🔍 Operations filtered: ${filteredOperations.length}`);
 
   // Convert to JSON for easier processing
-  logger.info(`[COMET] 🔍 Converting operations to JSON`);
   const operationsJson = JSON.parse(JSON.stringify(filteredOperations));
   
   // Search for the operation that contains AllRecordData
-  logger.info(`[COMET] 🔍 Searching for AllRecordData in ${operationsJson.length} operations`);
+  logger.debug(`[COMET] 🔍 Searching for AllRecordData in ${operationsJson.length} operations`);
   for (const operation of operationsJson) {
     try {      
       if (operation._switch && operation._switch.name === "ledgerEntryUpdated") {
@@ -75,10 +74,10 @@ export function getTransactionData(event: any, contractId: string): {
       logger.error(`[COMET] ❌ Error details: ${err.stack}`);
     }
   }
-  logger.info(
+  logger.debug(
     `[COMET] 🟢 Tokens: TokenA=${tokenA || "not found"}, TokenB=${tokenB || "not found"}`
   );
-  logger.info(
+  logger.debug(
     `[COMET] 🟢 Reserves: ReserveA=${reserveA?.toString() || "not found"}, ReserveB=${reserveB?.toString() || "not found"}`
   );
 

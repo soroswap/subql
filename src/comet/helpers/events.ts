@@ -17,39 +17,38 @@ export function extractValuesCometEvent(event: any): {
         reserveB: undefined as bigint | undefined,
 
     };
-    logger.info(`[COMET] 🔍 contractID: ${event.contractId.toString()}`);
 
     try { 
         // User address (first value of the value)
         const contractId = event?.contractId?.toString();
         if (contractId) {
             result.id = contractId;
-            logger.info(`→ Contract address: ${result.id}`);
+            logger.debug(`→ Contract address: ${result.id}`);
         }
         
         // Get contract data using transaction data
         if (result.id) {
-            logger.info(`🔍 Fetching contract data for ${result.id}...`);
+            logger.debug(`🔍 Fetching contract data for ${result.id}...`);
             const contractData = getTransactionData(event, result.id); 
             
             if (contractData.tokenA !== undefined) {
                 result.tokenA = contractData.tokenA;
-                logger.info(`→ TokenA from contract: ${result.tokenA}`);
+                logger.debug(`→ TokenA from contract: ${result.tokenA}`);
             }
             
             if (contractData.tokenB !== undefined) {
                 result.tokenB = contractData.tokenB;
-                logger.info(`→ TokenB from contract: ${result.tokenB}`);
+                logger.debug(`→ TokenB from contract: ${result.tokenB}`);
             }
             
             if (contractData.reserveA !== undefined) {
                 result.reserveA = contractData.reserveA;
-                logger.info(`→ ReserveA from contract: ${result.reserveA.toString()}`);
+                logger.debug(`→ ReserveA from contract: ${result.reserveA.toString()}`);
             }
             
             if (contractData.reserveB !== undefined) {
                 result.reserveB = contractData.reserveB;
-                logger.info(`→ ReserveB from contract: ${result.reserveB.toString()}`);
+                logger.debug(`→ ReserveB from contract: ${result.reserveB.toString()}`);
             }
 
             if (result.reserveA === undefined && result.reserveB === undefined) {
@@ -103,5 +102,6 @@ export const updatePairReserves = async (
     existingPair.ledger = sequence;
   
     await existingPair.save();
+    logger.info(`[COMET] ✨ Updated reserves for pair ${existingPair.id}`);
   };
   
