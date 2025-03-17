@@ -20,7 +20,7 @@ export async function extractAquaValues(event: any): Promise<{
   };
 
   try {
-    logger.info(`txHash: ${event.txHash.toString()}`);
+    logger.debug(`txHash: ${event.txHash.toString()}`);
     // User address (first value of the value)
     result.address = event.contractId.toString();
 
@@ -65,7 +65,7 @@ export async function extractAquaValues(event: any): Promise<{
 
       // If no data is found, use default values
       if (result.reserveA === undefined && result.reserveB === undefined) {
-        logger.info(
+        logger.debug(
           `⚠️ No reserve data found for contract ${result.address}, using default values`
         );
         result.reserveA = BigInt(0);

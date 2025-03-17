@@ -9,6 +9,7 @@ import { config } from "dotenv";
 import {
   getPhoenixFactory,
   getSoroswapFactory,
+  getAquaFactory,
   NETWORK,
 } from "./src/constants";
 config();
@@ -68,12 +69,13 @@ const phoenixHandlers: SubqlRuntimeHandler[] = [
 ];
 
 //Aqua handlers
+const aquaFactory = getAquaFactory(process.env.NETWORK as NETWORK);
 const aquaHandlers: SubqlRuntimeHandler[] = [
   {
     handler: "handleEventAddPoolAqua",
     kind: StellarHandlerKind.Event,
     filter: {
-      contractId: "CBQDHNBFBZYE4MKPWBSJOPIYLW4SFSXAXUTSXJN76GNKYVYPCKWC6QUK",
+      contractId: aquaFactory,
       topics: ["add_pool"],
     },
   },
@@ -149,7 +151,7 @@ const project: StellarProject = {
       startBlock: soroswapFactory.startBlock,
       mapping: {
         file: "./dist/index.js",
-        handlers: [...aquaHandlers],
+        handlers: [...soroswapHandlers, ...phoenixHandlers, ...aquaHandlers],
       },
     },
   ],

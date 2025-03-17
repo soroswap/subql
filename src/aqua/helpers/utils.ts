@@ -33,8 +33,6 @@ export function getTransactionData(
     return false;
   });
 
-  logger.info(`filteredOperations: ${filteredOperations.length}`);
-
   // Found the values of ReserveA, ReserveB and FeeFraction in the contract
   let tokenA: string | undefined;
   let tokenB: string | undefined;

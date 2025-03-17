@@ -9,8 +9,6 @@ const aquaFactory = {
   },
 };
 
-export function getAquaFactory(network: NETWORK): {
-  address: string;
-} {
-  return aquaFactory[network];
+export function getAquaFactory(network: NETWORK): string {
+  return aquaFactory[network].address;
 }

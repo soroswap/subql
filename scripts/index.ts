@@ -20,11 +20,11 @@ async function main() {
   validateEnvVariables();
   try {
     // SOROSWAP
-    // await generatePairTokenReservesList();
-    // await getLatestRouterLedger();
+    await generatePairTokenReservesList();
+    await getLatestRouterLedger();
 
-    // // PHOENIX
-    // await getPhoenixPreStart();
+    // PHOENIX
+    await getPhoenixPreStart();
 
     // AQUA
     await getAquaPreStart();

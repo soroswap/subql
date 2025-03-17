@@ -9,13 +9,11 @@ import {
 } from "@stellar/stellar-sdk";
 import * as fs from "fs";
 import * as path from "path";
-import { retry, toolkit } from "../toolkit";
+import { toolkit } from "../toolkit";
 import { NETWORK } from "../../src/constants";
 import { getAquaFactory } from "../../src/constants/aquaContracts";
 
-const FACTORY_CONTRACT_AQUA = getAquaFactory(
-  process.env.NETWORK as NETWORK
-).address;
+const FACTORY_CONTRACT_AQUA = getAquaFactory(process.env.NETWORK as NETWORK);
 console.log("FACTORY_CONTRACT_AQUA", FACTORY_CONTRACT_AQUA);
 
 // Interfaces
@@ -137,11 +135,7 @@ async function getPoolReserves(
 
     if (response) {
       // Decodificar datos de la instancia
-      const storage = response.val
-        .contractData()
-        .val()
-        .instance()
-        .storage();
+      const storage = response.val.contractData().val().instance().storage();
 
       // Crear un objeto para almacenar todos los valores
       const contractValues: { [key: string]: any } = {};
@@ -162,13 +156,17 @@ async function getPoolReserves(
           contractValues["RESERVES"];
 
         if (Array.isArray(reserves) && reserves.length >= 2) {
-          console.log(`ℹ️ Pool stable encontrado con reservas: [${reserves[0]}, ${reserves[1]}]`);
+          console.log(
+            `ℹ️ Pool stable encontrado con reservas: [${reserves[0]}, ${reserves[1]}]`
+          );
           return {
             reserveA: reserves[0]?.toString(),
             reserveB: reserves[1]?.toString(),
           };
         } else {
-          console.log(`⚠️ Pool stable sin array de reservas válido: ${poolAddress}`);
+          console.log(
+            `⚠️ Pool stable sin array de reservas válido: ${poolAddress}`
+          );
         }
       } else {
         // Para pools constant_product, buscar nombres individuales
@@ -195,7 +193,10 @@ async function getPoolReserves(
 
     return {};
   } catch (error) {
-    console.error(`❌ Error obteniendo reservas para pool ${poolAddress}:`, error);
+    console.error(
+      `❌ Error obteniendo reservas para pool ${poolAddress}:`,
+      error
+    );
     return {};
   }
 }
@@ -216,8 +217,13 @@ export async function getAquaPreStart(): Promise<void> {
     // Procesar cada índice individualmente
     for (let i = 0; i < totalSets; i++) {
       try {
-        console.log(`🔍 Procesando índice ${i}/${totalSets - 1} (${((i + 1) / totalSets * 100).toFixed(1)}%)`);
-        
+        console.log(
+          `🔍 Procesando índice ${i}/${totalSets - 1} (${(
+            ((i + 1) / totalSets) *
+            100
+          ).toFixed(1)}%)`
+        );
+
         // Obtener tokens
         const tokens = await getTokens(i);
         if (!tokens || tokens.length < 2) {
@@ -232,20 +238,24 @@ export async function getAquaPreStart(): Promise<void> {
           continue;
         }
 
-        console.log(`📊 Encontrados ${Object.keys(pools).length} pools para tokens [${tokens[0]}, ${tokens[1]}]`);
+        console.log(
+          `📊 Encontrados ${Object.keys(pools).length} pools para tokens [${
+            tokens[0]
+          }, ${tokens[1]}]`
+        );
 
         // Procesar cada pool encontrado
         for (const key in pools) {
           const poolAddress = pools[key];
-          
+
           // Verificar si ya procesamos este pool
           if (poolAddressSet.has(poolAddress)) {
             console.log(`⏭️ Pool ${poolAddress} ya procesado, saltando...`);
             continue;
           }
-          
+
           poolAddressSet.add(poolAddress);
-          
+
           // Crear objeto de pool
           const poolData: AquaPool = {
             tokenA: tokens[0],
@@ -274,11 +284,13 @@ export async function getAquaPreStart(): Promise<void> {
 
           // Añadir a la lista
           aquaPools.push(poolData);
-          console.log(`✅ Pool añadido: ${poolAddress} (${tokens[0]} - ${tokens[1]})`);
+          console.log(
+            `✅ Pool añadido: ${poolAddress} (${tokens[0]} - ${tokens[1]})`
+          );
         }
-        
+
         // Pequeña pausa para evitar límites de tasa
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 200));
       } catch (error) {
         console.error(`❌ Error en índice ${i}:`, error);
         failedIndices.push(i);
@@ -319,7 +331,7 @@ export const aquaPoolsList: AquaPool[] = ${JSON.stringify(aquaPools, null, 2)};
     // Estadísticas finales
     console.log("\n📊 Resumen de ejecución:");
     console.log(`✅ Total de pools guardados: ${aquaPools.length}`);
-    
+
     if (failedIndices.length > 0) {
       console.log(`❌ Índices con errores: ${failedIndices.length}`);
       // Guardar errores en archivo
@@ -329,21 +341,47 @@ export const aquaPoolsList: AquaPool[] = ${JSON.stringify(aquaPools, null, 2)};
     }
 
     // Estadísticas adicionales
-    const poolsWithReserves = aquaPools.filter(pool => pool.reserveA && pool.reserveB).length;
+    const poolsWithReserves = aquaPools.filter(
+      (pool) => pool.reserveA && pool.reserveB
+    ).length;
     const poolsWithoutReserves = aquaPools.length - poolsWithReserves;
-    const poolsWithType = aquaPools.filter(pool => pool.poolType).length;
-    const poolsWithFee = aquaPools.filter(pool => pool.fee).length;
+    const poolsWithType = aquaPools.filter((pool) => pool.poolType).length;
+    const poolsWithFee = aquaPools.filter((pool) => pool.fee).length;
     const poolsWithZeroReserves = aquaPools.filter(
-      pool => pool.reserveA === "0" && pool.reserveB === "0"
+      (pool) => pool.reserveA === "0" && pool.reserveB === "0"
     ).length;
 
     console.log(`\n📊 Estadísticas de pools:`);
-    console.log(`✅ Pools con reservas: ${poolsWithReserves} (${((poolsWithReserves / aquaPools.length) * 100).toFixed(2)}%)`);
-    console.log(`⚠️ Pools sin reservas: ${poolsWithoutReserves} (${((poolsWithoutReserves / aquaPools.length) * 100).toFixed(2)}%)`);
-    console.log(`ℹ️ Pools con tipo: ${poolsWithType} (${((poolsWithType / aquaPools.length) * 100).toFixed(2)}%)`);
-    console.log(`💰 Pools con fee: ${poolsWithFee} (${((poolsWithFee / aquaPools.length) * 100).toFixed(2)}%)`);
-    console.log(`⚠️ Pools con reservas cero: ${poolsWithZeroReserves} (${((poolsWithZeroReserves / aquaPools.length) * 100).toFixed(2)}%)`);
-    
+    console.log(
+      `✅ Pools con reservas: ${poolsWithReserves} (${(
+        (poolsWithReserves / aquaPools.length) *
+        100
+      ).toFixed(2)}%)`
+    );
+    console.log(
+      `⚠️ Pools sin reservas: ${poolsWithoutReserves} (${(
+        (poolsWithoutReserves / aquaPools.length) *
+        100
+      ).toFixed(2)}%)`
+    );
+    console.log(
+      `ℹ️ Pools con tipo: ${poolsWithType} (${(
+        (poolsWithType / aquaPools.length) *
+        100
+      ).toFixed(2)}%)`
+    );
+    console.log(
+      `💰 Pools con fee: ${poolsWithFee} (${(
+        (poolsWithFee / aquaPools.length) *
+        100
+      ).toFixed(2)}%)`
+    );
+    console.log(
+      `⚠️ Pools con reservas cero: ${poolsWithZeroReserves} (${(
+        (poolsWithZeroReserves / aquaPools.length) *
+        100
+      ).toFixed(2)}%)`
+    );
   } catch (error) {
     console.error("❌ Error general:", error);
 
