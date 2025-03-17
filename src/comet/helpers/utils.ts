@@ -2,8 +2,6 @@ import { Contract, StrKey } from "@stellar/stellar-sdk";
 import { xdr } from '@stellar/stellar-sdk';
 import { encodeContract } from "../../soroswap/helpers/utils";
 
-
-
 export function hexToSorobanAddress(hexString: string): string {
     const buffer = Buffer.from(hexString, 'hex');
     return StrKey.encodeContract(buffer);
@@ -53,9 +51,7 @@ export function getTransactionData(event: any, contractId: string): {
   // Search for the operation that contains AllRecordData
   logger.info(`[COMET] 🔍 Searching for AllRecordData in ${operationsJson.length} operations`);
   for (const operation of operationsJson) {
-    try {
-      logger.info(`[COMET] 🔍 Analizing operation: ${operation._switch?.name || 'unknown'}`);
-      
+    try {      
       if (operation._switch && operation._switch.name === "ledgerEntryUpdated") {
         const data = operation._value?._attributes?.data?._value?._attributes;
         
@@ -63,7 +59,6 @@ export function getTransactionData(event: any, contractId: string): {
         if (!data || !data.val || !data.val._value || !Array.isArray(data.val._value)) {
           continue;
         }
-
         // Process only operations with the correct structure
         for (const item of data.val._value) {
           let tokenBuffer = item?._attributes?.key?._value?._value?.data;
@@ -72,7 +67,6 @@ export function getTransactionData(event: any, contractId: string): {
             reserves.push(item._attributes.val._value[0]._attributes.val._value._attributes.lo._value);
           }
         }
-        
         if (tokens.length >= 2) {
           tokenA = tokens[0];
           tokenB = tokens[1];
@@ -84,7 +78,6 @@ export function getTransactionData(event: any, contractId: string): {
       logger.error(`[COMET] ❌ Error details: ${err.stack}`);
     }
   }
-
   logger.info(
     `[COMET] 🟢 Tokens: TokenA=${tokenA || "not found"}, TokenB=${tokenB || "not found"}`
   );
