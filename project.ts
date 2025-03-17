@@ -7,6 +7,7 @@ import {
 import { Networks } from "@stellar/stellar-sdk";
 import { config } from "dotenv";
 import {
+  getCometFactory,
   getPhoenixFactory,
   getSoroswapFactory,
   getAquaFactory,
@@ -102,6 +103,45 @@ const aquaHandlers: SubqlRuntimeHandler[] = [
   },
 ];
 
+const cometFactory = getCometFactory(process.env.NETWORK as NETWORK);
+const cometHandlers: SubqlRuntimeHandler[] = [
+  {
+    handler: "handleCometEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["POOL", "deposit"],
+    },
+  },
+  {
+    handler: "handleCometEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["POOL", "swap"],
+    },
+  },
+  {
+    handler: "handleCometEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["POOL", "withdraw"],
+    },
+  },
+  {
+    handler: "handleCometEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["POOL", "join_pool"],
+    },
+  },
+  {
+    handler: "handleCometEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["POOL", "exit_pool"],
+    },
+  },
+];
+
 /* This is your project configuration */
 const project: StellarProject = {
   specVersion: "1.0.0",
@@ -151,7 +191,7 @@ const project: StellarProject = {
       startBlock: soroswapFactory.startBlock,
       mapping: {
         file: "./dist/index.js",
-        handlers: [...soroswapHandlers, ...phoenixHandlers, ...aquaHandlers],
+        handlers: [...soroswapHandlers, ...phoenixHandlers, ...aquaHandlers, ...cometHandlers],
       },
     },
   ],

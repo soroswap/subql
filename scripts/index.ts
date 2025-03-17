@@ -2,7 +2,8 @@ import { config } from "dotenv";
 import { generatePairTokenReservesList } from "./soroswap/pairsTokensMaker";
 import { getLatestRouterLedger } from "./soroswap/latestLedger";
 import { getPhoenixPreStart } from "./phoenix/pairs";
-import { getAquaPreStart } from "./aqua/aquaPoolsTokensMaker";
+import { getAquaPreStart } from "./aqua/aquaPoolsTokensMaker";import { getCometPreStart } from "./comet/pairs";
+
 config();
 
 export const { SOROBAN_ENDPOINT, SECRET_KEY_HELPER, NETWORK } = process.env;
@@ -28,6 +29,9 @@ async function main() {
 
     // AQUA
     await getAquaPreStart();
+
+    // COMET
+    await getCometPreStart();
     console.log("✨ Pairs, tokens and reserves list generated successfully");
     process.exit(0);
   } catch (error) {

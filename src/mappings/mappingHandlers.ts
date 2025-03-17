@@ -5,7 +5,8 @@ import { phoenixHandler } from "../phoenix";
 import { initializePhoenix } from "../phoenix/initialize";
 import { initializeAquaDb } from "../aqua/initialize";
 import { aquaEventHandler, aquaAddPoolHandler } from "../aqua";
-
+import { cometEventHandler } from "../comet";
+import { initializeComet } from "../comet/initialize";
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(
   event: SorobanEvent
@@ -58,4 +59,23 @@ export async function handleEventAddPoolAqua(
   logger.info(`[AQUA] 🔄 add pool event received`);
   await initializeAquaDb(event.contractId.toString());
   return await aquaAddPoolHandler(event);
+}
+
+// COMET EVENTS
+export async function handleCometEvent(event: SorobanEvent): Promise<void> {
+  logger.info(
+    `[COMET] 🔁 ${String(event.topic[1]?.value()).toUpperCase()} Event received`
+  );
+  await initializeComet(event.contractId.toString());
+
+  return await cometEventHandler(event);
+}
+
+export async function handleNewPoolCometEvent(
+  event: SorobanEvent
+): Promise<void> {
+  logger.info(
+    `[COMET] 🔁 ${String(event.topic[1]?.value()).toUpperCase()} Event received`
+  );
+  await initializeComet(event.contractId.toString());
 }

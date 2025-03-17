@@ -1,42 +1,38 @@
+import { CometPair } from "../types";
 import {
-  phoenixPairReservesList,
-  phoenixPairsGeneratedDate,
+  cometPairReservesList,
+  cometPairsGeneratedDate,
 } from "./pairReservesData";
-import { PhoenixPair } from "../types";
 
-export const initializePhoenix = async (contractId: string) => {
-  // logger.info("🔍 Checking if Phoenix is initialized");
-  let xlm = await PhoenixPair.get(contractId);
+export const initializeComet = async (contractId: string) => {
+  let xlm = await CometPair.get(contractId);
   if (xlm) return;
 
   const failedPairs: string[] = [];
 
   try {
     // Iterate over the list of pairs from the pairReservesData.ts file
-    for (const [index, pair] of phoenixPairReservesList.entries()) {
+    for (const [index, pair] of cometPairReservesList.entries()) {
       try {
         // Check if a record already exists for this pair
-        const existingPair = await PhoenixPair.get(pair.address);
+        const existingPair = await CometPair.get(pair.address);
 
         if (!existingPair) {
           logger.info(
-            `📊 Processing pair ${index + 1}/${
-              phoenixPairReservesList.length
-            }: ${pair.address}`
+            `📊 Processing pair ${index + 1}/${cometPairReservesList.length}: ${
+              pair.address
+            }`
           );
 
           // Create the initial record with all the information
-          const newPair = PhoenixPair.create({
+          const newPair = CometPair.create({
             id: pair.address,
             ledger: 55735990 + index,
-            date: new Date(phoenixPairsGeneratedDate),
+            date: new Date(cometPairsGeneratedDate),
             tokenA: pair.token_a,
             tokenB: pair.token_b,
             reserveA: BigInt(pair.reserve_a),
             reserveB: BigInt(pair.reserve_b),
-            reserveLp: BigInt(pair.reserve_lp),
-            stakeAddress: pair.stake_address,
-            totalFeeBps: Number(pair.total_fee_bps),
           });
 
           await newPair.save();
@@ -55,7 +51,7 @@ export const initializePhoenix = async (contractId: string) => {
     logger.info("📊 Initialization summary:");
     logger.info(
       `✅ Successfully processed pairs: ${
-        phoenixPairReservesList.length - failedPairs.length
+        cometPairReservesList.length - failedPairs.length
       }`
     );
     if (failedPairs.length > 0) {
