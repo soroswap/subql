@@ -75,12 +75,39 @@ The project consists of the following key files:
 - **`project.ts`**: Contains project-specific configurations and mapping handlers.
 - **`mapping.ts`**: Implements data transformation logic for indexing.
 
+### Project Configuration and Event Handlers
+
+The `project.ts` file configures the events to be indexed and how they will be processed. We specifically track events that provide token reserve information across different protocols. Each protocol emits different events that we need to capture to maintain accurate pool data.
+
+#### Protocol Event Handlers
+
+##### Soroswap:
+- **Events**: `new_pair` and `sync`
+- **Purpose**: Track new pair creation and reserve updates
+- **References**:
+  - [New Pair Topics](https://github.com/soroswap/core/blob/fdc28f6b0d422263ba509b2ebbc573ac1b897aec/contracts/factory/src/event.rs#L29)
+  - [Sync Topics](https://github.com/soroswap/core/blob/fdc28f6b0d422263ba509b2ebbc573ac1b897aec/contracts/pair/src/event.rs#L103)
+
+##### AQUA:
+- **Events**: `add_pool`, `trade`, `withdraw`, and `deposit`
+- **Purpose**: Monitor pool creation and liquidity changes
+- **References**:
+  - [Event Functions](https://github.com/AquaToken/soroban-amm/blob/master/liquidity_pool_router/src/events.rs)
+  - [Topics](https://github.com/AquaToken/soroban-amm/blob/master/liquidity_pool_events/src/lib.rs)
+
+##### COMET:
+- **Events**: `swap`, `deposit`, `withdraw`, `exit_pool`, `join_pool`, and `new_pool`
+- **Purpose**: Track pool activities and reserve changes
+- **References**:
+  - [Event Functions](https://github.com/CometDEX/comet-contracts-v1/blob/ef4cbfad0a35202ad267c14d163d2f362995a8d3/contracts/src/c_pool/event.rs)
+  - [Topics](https://github.com/CometDEX/comet-contracts-v1/blob/ef4cbfad0a35202ad267c14d163d2f362995a8d3/contracts/src/c_pool/call_logic/pool.rs)
+
 ### 🗂 Pair Table Schema
 
 The following entity schema is used to index liquidity pairs:
 
 ```graphql
-type Pair @entity {
+type SoroswapPair @entity {
   id: ID! # Contract address
   ledger: Int!
   date: Date!
@@ -101,6 +128,19 @@ type AquaPair @entity {
   reserveA: BigInt!
   reserveB: BigInt!
 }
+
+type phoenixPair @entity {
+  id: ID! # Contract address
+  ledger: Int!
+  date: Date!
+  tokenA: String! @index
+  tokenB: String! @index
+  reserveA: BigInt!
+  reserveB: BigInt!
+  reserveLp: BigInt
+  stakeAddress: String
+  totalFeeBps: Int
+}
 ```
 
 ## 📡 Accessing the GraphQL API
@@ -120,7 +160,7 @@ query GetPairsSoroswap {
   soroswapPairs (orderBy: DATE_DESC) {
     totalCount
     nodes {
-		  id
+			id
       tokenA
       tokenB
       reserveA
@@ -129,15 +169,29 @@ query GetPairsSoroswap {
   }
 }
 query GetPairsAqua {
-  aquaPairs {
+  aquaPairs (orderBy: DATE_DESC){
     totalCount
     nodes {
       id
       tokenA
       tokenB
+      fee
       reserveA
       reserveB
+      poolType      
     }
+  }
+}
+query {
+  phoenixPairs (orderBy: DATE_DESC){
+    id
+    tokenA
+    tokenB
+    reserveA
+    reserveB
+    reserveLp
+    stakeAddress
+    totalFeeBps
   }
 }
 ```

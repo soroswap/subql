@@ -3,6 +3,8 @@ import { initializeSoroswap } from "../soroswap/intialize";
 import { soroswapNewPairHandler, soroswapSyncHandler } from "../soroswap";
 import { phoenixHandler } from "../phoenix";
 import { initializePhoenix } from "../phoenix/initialize";
+import { initializeAquaDb } from "../aqua/initialize";
+import { aquaEventHandler, aquaAddPoolHandler } from "../aqua";
 
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(
@@ -38,4 +40,22 @@ export async function handlePhoenixCreateLPEvent(
 ): Promise<void> {
   logger.info(`[PHOENIX] 🔁 Create LP Event received`);
   // TODO: Create lp handler
+}
+
+// AQUA SWAP LIQUIDITY EVENTS
+export async function handleEventAqua(event: SorobanEvent): Promise<void> {
+  logger.info(
+    `[AQUA] 🔁 ${String(event.topic[0]?.value()).toUpperCase()} Event received`
+  );
+  await initializeAquaDb(event.contractId.toString());
+  return await aquaEventHandler(event);
+}
+
+// AQUA ADD POOL EVENTS
+export async function handleEventAddPoolAqua(
+  event: SorobanEvent
+): Promise<void> {
+  logger.info(`[AQUA] 🔄 add pool event received`);
+  await initializeAquaDb(event.contractId.toString());
+  return await aquaAddPoolHandler(event);
 }

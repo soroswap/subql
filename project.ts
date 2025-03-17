@@ -9,6 +9,7 @@ import { config } from "dotenv";
 import {
   getPhoenixFactory,
   getSoroswapFactory,
+  getAquaFactory,
   NETWORK,
 } from "./src/constants";
 config();
@@ -67,6 +68,40 @@ const phoenixHandlers: SubqlRuntimeHandler[] = [
   },
 ];
 
+//Aqua handlers
+const aquaFactory = getAquaFactory(process.env.NETWORK as NETWORK);
+const aquaHandlers: SubqlRuntimeHandler[] = [
+  {
+    handler: "handleEventAddPoolAqua",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      contractId: aquaFactory,
+      topics: ["add_pool"],
+    },
+  },
+  {
+    handler: "handleEventAqua", // deposit liquidity
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["deposit_liquidity"],
+    },
+  },
+  {
+    handler: "handleEventAqua", // withdraw liquidity
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["withdraw_liquidity"],
+    },
+  },
+  {
+    handler: "handleEventAqua", // swap liquidity
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["trade"],
+    },
+  },
+];
+
 /* This is your project configuration */
 const project: StellarProject = {
   specVersion: "1.0.0",
@@ -116,7 +151,7 @@ const project: StellarProject = {
       startBlock: soroswapFactory.startBlock,
       mapping: {
         file: "./dist/index.js",
-        handlers: [...soroswapHandlers, ...phoenixHandlers],
+        handlers: [...soroswapHandlers, ...phoenixHandlers, ...aquaHandlers],
       },
     },
   ],
