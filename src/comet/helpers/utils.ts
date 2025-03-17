@@ -1,10 +1,8 @@
 import { Contract, StrKey } from "@stellar/stellar-sdk";
-import { config } from 'dotenv';
 import { xdr } from '@stellar/stellar-sdk';
 import { encodeContract } from "../../soroswap/helpers/utils";
 
 
-config();
 
 export function hexToSorobanAddress(hexString: string): string {
     const buffer = Buffer.from(hexString, 'hex');
@@ -16,6 +14,12 @@ export function getTransactionData(event: any, contractId: string): {
   reserveA: bigint | undefined;
   reserveB: bigint | undefined;
 } {
+  let reserveA: bigint | undefined;
+  let reserveB: bigint | undefined;
+  let tokenA: string | undefined;
+  let tokenB: string | undefined;
+  let tokens = [];
+  let reserves = [];
       
   const resultMetaXdrString = event.transaction.result_meta_xdr;
 
@@ -40,34 +44,27 @@ export function getTransactionData(event: any, contractId: string): {
     return false;
   });
   
-  logger.info(`[COMET] 🔍 Operaciones filtradas: ${filteredOperations.length}`);
-  let reserveA: bigint | undefined;
-  let reserveB: bigint | undefined;
-  let tokenA: string | undefined;
-  let tokenB: string | undefined;
-  let tokens = [];
-  let reserves = [];
+  logger.info(`[COMET] 🔍 Operations filtered: ${filteredOperations.length}`);
 
-  // Convertir a JSON para facilitar el procesamiento
-  logger.info(`[COMET] 🔍 Convirtiendo operaciones a JSON`);
+  // Convert to JSON for easier processing
+  logger.info(`[COMET] 🔍 Converting operations to JSON`);
   const operationsJson = JSON.parse(JSON.stringify(filteredOperations));
   
-  // Buscar la operación que contiene AllRecordData
-  logger.info(`[COMET] 🔍 Buscando AllRecordData en ${operationsJson.length} operaciones`);
+  // Search for the operation that contains AllRecordData
+  logger.info(`[COMET] 🔍 Searching for AllRecordData in ${operationsJson.length} operations`);
   for (const operation of operationsJson) {
     try {
-      logger.info(`[COMET] 🔍 Analizando operación: ${operation._switch?.name || 'desconocida'}`);
+      logger.info(`[COMET] 🔍 Analizing operation: ${operation._switch?.name || 'unknown'}`);
       
       if (operation._switch && operation._switch.name === "ledgerEntryUpdated") {
         const data = operation._value?._attributes?.data?._value?._attributes;
         
-        if (!data) {
-          logger.info(`[COMET] 🔍 No se encontraron datos en la operación`);
+        // Filter only operations with the expected structure
+        if (!data || !data.val || !data.val._value || !Array.isArray(data.val._value)) {
           continue;
         }
 
-       
-        // find token and reserve
+        // Process only operations with the correct structure
         for (const item of data.val._value) {
           let tokenBuffer = item?._attributes?.key?._value?._value?.data;
           if (tokenBuffer) {  
@@ -75,20 +72,16 @@ export function getTransactionData(event: any, contractId: string): {
             reserves.push(item._attributes.val._value[0]._attributes.val._value._attributes.lo._value);
           }
         }
+        
         if (tokens.length >= 2) {
           tokenA = tokens[0];
           tokenB = tokens[1];
           reserveA = BigInt(reserves[0]);
           reserveB = BigInt(reserves[1]);
-          
-          logger.info(`[COMET] ✅ TokenA: ${tokenA}, ReserveA: ${reserveA}`);
-          logger.info(`[COMET] ✅ TokenB: ${tokenB}, ReserveB: ${reserveB}`);
-        } else {
-          logger.info(`[COMET] 🔍 No se encontraron suficientes tokens (se necesitan al menos 2)`);
         }
       }
     } catch (err) {
-      logger.error(`[COMET] ❌ Detalles del error: ${err.stack}`);
+      logger.error(`[COMET] ❌ Error details: ${err.stack}`);
     }
   }
 

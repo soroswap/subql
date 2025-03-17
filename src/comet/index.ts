@@ -2,10 +2,10 @@ import { SorobanEvent } from "@subql/types-stellar";
 import {
   extractValuesCometEvent,
   updatePairReserves,
-} from "./helpers/liquidityEvent";
+} from "./helpers/events";
 
 // This handler works for SWAP, PROVIDE_LIQUIDITY, and WITHDRAW_LIQUIDITY events
-export const cometLiquidityHandler = async (event: SorobanEvent) => {
+export const cometEventHandler = async (event: SorobanEvent) => {
   const eventType = String(event.topic[1]?.value()).toUpperCase();
   // logger.info(JSON.stringify(event));
   
@@ -32,7 +32,7 @@ export const cometLiquidityHandler = async (event: SorobanEvent) => {
   try {
     const currentDate = new Date(event.ledgerClosedAt);
     await updatePairReserves(
-      contractId,
+      cometData.id,
       currentDate,
       event.ledger.sequence,
       cometData.tokenA,
@@ -41,7 +41,7 @@ export const cometLiquidityHandler = async (event: SorobanEvent) => {
       BigInt(cometData.reserveB)
     );
 
-    logger.info(`[COMET] ✨ Updated reserves for pair ${contractId}`);
+    logger.info(`[COMET] ✨ Updated reserves for pair ${cometData.id}`);
   } catch (error) {
     logger.error(`[COMET] ❌ Error processing ${eventType} event: ${error}`);
   }

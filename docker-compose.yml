@@ -38,6 +38,7 @@ services:
       - --workers=4 # The more the faster
       - --batch-size=50 # The higher the faster, set low to avoid rate limit on SDF endpoint
       - --unsafe
+      - --page-limit=100
     healthcheck:
       test: ["CMD", "curl", "-f", "http://subquery-node:3000/ready"]
       interval: 3s

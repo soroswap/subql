@@ -140,6 +140,18 @@ query GetPairsAqua {
     }
   }
 }
+
+query GetCometPairs {
+  cometPairs {
+    id
+    ledger
+    date
+    tokenA
+    tokenB
+    reserveA
+    reserveB
+  }
+}
 ```
 
 ## 📚 Resources

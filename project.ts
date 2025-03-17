@@ -78,6 +78,34 @@ const cometHandlers: SubqlRuntimeHandler[] = [
     },
   },
   {
+    handler: "handleCometEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["POOL", "swap"],
+    },
+  },
+  {
+    handler: "handleCometEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["POOL", "withdraw"],
+    },
+  },
+  {
+    handler: "handleCometEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["POOL", "join_pool"],
+    },
+  },
+  {
+    handler: "handleCometEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["POOL", "exit_pool"],
+    },
+  },
+  {
     handler: "handleNewPoolCometEvent",
     kind: StellarHandlerKind.Event,
     filter: {

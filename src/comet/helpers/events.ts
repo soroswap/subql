@@ -3,14 +3,14 @@ import { CometPair } from '../../types/models/CometPair';
 
 // Helper function to extract values from deposit event
 export function extractValuesCometEvent(event: any): {
-    address: string;
+    id: string;
     tokenA: string;
     tokenB: string;
     reserveA?: bigint;
     reserveB?: bigint;
 } {
     let result = {
-        address: '',
+        id: '',
         tokenA: '',
         tokenB: '',
         reserveA: undefined as bigint | undefined,
@@ -23,15 +23,15 @@ export function extractValuesCometEvent(event: any): {
         // User address (first value of the value)
         const contractId = event?.contractId?.toString();
         if (contractId) {
-            result.address = contractId;
-            logger.info(`→ Contract address: ${result.address}`);
+            result.id = contractId;
+            logger.info(`→ Contract address: ${result.id}`);
         }
         
         // Get contract data using transaction data
-        if (result.address) {
-            logger.info(`🔍 Fetching contract data for ${result.address}...`);
+        if (result.id) {
+            logger.info(`🔍 Fetching contract data for ${result.id}...`);
             // Importante: esta función ya no es async, así que no necesitamos await
-            const contractData = getTransactionData(event, result.address); 
+            const contractData = getTransactionData(event, result.id); 
             
             if (contractData.tokenA !== undefined) {
                 result.tokenA = contractData.tokenA;
@@ -54,7 +54,7 @@ export function extractValuesCometEvent(event: any): {
             }
 
             if (result.reserveA === undefined && result.reserveB === undefined) {
-                logger.info(`⚠️ No reserve data found for contract ${result.address}, using default values`);
+                logger.info(`⚠️ No reserve data found for contract ${result.id}, using default values`);
                 result.reserveA = BigInt(0);
                 result.reserveB = BigInt(0);
             }
@@ -68,7 +68,7 @@ export function extractValuesCometEvent(event: any): {
 } 
 
 export const updatePairReserves = async (
-    contractId: string,
+    id: string,
     currentDate: Date,
     sequence: number,
     tokenA: string,
@@ -76,12 +76,12 @@ export const updatePairReserves = async (
     reserveA?: bigint,
     reserveB?: bigint,
   ) => {
-    const existingPair = await CometPair.get(contractId);
+    const existingPair = await CometPair.get(id);
     
     if (!existingPair) {
-        logger.info(`[COMET] 🆕 Creating new pair record for ${contractId}`);
+        logger.info(`[COMET] 🆕 Creating new pair record for ${id}`);
         const newPair = CometPair.create({
-            id: contractId,
+            id: id,
             tokenA: tokenA,
             tokenB: tokenB,
             reserveA: reserveA || BigInt(0),
