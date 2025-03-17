@@ -10,6 +10,7 @@ import {
   getCometFactory,
   getPhoenixFactory,
   getSoroswapFactory,
+  getAquaFactory,
   NETWORK,
 } from "./src/constants";
 config();
@@ -64,6 +65,40 @@ const phoenixHandlers: SubqlRuntimeHandler[] = [
     filter: {
       contractId: phoenixFactory,
       topics: ["create", "liquidity_pool"],
+    },
+  },
+];
+
+//Aqua handlers
+const aquaFactory = getAquaFactory(process.env.NETWORK as NETWORK);
+const aquaHandlers: SubqlRuntimeHandler[] = [
+  {
+    handler: "handleEventAddPoolAqua",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      contractId: aquaFactory,
+      topics: ["add_pool"],
+    },
+  },
+  {
+    handler: "handleEventAqua", // deposit liquidity
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["deposit_liquidity"],
+    },
+  },
+  {
+    handler: "handleEventAqua", // withdraw liquidity
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["withdraw_liquidity"],
+    },
+  },
+  {
+    handler: "handleEventAqua", // swap liquidity
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["trade"],
     },
   },
 ];
@@ -156,7 +191,7 @@ const project: StellarProject = {
       startBlock: soroswapFactory.startBlock,
       mapping: {
         file: "./dist/index.js",
-        handlers: [...soroswapHandlers, ...phoenixHandlers, ...cometHandlers],
+        handlers: [...soroswapHandlers, ...phoenixHandlers, ...aquaHandlers, ...cometHandlers],
       },
     },
   ],

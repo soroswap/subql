@@ -3,9 +3,9 @@
 # https://academy.subquery.network/build/graphql.html#indexing-by-non-primary-key-field
 
 """
-Pair entity: Stores pair data and current reserves
+SoroswapPair entity: Stores pair data and current reserves
 """
-type soroswapPair @entity {
+type SoroswapPair @entity {
   id: ID! # Contract address
   ledger: Int!
   date: Date!
@@ -26,6 +26,21 @@ type phoenixPair @entity {
   reserveLp: BigInt
   stakeAddress: String
   totalFeeBps: Int
+}
+
+"""
+AquaPair entity: Stores Aqua swap events
+"""
+type AquaPair @entity {
+  id: ID! # Address
+  ledger: Int! @index
+  date: Date! @index
+  tokenA: String! @index
+  tokenB: String! @index
+  reserveA: BigInt!
+  reserveB: BigInt!
+  poolType: String!
+  fee: BigInt!
 }
 
 type cometPair @entity {

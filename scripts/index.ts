@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import { generatePairTokenReservesList } from "./soroswap/pairsTokensMaker";
 import { getLatestRouterLedger } from "./soroswap/latestLedger";
 import { getPhoenixPreStart } from "./phoenix/pairs";
-import { getCometPreStart } from "./comet/pairs";
+import { getAquaPreStart } from "./aqua/aquaPoolsTokensMaker";import { getCometPreStart } from "./comet/pairs";
 
 config();
 
@@ -26,6 +26,9 @@ async function main() {
 
     // PHOENIX
     await getPhoenixPreStart();
+
+    // AQUA
+    await getAquaPreStart();
 
     // COMET
     await getCometPreStart();
