@@ -1,4 +1,4 @@
-import { hexToSorobanAddress, getTransactionData} from './utils';
+import { getTransactionData} from './utils';
 import { CometPair } from '../../types/models/CometPair';
 
 // Helper function to extract values from deposit event

@@ -105,14 +105,6 @@ const cometHandlers: SubqlRuntimeHandler[] = [
       topics: ["POOL", "exit_pool"],
     },
   },
-  {
-    handler: "handleNewPoolCometEvent",
-    kind: StellarHandlerKind.Event,
-    filter: {
-      contractId: cometFactory,
-      topics: ["LOG", "NEW_POOL"],
-    },
-  },
 ];
 
 /* This is your project configuration */
