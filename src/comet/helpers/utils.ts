@@ -1,11 +1,8 @@
 import { Contract, StrKey } from "@stellar/stellar-sdk";
 import { xdr } from '@stellar/stellar-sdk';
-import { encodeContract } from "../../soroswap/helpers/utils";
+import { hexToSorobanAddress } from "../../utils";
 
-export function hexToSorobanAddress(hexString: string): string {
-    const buffer = Buffer.from(hexString, 'hex');
-    return StrKey.encodeContract(buffer);
-}
+
 export function getTransactionData(event: any, contractId: string): {
   tokenA: string | undefined;
   tokenB: string | undefined;
@@ -34,7 +31,7 @@ export function getTransactionData(event: any, contractId: string): {
     
     if (switchName === "ledgerEntryUpdated" && contractBuffer) {
       const contractData = JSON.parse(JSON.stringify(contractBuffer)).data;
-      const contract = encodeContract(
+      const contract = hexToSorobanAddress(
         Buffer.from(contractData).toString("hex")            
       );
       return contract === contractId;
