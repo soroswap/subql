@@ -149,7 +149,7 @@ const project: StellarProject = {
       startBlock: soroswapFactory.startBlock,
       mapping: {
         file: "./dist/index.js",
-        handlers: [...aquaHandlers],
+        handlers: [...phoenixHandlers],
       },
     },
   ],

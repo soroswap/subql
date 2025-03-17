@@ -1,10 +1,11 @@
 import { xdr } from "@stellar/stellar-sdk";
 import { SorobanEvent } from "@subql/types-stellar";
 import { PhoenixPair } from "../../types";
-import { hexToSorobanAddress } from "../../utils";
+import { getTransactionInstanceData, hexToSorobanAddress } from "../../utils";
 
 export const extractReservesFromPhoenixEvent = (event: SorobanEvent) => {
   const contractId = event.contractId.toString();
+  
   const resultMetaXdrString = event.transaction.result_meta_xdr;
   const txMeta = xdr.TransactionMeta.fromXDR(resultMetaXdrString, "base64");
 

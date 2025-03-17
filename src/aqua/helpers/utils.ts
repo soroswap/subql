@@ -1,6 +1,144 @@
-import { Contract, StrKey } from "@stellar/stellar-sdk";
+import { Contract } from "@stellar/stellar-sdk";
 import { xdr } from "@stellar/stellar-sdk";
 import { hexToSorobanAddress } from "../../utils";
+
+export function getAquaData(
+  storage: JSON,
+  contractId: string
+): {
+  tokenA?: string;
+  tokenB?: string;
+  reserveA?: bigint;
+  reserveB?: bigint;
+  fee?: bigint;
+} {
+
+  // Found the values of ReserveA, ReserveB and FeeFraction in the contract
+  let tokenA: string | undefined;
+  let tokenB: string | undefined;
+  let reserveA: bigint | undefined;
+  let reserveB: bigint | undefined;
+  let fee: bigint | undefined;
+  // Search in the filtered operations
+  if (storage && Array.isArray(storage)) {
+    // Iterate over the storage to find the keys that we are interested in
+    for (const item of storage) {
+      const key = item?.key();
+          const keyVec = key?.vec?.();
+
+          if (keyVec && keyVec.length > 0) {
+            const firstElement = keyVec[0];
+
+            if (firstElement?.switch?.().name === "scvSymbol") {
+              const symbolName = firstElement.sym().toString();
+              const itemValue = item.val();
+
+              // Extract the values according to the symbol name
+              if (
+                symbolName === "TokenA" &&
+                itemValue?.switch?.().name === "scvAddress"
+              ) {
+                tokenA = hexToSorobanAddress(
+                  Buffer.from(
+                    JSON.parse(JSON.stringify(itemValue.value().value())).data
+                  ).toString("hex")
+                );
+                logger.debug(
+                  `[AQUA] 🔍 Found TokenA: ${JSON.stringify(tokenA)}`
+                );
+              } else if (
+                symbolName === "TokenB" &&
+                itemValue?.switch?.().name === "scvAddress"
+              ) {
+                tokenB = hexToSorobanAddress(
+                  Buffer.from(
+                    JSON.parse(JSON.stringify(itemValue.value().value())).data
+                  ).toString("hex")
+                );
+                logger.debug(
+                  `[AQUA] 🔍 Found TokenB: ${JSON.stringify(tokenB)}`
+                );
+              } else if (
+                symbolName === "ReserveA" &&
+                itemValue?.switch?.().name === "scvU128"
+              ) {
+                reserveA = BigInt(itemValue.u128().lo().toString());
+                logger.debug(
+                  `[AQUA] 🔍 Found ReserveA: ${reserveA.toString()}`
+                );
+              } else if (
+                symbolName === "ReserveB" &&
+                itemValue?.switch?.().name === "scvU128"
+              ) {
+                reserveB = BigInt(itemValue.u128().lo().toString());
+                logger.debug(
+                  `[AQUA] 🔍 Found ReserveB: ${reserveB.toString()}`
+                );
+              } else if (
+                symbolName === "Fee" &&
+                itemValue?.switch?.().name === "scvU32"
+              ) {
+                fee = BigInt(itemValue.u32().toString());
+                logger.debug(`[AQUA] 🔍 Found Fee: ${fee.toString()}`);
+              } else if (symbolName === "Reserves") {
+                reserveA = BigInt(itemValue.vec()[0].u128().lo().toString());
+                reserveB = BigInt(itemValue.vec()[1].u128().lo().toString());
+                logger.debug(
+                  `[AQUA] 🔍 Found Reserves: ${reserveA.toString()}, ${reserveB.toString()}`
+                );
+              } else if (
+                symbolName === "FeeFraction" &&
+                itemValue?.switch?.().name === "scvU32"
+              ) {
+                fee = BigInt(itemValue.u32().toString());
+                logger.debug(`[AQUA] 🔍 Found FeeFraction: ${fee.toString()}`);
+              } else if (symbolName === "Tokens") {
+                tokenA = itemValue.vec()[0];
+
+                tokenA = hexToSorobanAddress(
+                  Buffer.from(
+                    JSON.parse(
+                      JSON.stringify(itemValue.vec()[0].value().value())
+                    ).data
+                  ).toString("hex")
+                );
+                tokenB = hexToSorobanAddress(
+                  Buffer.from(
+                    JSON.parse(
+                      JSON.stringify(itemValue.vec()[1].value().value())
+                    ).data
+                  ).toString("hex")
+                );
+
+                logger.debug(
+                  `[AQUA] 🔍 Found Tokens: ${JSON.stringify(
+                    tokenA
+                  )}, ${JSON.stringify(tokenB)}`
+                );
+              }
+            }
+         }
+    }
+  }
+
+
+  logger.debug(
+    `[AQUA] 🟢 Reserves: ReserveA=${
+      reserveA?.toString() || "not found"
+    }, ReserveB=${reserveB?.toString() || "not found"}, Fee=${
+      fee?.toString() || "not found"
+    }`
+  );
+
+  return {
+    tokenA,
+    tokenB,
+    reserveA,
+    reserveB,
+    fee,
+  };
+}
+
 
 export function getTransactionData(
   event: any,

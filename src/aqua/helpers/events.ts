@@ -1,5 +1,5 @@
-import { hexToSorobanAddress } from "../../utils";
-import { getTransactionData } from "./utils";
+import { getTransactionInstanceData, hexToSorobanAddress } from "../../utils";
+import { getTransactionData, getAquaData } from "./utils";
 
 // Helper function to extract values from deposit event
 export async function extractAquaValues(event: any): Promise<{
@@ -28,7 +28,11 @@ export async function extractAquaValues(event: any): Promise<{
     if (result.address) {
       logger.debug(`🔍 Fetching contract data for ${result.address}...`);
       // let contractData = await getContractDataFetch(result.address);
-      let contractData = getTransactionData(event, result.address);
+      let contractDataInstance = getTransactionInstanceData(event, result.address);
+      let contractData = getAquaData(contractDataInstance, result.address);
+      logger.info(`🔍 XXXXXXXXXXXXXXx Contract data TEST: ${contractData}`);
+      // let contractData = getTransactionData(event, result.address);
+      // logger.info(`🔍 XXXXXXXXXXXXXXx Contract data: ${contractData}`);
 
       if (contractData.tokenA !== undefined) {
         result.tokenA = contractData.tokenA;
