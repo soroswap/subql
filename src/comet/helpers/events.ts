@@ -30,7 +30,6 @@ export function extractValuesCometEvent(event: any): {
         // Get contract data using transaction data
         if (result.id) {
             logger.info(`🔍 Fetching contract data for ${result.id}...`);
-            // Importante: esta función ya no es async, así que no necesitamos await
             const contractData = getTransactionData(event, result.id); 
             
             if (contractData.tokenA !== undefined) {
