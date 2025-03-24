@@ -18,22 +18,30 @@ function validateEnvVariables() {
 
 async function main() {
   validateEnvVariables();
+
+  // SOROSWAP
   try {
-    // SOROSWAP
     await generatePairTokenReservesList();
     await getLatestRouterLedger();
-
-    // PHOENIX
-    await getPhoenixPreStart();
-
-    // AQUA
-    await getAquaPreStart();
-    console.log("✨ Pairs, tokens and reserves list generated successfully");
-    process.exit(0);
   } catch (error) {
-    console.error("❌ Error generating list:", error);
-    process.exit(1);
+    console.error("❌ Error generating Soroswap pairs:", error);
   }
+
+  // PHOENIX
+  try {
+    await getPhoenixPreStart();
+  } catch (error) {
+    console.error("❌ Error generating Phoenix pairs:", error);
+  }
+
+  // AQUA
+  try {
+    await getAquaPreStart();
+  } catch (error) {
+    console.error("❌ Error generating Aqua pairs:", error);
+  }
+
+  process.exit(1);
 }
 
 main();
