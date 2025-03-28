@@ -1,4 +1,4 @@
-import { hexToSorobanAddress } from "../../utils";
+import { StrKey } from "@stellar/stellar-sdk";
 import { getTransactionData } from "./utils";
 
 // Helper function to extract values from deposit event
@@ -78,4 +78,22 @@ export async function extractAquaValues(event: any): Promise<{
     logger.error(`❌ Error extracting Aqua values: ${error}`);
     return result;
   }
+}
+
+
+export async function getFactoryTopic(event: any): Promise<string> {
+  let factoryAddress = "";
+  
+  if (event.topic[3]) {
+    if (event.topic[3].address().switch().name === "scAddressTypeContract") {
+    try {
+          const contractIdBuffer = event.topic[3].address().contractId();
+          factoryAddress = StrKey.encodeContract(contractIdBuffer);
+          logger.info(`Factory address: ${factoryAddress}`);
+  
+    } catch (error) {
+      logger.error(`Error getting factory address: ${error}`);
+    }
+  }}
+  return factoryAddress;
 }

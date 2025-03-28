@@ -16,7 +16,7 @@ export async function aquaEventHandler(event: SorobanEvent): Promise<void> {
     // check if contract exist in database
     const existingPool = await AquaPair.get(eventData.address);
 
-    if (!existingPool.id) {
+    if (!existingPool) {
       logger.error(
         `[AQUA] ❌ Error: Pool ${eventData.address} not found, this contract is not a valid AQUA pool`
       );

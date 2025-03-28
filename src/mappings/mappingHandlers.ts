@@ -5,7 +5,11 @@ import { phoenixHandler } from "../phoenix";
 import { initializePhoenix } from "../phoenix/initialize";
 import { initializeAquaDb } from "../aqua/initialize";
 import { aquaEventHandler, aquaAddPoolHandler } from "../aqua";
+import { getFactoryTopic } from "../aqua/helpers/events";
+import { getAquaFactory, NETWORK } from "../constants";
 
+
+const factoryAqua = getAquaFactory("mainnet" as NETWORK);
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(
   event: SorobanEvent
@@ -47,7 +51,12 @@ export async function handleEventAqua(event: SorobanEvent): Promise<void> {
   logger.info(
     `[AQUA] 🔁 ${String(event.topic[0]?.value()).toUpperCase()} Event received`
   );
-  await initializeAquaDb(event.contractId.toString());
+  const factoryAddress = await getFactoryTopic(event);
+  if (String(event.topic[0]?.value()).toUpperCase() === "TRADE" && factoryAddress === factoryAqua ) {
+    logger.info(`Inicializando AQUA DB para trader específico: ${factoryAddress}`);
+    await initializeAquaDb(event.contractId.toString());
+  }
+  
   return await aquaEventHandler(event);
 }
 
@@ -56,6 +65,6 @@ export async function handleEventAddPoolAqua(
   event: SorobanEvent
 ): Promise<void> {
   logger.info(`[AQUA] 🔄 add pool event received`);
-  await initializeAquaDb(event.contractId.toString());
+  //await initializeAquaDb(event.contractId.toString());
   return await aquaAddPoolHandler(event);
 }
