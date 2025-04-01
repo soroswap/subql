@@ -32,30 +32,22 @@ export async function extractAquaValues(event: any): Promise<{
 
       if (contractData.tokenA !== undefined) {
         result.tokenA = contractData.tokenA;
-        logger.debug(
-          `[AQUA] → TokenA from contract: ${result.tokenA.toString()}`
-        );
+        logger.debug(`[AQUA] → TokenA from contract: ${result.tokenA.toString()}`);
       }
 
       if (contractData.tokenB !== undefined) {
         result.tokenB = contractData.tokenB;
-        logger.debug(
-          `[AQUA] → TokenB from contract: ${result.tokenB.toString()}`
-        );
+        logger.debug(`[AQUA] → TokenB from contract: ${result.tokenB.toString()}`);
       }
 
       if (contractData.reserveA !== undefined) {
         result.reserveA = contractData.reserveA;
-        logger.debug(
-          `[AQUA] → ReserveA from contract: ${result.reserveA.toString()}`
-        );
+        logger.debug(`[AQUA] → ReserveA from contract: ${result.reserveA.toString()}`);
       }
 
       if (contractData.reserveB !== undefined) {
         result.reserveB = contractData.reserveB;
-        logger.debug(
-          `[AQUA] → ReserveB from contract: ${result.reserveB.toString()}`
-        );
+        logger.debug(`[AQUA] → ReserveB from contract: ${result.reserveB.toString()}`);
       }
 
       if (contractData.fee !== undefined) {
@@ -75,25 +67,23 @@ export async function extractAquaValues(event: any): Promise<{
 
     return result;
   } catch (error) {
-    logger.error(`❌ Error extracting Aqua values: ${error}`);
+    logger.error(`[AQUA] ❌ Error extracting Aqua values: ${error}`);
     return result;
   }
 }
 
-
 export async function getFactoryTopic(event: any): Promise<string> {
   let factoryAddress = "";
-  
+
   if (event.topic[3]) {
     if (event.topic[3].address().switch().name === "scAddressTypeContract") {
-    try {
-          const contractIdBuffer = event.topic[3].address().contractId();
-          factoryAddress = StrKey.encodeContract(contractIdBuffer);
-          logger.info(`Factory address: ${factoryAddress}`);
-  
-    } catch (error) {
-      logger.error(`Error getting factory address: ${error}`);
+      try {
+        const contractIdBuffer = event.topic[3].address().contractId();
+        factoryAddress = StrKey.encodeContract(contractIdBuffer);
+      } catch (error) {
+        logger.error(`Error getting factory address: ${error}`);
+      }
     }
-  }}
+  }
   return factoryAddress;
 }
