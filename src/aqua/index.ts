@@ -16,7 +16,7 @@ export async function aquaEventHandler(event: SorobanEvent): Promise<void> {
     // check if contract exist in database
     const existingPool = await AquaPair.get(eventData.address);
 
-    if (!existingPool.id) {
+    if (!existingPool) {
       logger.error(
         `[AQUA] ❌ Error: Pool ${eventData.address} not found, this contract is not a valid AQUA pool`
       );
@@ -46,9 +46,7 @@ export async function aquaEventHandler(event: SorobanEvent): Promise<void> {
 // AQUA ADD POOL EVENTS AQUA PROTOCOL
 export async function aquaAddPoolHandler(event: SorobanEvent): Promise<void> {
   try {
-    const eventData = extractAddPoolAquaValues(
-      JSON.parse(JSON.stringify(event))
-    );
+    const eventData = extractAddPoolAquaValues(JSON.parse(JSON.stringify(event)));
     const currentDate = new Date(event.ledgerClosedAt);
 
     // Check if there is a previous record for this user
@@ -76,9 +74,7 @@ export async function aquaAddPoolHandler(event: SorobanEvent): Promise<void> {
     });
 
     await aquaPair.save();
-    logger.info(
-      `[AQUA] ✅ Pool event created/updated for address: ${eventData.address}`
-    );
+    logger.info(`[AQUA] ✅ Pool event created/updated for address: ${eventData.address}`);
   } catch (error) {
     logger.error(`[AQUA] ❌ Error processing Aqua Pool event: ${error}`);
     throw error;

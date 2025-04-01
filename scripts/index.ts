@@ -2,7 +2,8 @@ import { config } from "dotenv";
 import { generatePairTokenReservesList } from "./soroswap/pairsTokensMaker";
 import { getLatestRouterLedger } from "./soroswap/latestLedger";
 import { getPhoenixPreStart } from "./phoenix/pairs";
-import { getAquaPreStart } from "./aqua/aquaPoolsTokensMaker";import { getCometPreStart } from "./comet/pairs";
+import { getAquaPreStart } from "./aqua/aquaPoolsTokensMaker";
+import { getCometPreStart } from "./comet/pairs";
 
 config();
 
@@ -19,25 +20,37 @@ function validateEnvVariables() {
 
 async function main() {
   validateEnvVariables();
+
+  // SOROSWAP
   try {
-    // SOROSWAP
     await generatePairTokenReservesList();
     await getLatestRouterLedger();
-
-    // PHOENIX
-    await getPhoenixPreStart();
-
-    // AQUA
-    await getAquaPreStart();
-
-    // COMET
-    await getCometPreStart();
-    console.log("✨ Pairs, tokens and reserves list generated successfully");
-    process.exit(0);
   } catch (error) {
-    console.error("❌ Error generating list:", error);
-    process.exit(1);
+    console.error("❌ Error generating Soroswap pairs:", error);
   }
+
+  // PHOENIX
+  try {
+    await getPhoenixPreStart();
+  } catch (error) {
+    console.error("❌ Error generating Phoenix pairs:", error);
+  }
+
+  // AQUA
+  try {
+    await getAquaPreStart();
+  } catch (error) {
+    console.error("❌ Error generating Aqua pairs:", error);
+  }
+
+  // COMET
+  try {
+    await getCometPreStart();
+  } catch (error) {
+    console.error("❌ Error generating Aqua pairs:", error);
+  }
+
+  process.exit(1);
 }
 
 main();

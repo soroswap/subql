@@ -3,6 +3,7 @@ import { toolkit } from "../toolkit";
 import { scValToNative, xdr } from "@stellar/stellar-sdk";
 import * as fs from "fs";
 import * as path from "path";
+import pLimit from "p-limit";
 
 const COMET_POOLS = getCometPools(process.env.NETWORK as NETWORK);
 
@@ -20,29 +21,31 @@ export async function getCometPreStart(): Promise<any> {
   }[] = [];
 
   const key = xdr.ScVal.scvVec([xdr.ScVal.scvSymbol("AllRecordData")]);
-  for (const pool of COMET_POOLS) {
-    const rawLedgerEntries = await toolkit.rpc.getContractData(pool, key);
+  const limit = pLimit(20); // Adjust concurrency level as needed
+  const tasks = COMET_POOLS.map((pool) =>
+    limit(async () => {
+      const rawLedgerEntries = await toolkit.rpc.getContractData(pool, key);
+      const ledgerEntries = scValToNative(rawLedgerEntries.val.value()["_attributes"].val);
 
-    const ledgerEntries = scValToNative(
-      rawLedgerEntries.val.value()["_attributes"].val
-    );
+      const keys = Object.keys(ledgerEntries);
+      if (keys.length < 2) {
+        throw new Error("Not enough ledger entries to parse.");
+      }
 
-    const keys = Object.keys(ledgerEntries);
-    if (keys.length < 2) {
-      throw new Error("Not enough ledger entries to parse.");
-    }
+      const entry_1 = ledgerEntries[keys[0]];
+      const entry_2 = ledgerEntries[keys[1]];
 
-    const entry_1 = ledgerEntries[keys[0]];
-    const entry_2 = ledgerEntries[keys[1]];
+      pools.push({
+        address: pool,
+        token_a: keys[0],
+        token_b: keys[1],
+        reserve_a: entry_1.balance,
+        reserve_b: entry_2.balance,
+      });
+    })
+  );
 
-    pools.push({
-      address: pool,
-      token_a: keys[0],
-      token_b: keys[1],
-      reserve_a: entry_1.balance,
-      reserve_b: entry_2.balance,
-    });
-  }
+  await Promise.all(tasks);
 
   // Generate file content
   const fileContent = `
