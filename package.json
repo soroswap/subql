@@ -30,6 +30,7 @@
     "@subql/common-stellar": "^4.3.0",
     "@subql/types-stellar": "4.3.0",
     "base32.js": "^0.1.0",
+    "p-limit": "^6.2.0",
     "soroban-toolkit": "^0.1.5"
   },
   "devDependencies": {
