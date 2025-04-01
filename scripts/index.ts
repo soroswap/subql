@@ -3,6 +3,8 @@ import { generatePairTokenReservesList } from "./soroswap/pairsTokensMaker";
 import { getLatestRouterLedger } from "./soroswap/latestLedger";
 import { getPhoenixPreStart } from "./phoenix/pairs";
 import { getAquaPreStart } from "./aqua/aquaPoolsTokensMaker";
+import { getCometPreStart } from "./comet/pairs";
+
 config();
 
 export const { SOROBAN_ENDPOINT, SECRET_KEY_HELPER, NETWORK } = process.env;
@@ -37,6 +39,13 @@ async function main() {
   // AQUA
   try {
     await getAquaPreStart();
+  } catch (error) {
+    console.error("❌ Error generating Aqua pairs:", error);
+  }
+
+  // COMET
+  try {
+    await getCometPreStart();
   } catch (error) {
     console.error("❌ Error generating Aqua pairs:", error);
   }

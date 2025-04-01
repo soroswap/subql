@@ -141,6 +141,16 @@ type phoenixPair @entity {
   stakeAddress: String
   totalFeeBps: Int
 }
+
+type cometPair @entity {
+  id: ID! # Contract address
+  ledger: Int!
+  date: Date!
+  tokenA: String! @index
+  tokenB: String! @index
+  reserveA: BigInt!
+  reserveB: BigInt!
+}
 ```
 
 ## 📡 Accessing the GraphQL API
@@ -182,8 +192,9 @@ query GetPairsAqua {
     }
   }
 }
-query {
+query GetPhoenixPairs {
   phoenixPairs (orderBy: DATE_DESC){
+    nodes {
     id
     tokenA
     tokenB
@@ -192,6 +203,21 @@ query {
     reserveLp
     stakeAddress
     totalFeeBps
+    }
+  }
+}
+
+query GetCometPairs {
+  cometPairs {
+    nodes {
+    id
+    ledger
+    date
+    tokenA
+    tokenB
+    reserveA
+    reserveB
+    }
   }
 }
 ```

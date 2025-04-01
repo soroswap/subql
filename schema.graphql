@@ -42,3 +42,13 @@ type AquaPair @entity {
   poolType: String!
   fee: BigInt!
 }
+
+type cometPair @entity {
+  id: ID! # Contract address
+  ledger: Int!
+  date: Date!
+  tokenA: String! @index
+  tokenB: String! @index
+  reserveA: BigInt!
+  reserveB: BigInt!
+}
