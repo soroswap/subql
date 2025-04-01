@@ -5,20 +5,19 @@ import { phoenixHandler } from "../phoenix";
 import { initializePhoenix } from "../phoenix/initialize";
 import { initializeAquaDb } from "../aqua/initialize";
 import { aquaEventHandler, aquaAddPoolHandler } from "../aqua";
+import { getFactoryTopic } from "../aqua/helpers/events";
+import { getAquaFactory, NETWORK } from "../constants";
 
+const factoryAqua = getAquaFactory("mainnet" as NETWORK);
 // SOROSWAP SYNC EVENTS
-export async function handleSoroswapEventSync(
-  event: SorobanEvent
-): Promise<void> {
+export async function handleSoroswapEventSync(event: SorobanEvent): Promise<void> {
   logger.info(`[SOROSWAP] 🔁 Sync event received`);
   await initializeSoroswap(event.contractId.toString());
   return await soroswapSyncHandler(event);
 }
 
 // SOROSWAP PAIR EVENTS
-export async function handleSoroswapEventNewPair(
-  event: SorobanEvent
-): Promise<void> {
+export async function handleSoroswapEventNewPair(event: SorobanEvent): Promise<void> {
   logger.info(`[SOROSWAP] 🔁 NewPair event received`);
   await initializeSoroswap(event.contractId.toString());
   return await soroswapNewPairHandler(event);
@@ -26,36 +25,29 @@ export async function handleSoroswapEventNewPair(
 
 // PHOENIX EVENTS
 export async function handlePhoenixEvent(event: SorobanEvent): Promise<void> {
-  logger.info(
-    `[PHOENIX] 🔁 ${String(
-      event.topic[0]?.value()
-    ).toUpperCase()} Event received`
-  );
+  logger.info(`[PHOENIX] 🔁 ${String(event.topic[0]?.value()).toUpperCase()} Event received`);
   await initializePhoenix(event.contractId.toString());
   return await phoenixHandler(event);
 }
 
-export async function handlePhoenixCreateLPEvent(
-  event: SorobanEvent
-): Promise<void> {
+export async function handlePhoenixCreateLPEvent(event: SorobanEvent): Promise<void> {
   logger.info(`[PHOENIX] 🔁 Create LP Event received`);
   // TODO: Create lp handler
 }
 
 // AQUA SWAP LIQUIDITY EVENTS
 export async function handleEventAqua(event: SorobanEvent): Promise<void> {
-  logger.info(
-    `[AQUA] 🔁 ${String(event.topic[0]?.value()).toUpperCase()} Event received`
-  );
-  await initializeAquaDb(event.contractId.toString());
+  logger.info(`[AQUA] 🔁 ${String(event.topic[0]?.value()).toUpperCase()} Event received`);
+  const factoryAddress = await getFactoryTopic(event);
+  if (String(event.topic[0]?.value()).toUpperCase() === "TRADE" && factoryAddress === factoryAqua) {
+    await initializeAquaDb(event.contractId.toString());
+  }
+
   return await aquaEventHandler(event);
 }
 
 // AQUA ADD POOL EVENTS
-export async function handleEventAddPoolAqua(
-  event: SorobanEvent
-): Promise<void> {
+export async function handleEventAddPoolAqua(event: SorobanEvent): Promise<void> {
   logger.info(`[AQUA] 🔄 add pool event received`);
-  await initializeAquaDb(event.contractId.toString());
   return await aquaAddPoolHandler(event);
 }

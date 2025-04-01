@@ -5,9 +5,16 @@ import * as path from "path";
 import { NETWORK, getSoroswapFactory } from "../../src/constants";
 import { retry, toolkit } from "../toolkit";
 
-const FACTORY_CONTRACT = getSoroswapFactory(
-  process.env.NETWORK as NETWORK
-).address;
+import { LimitFunction } from "p-limit";
+
+export async function getPLimit(): Promise<(concurrency: number) => LimitFunction> {
+  const module = (await eval("import('p-limit')")) as {
+    default: (concurrency: number) => LimitFunction;
+  };
+  return module.default;
+}
+
+const FACTORY_CONTRACT = getSoroswapFactory(process.env.NETWORK as NETWORK).address;
 
 async function getAllPairsLength(): Promise<number> {
   try {
@@ -41,37 +48,19 @@ async function getPairAddress(index: number): Promise<string> {
   }
 }
 
-async function getToken(
-  pairAddress: string,
-  method: "token_0" | "token_1"
-): Promise<string> {
+async function getToken(pairAddress: string, method: "token_0" | "token_1"): Promise<string> {
   try {
-    const result = await invokeCustomContract(
-      toolkit,
-      pairAddress,
-      method,
-      [],
-      true
-    );
+    const result = await invokeCustomContract(toolkit, pairAddress, method, [], true);
     return scValToNative(result.result.retval);
   } catch (error) {
-    console.error(
-      `❌ Error getting token (${method}) for pair ${pairAddress}:`,
-      error
-    );
+    console.error(`❌ Error getting token (${method}) for pair ${pairAddress}:`, error);
     throw error;
   }
 }
 
 async function getPairReserves(pairAddress: string): Promise<[bigint, bigint]> {
   try {
-    const result = await invokeCustomContract(
-      toolkit,
-      pairAddress,
-      "get_reserves",
-      [],
-      true
-    );
+    const result = await invokeCustomContract(toolkit, pairAddress, "get_reserves", [], true);
     const [reserve0, reserve1] = scValToNative(result.result.retval);
     return [BigInt(reserve0), BigInt(reserve1)];
   } catch (error) {
@@ -94,33 +83,37 @@ export async function generatePairTokenReservesList(): Promise<void> {
   try {
     console.log("🚀 Getting pairs information...");
 
-    for (let i = 0; i < totalPairs; i++) {
-      try {
-        console.log(`📊 Processing pair ${i + 1}/${totalPairs}`);
+    const pLimit = await getPLimit(); // Adjust concurrency limit as needed
+    const limit = pLimit(20); // Adjust concurrency limit as needed
+    const tasks = Array.from({ length: totalPairs }, (_, i) =>
+      limit(async () => {
+        try {
+          console.log(`📊 Processing pair ${i + 1}/${totalPairs}`);
 
-        const pairAddress = await retry(() => getPairAddress(i));
-        const token_a = await retry(() => getToken(pairAddress, "token_0"));
-        const token_b = await retry(() => getToken(pairAddress, "token_1"));
-        const [reserve_a, reserve_b] = await retry(() =>
-          getPairReserves(pairAddress)
-        );
+          const pairAddress = await retry(() => getPairAddress(i));
+          const token_a = await retry(() => getToken(pairAddress, "token_0"));
+          const token_b = await retry(() => getToken(pairAddress, "token_1"));
+          const [reserve_a, reserve_b] = await retry(() => getPairReserves(pairAddress));
 
-        pairTokenReserves.push({
-          address: pairAddress,
-          token_a,
-          token_b,
-          reserve_a: reserve_a.toString(),
-          reserve_b: reserve_b.toString(),
-        });
+          pairTokenReserves.push({
+            address: pairAddress,
+            token_a,
+            token_b,
+            reserve_a: reserve_a.toString(),
+            reserve_b: reserve_b.toString(),
+          });
 
-        console.log(`✅ Information obtained for pair: ${pairAddress}`);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      } catch (error) {
-        console.error(`❌ Error processing pair ${i}:`, error);
-        failedPairs.push(`Pair index ${i}`);
-        continue;
-      }
-    }
+          console.log(`✅ Information obtained for pair: ${pairAddress}`);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        } catch (error) {
+          console.error(`❌ Error processing pair ${i}:`, error);
+          failedPairs.push(`Pair index ${i}`);
+          return;
+        }
+      })
+    );
+
+    await Promise.all(tasks);
 
     // Generate file content
     const fileContent = `
@@ -144,10 +137,7 @@ export const pairTokenReservesList: PairTokenReserves[] = ${JSON.stringify(
     )};
 `;
     // Write file
-    const filePath = path.join(
-      __dirname,
-      "../../src/soroswap/pairReservesData.ts"
-    );
+    const filePath = path.join(__dirname, "../../src/soroswap/pairReservesData.ts");
     fs.writeFileSync(filePath, fileContent);
     console.log(`✅ pairReservesData.ts file generated successfully`);
   } catch (error) {

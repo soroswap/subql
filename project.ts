@@ -6,12 +6,7 @@ import {
 } from "@subql/types-stellar";
 import { Networks } from "@stellar/stellar-sdk";
 import { config } from "dotenv";
-import {
-  getPhoenixFactory,
-  getSoroswapFactory,
-  getAquaFactory,
-  NETWORK,
-} from "./src/constants";
+import { getPhoenixFactory, getSoroswapFactory, getAquaFactory, NETWORK } from "./src/constants";
 config();
 
 // Soroswap Handlers
@@ -128,9 +123,7 @@ const project: StellarProject = {
       'Public Global Stellar Network ; September 2015' for mainnet
       'Test SDF Future Network ; October 2022' for Future Network */
     chainId:
-      (process.env.NETWORK as NETWORK) === NETWORK.MAINNET
-        ? Networks.PUBLIC
-        : Networks.TESTNET,
+      (process.env.NETWORK as NETWORK) === NETWORK.MAINNET ? Networks.PUBLIC : Networks.TESTNET,
     /**
      * These endpoint(s) should be public non-pruned archive node
      * We recommend providing more than one endpoint for improved reliability, performance, and uptime
