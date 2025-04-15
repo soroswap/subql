@@ -62,6 +62,7 @@ npm run dev
 To deploy to OnFinality, you first need to get the Token from [OnFinality](https://indexing.onfinality.io/). Once you have the token, add it to your `.env` file under `SUBQL_ACCESS_TOKEN` and run:
 
 ```bash
+npm run build
 npm run subql-publish
 ```
 
@@ -82,6 +83,7 @@ The `project.ts` file configures the events to be indexed and how they will be p
 #### Protocol Event Handlers
 
 ##### Soroswap:
+
 - **Events**: `new_pair` and `sync`
 - **Purpose**: Track new pair creation and reserve updates
 - **References**:
@@ -89,6 +91,7 @@ The `project.ts` file configures the events to be indexed and how they will be p
   - [Sync Topics](https://github.com/soroswap/core/blob/fdc28f6b0d422263ba509b2ebbc573ac1b897aec/contracts/pair/src/event.rs#L103)
 
 ##### AQUA:
+
 - **Events**: `add_pool`, `trade`, `withdraw`, and `deposit`
 - **Purpose**: Monitor pool creation and liquidity changes
 - **References**:
@@ -96,6 +99,7 @@ The `project.ts` file configures the events to be indexed and how they will be p
   - [Topics](https://github.com/AquaToken/soroban-amm/blob/master/liquidity_pool_events/src/lib.rs)
 
 ##### COMET:
+
 - **Events**: `swap`, `deposit`, `withdraw`, `exit_pool`, `join_pool`, and `new_pool`
 - **Purpose**: Track pool activities and reserve changes
 - **References**:
@@ -157,10 +161,10 @@ Retrieve the latest indexed pairs:
 
 ```graphql
 query GetPairsSoroswap {
-  soroswapPairs (orderBy: DATE_DESC) {
+  soroswapPairs(orderBy: DATE_DESC) {
     totalCount
     nodes {
-			id
+      id
       tokenA
       tokenB
       reserveA
@@ -169,7 +173,7 @@ query GetPairsSoroswap {
   }
 }
 query GetPairsAqua {
-  aquaPairs (orderBy: DATE_DESC){
+  aquaPairs(orderBy: DATE_DESC) {
     totalCount
     nodes {
       id
@@ -178,12 +182,12 @@ query GetPairsAqua {
       fee
       reserveA
       reserveB
-      poolType      
+      poolType
     }
   }
 }
 query {
-  phoenixPairs (orderBy: DATE_DESC){
+  phoenixPairs(orderBy: DATE_DESC) {
     id
     tokenA
     tokenB
