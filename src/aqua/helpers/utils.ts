@@ -36,8 +36,10 @@ export function getTransactionData(
   // Found the values of ReserveA, ReserveB and FeeFraction in the contract
   let tokenA: string | undefined;
   let tokenB: string | undefined;
+  let tokenC: string | undefined;
   let reserveA: bigint | undefined;
   let reserveB: bigint | undefined;
+  let reserveC: bigint | undefined;
   let fee: bigint | undefined;
   let reserves: any | undefined;
   // Search in the filtered operations
@@ -116,6 +118,10 @@ export function getTransactionData(
                 logger.debug(
                   `[AQUA] 🔍 Found Reserves: ${reserveA.toString()}, ${reserveB.toString()}`
                 );
+                reserveC = BigInt(itemValue.vec()[2].u128().lo().toString());
+                if (reserveC !== undefined) {
+                  reserveC = BigInt(itemValue.vec()[2].u128().lo().toString());
+                }
               } else if (
                 symbolName === "FeeFraction" &&
                 itemValue?.switch?.().name === "scvU32"
@@ -139,6 +145,16 @@ export function getTransactionData(
                     ).data
                   ).toString("hex")
                 );
+                tokenC = itemValue.vec()[2];
+                if (tokenC !== undefined) {
+                  tokenC = hexToSorobanAddress(
+                    Buffer.from(
+                      JSON.parse(
+                        JSON.stringify(itemValue.vec()[2].value().value())
+                      ).data
+                    ).toString("hex")
+                  );
+                }
 
                 logger.debug(
                   `[AQUA] 🔍 Found Tokens: ${JSON.stringify(
