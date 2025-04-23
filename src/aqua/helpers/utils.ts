@@ -8,9 +8,18 @@ export function getTransactionData(
 ): {
   tokenA?: string;
   tokenB?: string;
+  tokenC?: string;
   reserveA?: bigint;
   reserveB?: bigint;
+  reserveC?: bigint;
   fee?: bigint;
+  futureA?: bigint;
+  futureATime?: bigint;
+  initialA?: bigint;
+  initialATime?: bigint;
+  precisionMulA?: bigint;
+  precisionMulB?: bigint;
+  precisionMulC?: bigint;
 } {
   const resultMetaXdrString = event.transaction.result_meta_xdr;
 
@@ -18,7 +27,6 @@ export function getTransactionData(
 
   const txOperations = txMeta.v3().operations()[0].changes();
 
-  // Buscar las operaciones que actualizan el contrato específico
   const filteredOperations = txOperations.filter((operation) => {
     const switchName = operation?.["_switch"]?.name;
     const contractBuffer = operation?.value()?.data()?.["_value"]?._attributes
@@ -42,6 +50,14 @@ export function getTransactionData(
   let reserveC: bigint | undefined;
   let fee: bigint | undefined;
   let reserves: any | undefined;
+  let futureA: bigint | undefined;
+  let futureATime: bigint | undefined;
+  let initialA: bigint | undefined;
+  let initialATime: bigint | undefined;
+  let precisionMulA: bigint | undefined;
+  let precisionMulB: bigint | undefined;
+  let precisionMulC: bigint | undefined;
+  
   // Search in the filtered operations
   for (const operation of filteredOperations) {
     // Verify if it is an update of the contract instance
@@ -118,9 +134,9 @@ export function getTransactionData(
                 logger.debug(
                   `[AQUA] 🔍 Found Reserves: ${reserveA.toString()}, ${reserveB.toString()}`
                 );
-                reserveC = BigInt(itemValue.vec()[2].u128().lo().toString());
-                if (reserveC !== undefined) {
+                if (itemValue.vec().length > 2) {
                   reserveC = BigInt(itemValue.vec()[2].u128().lo().toString());
+                  logger.debug(`[AQUA] 🔍 Found ReserveC: ${reserveC.toString()}`);
                 }
               } else if (
                 symbolName === "FeeFraction" &&
@@ -145,8 +161,8 @@ export function getTransactionData(
                     ).data
                   ).toString("hex")
                 );
-                tokenC = itemValue.vec()[2];
-                if (tokenC !== undefined) {
+                
+                if (itemValue.vec().length > 2) {
                   tokenC = hexToSorobanAddress(
                     Buffer.from(
                       JSON.parse(
@@ -154,6 +170,7 @@ export function getTransactionData(
                       ).data
                     ).toString("hex")
                   );
+                  logger.debug(`[AQUA] 🔍 Found TokenC: ${JSON.stringify(tokenC)}`);
                 }
 
                 logger.debug(
@@ -161,6 +178,25 @@ export function getTransactionData(
                     tokenA
                   )}, ${JSON.stringify(tokenB)}`
                 );
+              } else if (symbolName === "FutureA" && itemValue?.switch?.().name === "scvU128") {
+                futureA = BigInt(itemValue.u128().lo().toString());
+                logger.debug(`[AQUA] 🔍 Found FutureA: ${futureA.toString()}`);
+              } else if (symbolName === "FutureATime" && itemValue?.switch?.().name === "scvU64") {
+                futureATime = BigInt(itemValue.u64().toString());
+                logger.debug(`[AQUA] 🔍 Found FutureATime: ${futureATime.toString()}`);
+              } else if (symbolName === "InitialA" && itemValue?.switch?.().name === "scvU128") {
+                initialA = BigInt(itemValue.u128().lo().toString());
+                logger.debug(`[AQUA] 🔍 Found InitialA: ${initialA.toString()}`);
+              } else if (symbolName === "InitialATime" && itemValue?.switch?.().name === "scvU64") {
+                initialATime = BigInt(itemValue.u64().toString());
+                logger.debug(`[AQUA] 🔍 Found InitialATime: ${initialATime.toString()}`);
+              } else if (symbolName === "PrecisionMul" && itemValue?.switch?.().name === "scvVec") {
+                const vecLength = itemValue.vec().length;
+                if (vecLength > 0) precisionMulA = BigInt(itemValue.vec()[0].u128().lo().toString());
+                if (vecLength > 1) precisionMulB = BigInt(itemValue.vec()[1].u128().lo().toString());
+                if (vecLength > 2) precisionMulC = BigInt(itemValue.vec()[2].u128().lo().toString());
+                
+                logger.debug(`[AQUA] 🔍 Found PrecisionMul: A=${precisionMulA}, B=${precisionMulB}, C=${precisionMulC}`);
               }
             }
           }
@@ -203,12 +239,30 @@ export function getTransactionData(
     }`
   );
 
+  if (tokenC || reserveC || futureA || futureATime || initialA || initialATime || 
+      precisionMulA || precisionMulB || precisionMulC) {
+    logger.debug(
+      `[AQUA] 🟢 StablePool params found - TokenC: ${tokenC ? "yes" : "no"}, ReserveC: ${
+        reserveC?.toString() || "not found"
+      }`
+    );
+  }
+
   return {
     tokenA,
     tokenB,
+    tokenC,
     reserveA,
     reserveB,
+    reserveC,
     fee,
+    futureA,
+    futureATime,
+    initialA,
+    initialATime,
+    precisionMulA,
+    precisionMulB,
+    precisionMulC,
   };
 }
 

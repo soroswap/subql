@@ -5,12 +5,14 @@ export function extractAddPoolAquaValues(event: any): {
   address: string;
   tokenA: string;
   tokenB: string;
+  tokenC?: string;
   poolType: string;
 } {
   let result = {
     address: "",
     tokenA: "",
     tokenB: "",
+    tokenC: "",
     poolType: "",
   };
 
@@ -31,6 +33,7 @@ export function extractAddPoolAquaValues(event: any): {
       );
       logger.debug(`→ User address: ${result.address}`);
     }
+    
     // pool type
     const poolType = values[1]?._value?.data;
     if (poolType) {
@@ -40,23 +43,38 @@ export function extractAddPoolAquaValues(event: any): {
 
     // Tokens del topic[1]
     const topicTokens = event?.topic?.[1]?._value;
-    if (Array.isArray(topicTokens) && topicTokens.length >= 2) {
+    if (Array.isArray(topicTokens)) {
       // Token A
-      const tokenABuffer = topicTokens[0]?._value?._value?.data;
-      if (tokenABuffer) {
-        result.tokenA = hexToSorobanAddress(
-          Buffer.from(tokenABuffer).toString("hex")
-        );
-        logger.debug(`→ Token A: ${result.tokenA}`);
+      if (topicTokens.length >= 1) {
+        const tokenABuffer = topicTokens[0]?._value?._value?.data;
+        if (tokenABuffer) {
+          result.tokenA = hexToSorobanAddress(
+            Buffer.from(tokenABuffer).toString("hex")
+          );
+          logger.debug(`→ Token A: ${result.tokenA}`);
+        }
       }
 
       // Token B
-      const tokenBBuffer = topicTokens[1]?._value?._value?.data;
-      if (tokenBBuffer) {
-        result.tokenB = hexToSorobanAddress(
-          Buffer.from(tokenBBuffer).toString("hex")
-        );
-        logger.debug(`→ Token B: ${result.tokenB}`);
+      if (topicTokens.length >= 2) {
+        const tokenBBuffer = topicTokens[1]?._value?._value?.data;
+        if (tokenBBuffer) {
+          result.tokenB = hexToSorobanAddress(
+            Buffer.from(tokenBBuffer).toString("hex")
+          );
+          logger.debug(`→ Token B: ${result.tokenB}`);
+        }
+      }
+      
+      // Token C (solo para pools estables)
+      if (topicTokens.length >= 3 && result.poolType === "stable") {
+        const tokenCBuffer = topicTokens[2]?._value?._value?.data;
+        if (tokenCBuffer) {
+          result.tokenC = hexToSorobanAddress(
+            Buffer.from(tokenCBuffer).toString("hex")
+          );
+          logger.debug(`→ Token C: ${result.tokenC}`);
+        }
       }
     }
 
@@ -66,8 +84,7 @@ export function extractAddPoolAquaValues(event: any): {
 
     return result;
   } catch (error) {
-    logger.error(`[AQUA] ❌ Error extracting Aqua AddPool values: ${error}`);
-    logger.error("[AQUA] Event data was:", JSON.stringify(event, null, 2));
+    logger.error(`[AQUA] ❌ Error extracting AddPool values: ${error}`);
     throw error;
   }
 }

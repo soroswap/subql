@@ -37,6 +37,38 @@ export async function initializeAquaDb(contractId: string): Promise<void> {
               aquaPair.reserveB = BigInt(pool.reserveB);
             }
 
+            if (pool.reserveC) {
+              aquaPair.reserveC = BigInt(pool.reserveC);
+            }
+
+            if (pool.futureA) {
+              aquaPair.futureA = BigInt(pool.futureA);
+            }
+
+            if (pool.futureATime) {
+              aquaPair.futureATime = BigInt(pool.futureATime);
+            }
+
+            if (pool.initialA) {
+              aquaPair.initialA = BigInt(pool.initialA);
+            }
+
+            if (pool.initialATime) {
+              aquaPair.initialATime = BigInt(pool.initialATime);
+            }
+
+            if (pool.precisionMulA) {
+              aquaPair.precisionMulA = BigInt(pool.precisionMulA);
+            }
+
+            if (pool.precisionMulB) {
+              aquaPair.precisionMulB = BigInt(pool.precisionMulB);
+            }
+
+            if (pool.precisionMulC) {
+              aquaPair.precisionMulC = BigInt(pool.precisionMulC);
+            }
+
             await aquaPair.save();
             logger.info(`[AQUA] 🔄 Updated pool: ${pool.address}`);
           } else {
@@ -47,10 +79,20 @@ export async function initializeAquaDb(contractId: string): Promise<void> {
               date: new Date(aquaPoolsGeneratedDate),
               tokenA: pool.tokenA,
               tokenB: pool.tokenB,
-              reserveA: pool.reserveA ? BigInt(pool.reserveA) : BigInt(0), // Use value from file or 0
-              reserveB: pool.reserveB ? BigInt(pool.reserveB) : BigInt(0), // Use value from file or 0
-              poolType: pool.poolType || "", // Use value from file or empty string
-              fee: pool.fee ? BigInt(pool.fee) : BigInt(0), // Use value from file or 0
+              tokenC: pool.tokenC || "", // Default value for non-stable pools
+              reserveA: pool.reserveA ? BigInt(pool.reserveA) : BigInt(0),
+              reserveB: pool.reserveB ? BigInt(pool.reserveB) : BigInt(0),
+              reserveC: pool.reserveC ? BigInt(pool.reserveC) : BigInt(0), // Default value
+              poolType: pool.poolType || "",
+              fee: pool.fee ? BigInt(pool.fee) : BigInt(0),
+              // Fields for stable pools
+              futureA: pool.futureA ? BigInt(pool.futureA) : BigInt(0),
+              futureATime: pool.futureATime ? BigInt(pool.futureATime) : BigInt(0),
+              initialA: pool.initialA ? BigInt(pool.initialA) : BigInt(0),
+              initialATime: pool.initialATime ? BigInt(pool.initialATime) : BigInt(0),
+              precisionMulA: pool.precisionMulA ? BigInt(pool.precisionMulA) : BigInt(1),
+              precisionMulB: pool.precisionMulB ? BigInt(pool.precisionMulB) : BigInt(1),
+              precisionMulC: pool.precisionMulC ? BigInt(pool.precisionMulC) : BigInt(1)
             });
 
             await aquaPair.save();

@@ -14,11 +14,20 @@ console.log("FACTORY_CONTRACT_AQUA", FACTORY_CONTRACT_AQUA);
 interface AquaPool {
   tokenA: string;
   tokenB: string;
+  tokenC?: string;
   address: string;
   reserveA?: string;
   reserveB?: string;
+  reserveC?: string;
   poolType?: string;
   fee?: string;
+  futureA?: string;
+  futureATime?: string;
+  initialA?: string;
+  initialATime?: string;
+  precisionMulA?: string;
+  precisionMulB?: string;
+  precisionMulC?: string;
 }
 
 // Funciones para interactuar con el contrato
@@ -113,7 +122,7 @@ async function getPoolFee(contract: string): Promise<string> {
 async function getPoolReserves(
   poolAddress: string,
   poolType?: string
-): Promise<{ reserveA?: string; reserveB?: string }> {
+): Promise<{ reserveA?: string; reserveB?: string; reserveC?: string }> {
   try {
     const server = new rpc.Server(process.env.SOROBAN_ENDPOINT as string, {
       allowHttp: true,
@@ -146,11 +155,18 @@ async function getPoolReserves(
           contractValues["Reserves"] || contractValues["reserves"] || contractValues["RESERVES"];
 
         if (Array.isArray(reserves) && reserves.length >= 2) {
-          console.log(`ℹ️ Pool stable encontrado con reservas: [${reserves[0]}, ${reserves[1]}]`);
-          return {
+          console.log(`ℹ️ stable pool found with reserves: [${reserves.join(", ")}]`);
+          const result: { reserveA?: string; reserveB?: string; reserveC?: string } = {
             reserveA: reserves[0]?.toString(),
             reserveB: reserves[1]?.toString(),
           };
+          
+          if (reserves.length >= 3 && reserves[2] !== undefined) {
+            result.reserveC = reserves[2].toString();
+            console.log(`ℹ️ pool with three reserves: ${result.reserveC} found`);
+          }
+          
+          return result;
         } else {
           console.log(`⚠️ Pool stable sin array de reservas válido: ${poolAddress}`);
         }
@@ -169,10 +185,18 @@ async function getPoolReserves(
           contractValues["reserveB"]?.toString() ||
           contractValues["reserve1"]?.toString() ||
           contractValues["Reserve1"]?.toString();
+          
+        const reserveC =
+          contractValues["ReserveC"]?.toString() ||
+          contractValues["reserve_c"]?.toString() ||
+          contractValues["reserveC"]?.toString() ||
+          contractValues["reserve2"]?.toString() ||
+          contractValues["Reserve2"]?.toString();
 
         return {
           reserveA,
           reserveB,
+          reserveC,
         };
       }
     }
@@ -183,6 +207,93 @@ async function getPoolReserves(
     return {};
   }
 }
+
+async function getStablePoolData(
+  poolAddress: string
+): Promise<{
+  futureA?: string;
+  futureATime?: string;
+  initialA?: string;
+  initialATime?: string;
+  precisionMulA?: string;
+  precisionMulB?: string;
+  precisionMulC?: string;
+}> {
+  let precisionMulA: string | undefined;
+  let precisionMulB: string | undefined;
+  let precisionMulC: string | undefined;
+  let futureA: string | undefined;
+  let futureATime: string | undefined;
+  let initialA: string | undefined;
+  let initialATime: string | undefined;
+  try {
+    const server = new rpc.Server(process.env.SOROBAN_ENDPOINT as string, {
+      allowHttp: true,
+    });
+
+    // Para datos de tipo instancia, usamos scvLedgerKeyContractInstance
+    const instanceKey = xdr.ScVal.scvLedgerKeyContractInstance();
+
+    // Obtener todos los datos de la instancia
+    const response = await server.getContractData(poolAddress, instanceKey);
+
+    if (response) {
+      // Decodificar datos de la instancia
+      const storage = response.val.contractData().val().instance().storage();
+
+      // Crear un objeto para almacenar todos los valores
+      const contractValues: { [key: string]: any } = {};
+
+      // Iterar a través del almacenamiento para obtener todos los valores
+      storage?.forEach((entry) => {
+        const key = scValToNative(entry.key());
+        const value = scValToNative(entry.val());
+        contractValues[key] = value;
+      });
+        const precisionMul =
+          contractValues["PrecisionMul"];
+
+        if (Array.isArray(precisionMul) && precisionMul.length >= 2) {
+          console.log(`PrecisionMul: [${precisionMul[0]}, ${precisionMul[1]}]`);
+          precisionMulA = precisionMul[0]?.toString();
+          precisionMulB = precisionMul[1]?.toString();
+          if (Array.isArray(precisionMul) && precisionMul.length === 3) { 
+            precisionMulC = precisionMul[2]?.toString();
+          } else {
+            precisionMulC = undefined;
+          }
+          
+        } else {
+          console.log(`⚠️ Stable pool without precisionMul: ${poolAddress}`);
+        }
+        futureA = contractValues["FutureA"]?.toString();
+        futureATime = contractValues["FutureATime"]?.toString();
+        initialA = contractValues["InitialA"]?.toString();
+        initialATime = contractValues["InitialATime"]?.toString();
+      return {
+        futureA,
+        futureATime,
+        initialA,
+        initialATime,
+        precisionMulA,
+        precisionMulB,
+        precisionMulC,
+      };
+      };
+      } catch (error) {
+        console.error(`❌ Error getting stable pool data for ${poolAddress}:`, error); 
+      }
+      return {
+        futureA: undefined,
+        futureATime: undefined,
+        initialA: undefined,
+        initialATime: undefined,
+        precisionMulA: undefined,
+        precisionMulB: undefined,
+        precisionMulC: undefined,
+      };
+    }
+
 
 // Función principal simplificada
 export async function getAquaPreStart(): Promise<void> {
@@ -241,6 +352,11 @@ export async function getAquaPreStart(): Promise<void> {
               tokenB: tokens[1],
               address: poolAddress,
             };
+            
+            if (tokens.length >= 3) {
+              poolData.tokenC = tokens[2];
+              console.log(`ℹ️ pool with third token: ${tokens[2]}`);
+            }
 
             const poolType = await getPoolType(poolAddress);
             if (poolType) {
@@ -257,9 +373,23 @@ export async function getAquaPreStart(): Promise<void> {
             const reserves = await getPoolReserves(poolAddress, poolType);
             if (reserves.reserveA) poolData.reserveA = reserves.reserveA;
             if (reserves.reserveB) poolData.reserveB = reserves.reserveB;
+            if (reserves.reserveC) poolData.reserveC = reserves.reserveC;
+
+            if (poolType === "stable") {
+              const stablePoolData = await getStablePoolData(poolAddress);
+              poolData.futureA = stablePoolData.futureA;
+              poolData.futureATime = stablePoolData.futureATime;
+              poolData.initialA = stablePoolData.initialA;
+              poolData.initialATime = stablePoolData.initialATime;
+              poolData.precisionMulA = stablePoolData.precisionMulA;
+              poolData.precisionMulB = stablePoolData.precisionMulB;
+              poolData.precisionMulC = stablePoolData.precisionMulC;
+              
+              console.log(`🔄 Stable pool data obtained for ${poolAddress}`);
+            }
 
             aquaPools.push(poolData);
-            console.log(`✅ Pool añadido: ${poolAddress} (${tokens[0]} - ${tokens[1]})`);
+            console.log(`✅ Pool added: ${poolAddress} (${tokens[0]} - ${tokens[1]})`);
           }
 
           await new Promise((resolve) => setTimeout(resolve, 200));
@@ -282,11 +412,20 @@ export async function getAquaPreStart(): Promise<void> {
 export interface AquaPool {
     tokenA: string;
     tokenB: string;
+    tokenC?: string;
     address: string;
     reserveA?: string;
     reserveB?: string;
+    reserveC?: string;
     poolType?: string;
     fee?: string;
+    futureA?: string;
+    futureATime?: string;
+    initialA?: string;
+    initialATime?: string;
+    precisionMulA?: string;
+    precisionMulB?: string;
+    precisionMulC?: string;
 }
 export const aquaPoolsGeneratedDate = "${new Date().toISOString()}";
 export const aquaPoolsList: AquaPool[] = ${JSON.stringify(aquaPools, null, 2)};
@@ -323,8 +462,12 @@ export const aquaPoolsList: AquaPool[] = ${JSON.stringify(aquaPools, null, 2)};
     const poolsWithZeroReserves = aquaPools.filter(
       (pool) => pool.reserveA === "0" && pool.reserveB === "0"
     ).length;
+    const stablePools = aquaPools.filter((pool) => pool.poolType === "stable").length;
+    const stablePoolsWithData = aquaPools.filter((pool) => pool.poolType === "stable" && pool.futureA).length;
+    const poolsWithThreeTokens = aquaPools.filter((pool) => pool.tokenC).length;
+    const poolsWithThreeReserves = aquaPools.filter((pool) => pool.reserveC).length;
 
-    console.log(`\n📊 Estadísticas de pools:`);
+    console.log(`\n📊 Estadísticas de pools`);
     console.log(
       `✅ Pools con reservas: ${poolsWithReserves} (${(
         (poolsWithReserves / aquaPools.length) *
@@ -350,6 +493,18 @@ export const aquaPoolsList: AquaPool[] = ${JSON.stringify(aquaPools, null, 2)};
         (poolsWithZeroReserves / aquaPools.length) *
         100
       ).toFixed(2)}%)`
+    );
+    console.log(
+      `🔄 stable pools: ${stablePools} (${((stablePools / aquaPools.length) * 100).toFixed(2)}%)`
+    );
+    console.log(
+      `🔄 stable pools with data: ${stablePoolsWithData} (${((stablePoolsWithData / stablePools || 1) * 100).toFixed(2)}%)`
+    );
+    console.log(
+      `🔄 Pools con tres tokens: ${poolsWithThreeTokens} (${((poolsWithThreeTokens / aquaPools.length) * 100).toFixed(2)}%)`
+    );
+    console.log(
+      `🔄 Pools con tres reservas: ${poolsWithThreeReserves} (${((poolsWithThreeReserves / aquaPools.length) * 100).toFixed(2)}%)`
     );
   } catch (error) {
     console.error("❌ Error general:", error);

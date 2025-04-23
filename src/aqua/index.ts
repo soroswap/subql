@@ -33,7 +33,53 @@ export async function aquaEventHandler(event: SorobanEvent): Promise<void> {
     existingPool.reserveB = eventData.reserveB;
     existingPool.date = currentDate;
     existingPool.ledger = event.ledger.sequence;
-    existingPool.fee = eventData.fee;
+    
+    // Actualizar fee solo si existe
+    if (eventData.fee !== undefined) {
+      existingPool.fee = eventData.fee;
+    }
+    
+    // Actualizar campos para pools estables si existen
+    if (existingPool.poolType === "stable") {
+      // Actualizar reserveC si existe
+      if (eventData.reserveC !== undefined) {
+        existingPool.reserveC = eventData.reserveC;
+      }
+      
+      // Actualizar campos de A
+      if (eventData.futureA !== undefined) {
+        existingPool.futureA = eventData.futureA;
+      }
+      if (eventData.futureATime !== undefined) {
+        existingPool.futureATime = eventData.futureATime;
+      }
+      if (eventData.initialA !== undefined) {
+        existingPool.initialA = eventData.initialA;
+      }
+      if (eventData.initialATime !== undefined) {
+        existingPool.initialATime = eventData.initialATime;
+      }
+      
+      // Actualizar precisiones si existen
+      if (eventData.precisionMulA !== undefined) {
+        existingPool.precisionMulA = eventData.precisionMulA;
+      }
+      if (eventData.precisionMulB !== undefined) {
+        existingPool.precisionMulB = eventData.precisionMulB;
+      }
+      if (eventData.precisionMulC !== undefined) {
+        existingPool.precisionMulC = eventData.precisionMulC;
+      }
+      
+
+      
+      // Actualizar tokenC si existe
+      if (eventData.tokenC !== undefined) {
+        existingPool.tokenC = eventData.tokenC;
+      }
+
+      logger.info(`[AQUA] ✨ Updated stable pool parameters for ${eventData.address}`);
+    }
 
     await existingPool.save();
     logger.info(`[AQUA] ✨ Updated reserves for pool ${eventData.address}`);
@@ -62,22 +108,37 @@ export async function aquaAddPoolHandler(event: SorobanEvent): Promise<void> {
       return;
     }
 
-    // Create or update record
-    const aquaPair = AquaPair.create({
+    // Determinar si es un pool estable o constant_product
+    const isStablePool = eventData.poolType === "stable";
+    
+    // Crear valores por defecto para nuevo pool
+    const poolDefaults = {
       id: eventData.address,
       ledger: event.ledger.sequence,
       date: currentDate,
       tokenA: eventData.tokenA,
       tokenB: eventData.tokenB,
-      reserveA: BigInt(0), // Initialized in 0
-      reserveB: BigInt(0), // Initialized in 0
+      tokenC: eventData.tokenC || "", // Campo para pools estables
+      reserveA: BigInt(0),
+      reserveB: BigInt(0),
+      reserveC: BigInt(0), // Campo para pools estables
       poolType: eventData.poolType,
       fee: BigInt(0),
-    });
+      futureA: BigInt(0), // Campo para pools estables
+      futureATime: BigInt(0), // Campo para pools estables
+      initialA: BigInt(0), // Campo para pools estables
+      initialATime: BigInt(0), // Campo para pools estables
+      precisionMulA: BigInt(0), // Campo para pools estables
+      precisionMulB: BigInt(0), // Campo para pools estables
+      precisionMulC: BigInt(0), // Campo para pools estables
+    };
+
+    // Create record
+    const aquaPair = AquaPair.create(poolDefaults);
 
     await aquaPair.save();
     logger.info(
-      `[AQUA] ✅ Pool event created/updated for address: ${eventData.address}`
+      `[AQUA] ✅ Pool event created/updated for address: ${eventData.address} (type: ${eventData.poolType})`
     );
   } catch (error) {
     logger.error(`[AQUA] ❌ Error processing Aqua Pool event: ${error}`);

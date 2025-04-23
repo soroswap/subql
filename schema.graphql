@@ -37,8 +37,17 @@ type AquaPair @entity {
   date: Date! @index
   tokenA: String! @index
   tokenB: String! @index
+  tokenC: String!
   reserveA: BigInt!
   reserveB: BigInt!
+  reserveC: BigInt!
   poolType: String!
   fee: BigInt!
+  futureA: BigInt!
+  futureATime: BigInt!
+  initialA: BigInt!
+  initialATime: BigInt!
+  precisionMulA: BigInt!
+  precisionMulB: BigInt!
+  precisionMulC: BigInt!
 }
