@@ -33,7 +33,6 @@ export async function aquaEventHandler(event: SorobanEvent): Promise<void> {
     existingPool.reserveB = eventData.reserveB;
     existingPool.date = currentDate;
     existingPool.ledger = event.ledger.sequence;
-    
     // Actualizar fee solo si existe
     if (eventData.fee !== undefined) {
       existingPool.fee = eventData.fee;
@@ -114,6 +113,7 @@ export async function aquaAddPoolHandler(event: SorobanEvent): Promise<void> {
     // Crear valores por defecto para nuevo pool
     const poolDefaults = {
       id: eventData.address,
+      idx: eventData.idx,
       ledger: event.ledger.sequence,
       date: currentDate,
       tokenA: eventData.tokenA,

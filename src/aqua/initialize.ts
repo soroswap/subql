@@ -69,6 +69,10 @@ export async function initializeAquaDb(contractId: string): Promise<void> {
               aquaPair.precisionMulC = BigInt(pool.precisionMulC);
             }
 
+            if (pool.idx) {
+              aquaPair.idx = pool.idx;
+            }
+
             await aquaPair.save();
             logger.info(`[AQUA] 🔄 Updated pool: ${pool.address}`);
           } else {
@@ -77,6 +81,7 @@ export async function initializeAquaDb(contractId: string): Promise<void> {
               id: pool.address,
               ledger: 0, // Will be updated with real events
               date: new Date(aquaPoolsGeneratedDate),
+              idx: pool.idx,
               tokenA: pool.tokenA,
               tokenB: pool.tokenB,
               tokenC: pool.tokenC || "", // Default value for non-stable pools

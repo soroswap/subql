@@ -16,6 +16,7 @@ interface AquaPool {
   tokenB: string;
   tokenC?: string;
   address: string;
+  idx?: string;
   reserveA?: string;
   reserveB?: string;
   reserveC?: string;
@@ -66,7 +67,7 @@ async function getTokens(index: number): Promise<string[]> {
   }
 }
 
-async function getPools(tokens: string[]): Promise<{ [key: string]: string }> {
+async function getPools(tokens: string[]): Promise<{ [key: string]: { idx: string, address: string } }> {
   try {
     const tokenScVals = tokens.map((token) => nativeToScVal(token, { type: "address" }));
 
@@ -78,7 +79,46 @@ async function getPools(tokens: string[]): Promise<{ [key: string]: string }> {
       true,
       Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
     );
-    return scValToNative(result.result.retval) as { [key: string]: string };
+    
+    // Obtener el resultado en formato ScVal (sin convertir a nativo)
+    const scValMap = result.result.retval;
+    
+    // Verificar si el resultado es un mapa
+    if (scValMap.switch() !== xdr.ScValType.scvMap()) {
+      throw new Error("El resultado no es un mapa");
+    }
+    
+    const map = scValMap.map();
+    const processedResult: { [key: string]: { idx: string, address: string } } = {};
+    
+    // Iterar a través de las entradas del mapa
+    if (map) {
+      for (let i = 0; i < map.length; i++) {
+        const entry = map[i];
+        const keyScVal = entry.key();
+        const valueScVal = entry.val();
+        
+        // Si la clave es un BytesN/Binary, convertirla directamente a base64
+        let idxBase64 = "";
+        if (keyScVal.switch() === xdr.ScValType.scvBytes()) {
+          const bytes = keyScVal.bytes();
+          // Convertir los bytes directamente a base64
+          idxBase64 = Buffer.from(bytes).toString('base64');
+          console.log(`BytesN<32> original a Base64: ${idxBase64}`);
+        }
+        
+        // Convertir el valor (address) a string
+        const address = scValToNative(valueScVal);
+        
+        // Usar la clave original como índice en el objeto resultado
+        processedResult[idxBase64] = {
+          idx: idxBase64,
+          address: address as string
+        };
+      }
+    }
+    
+    return processedResult;
   } catch (error) {
     console.error("❌ Error obteniendo pools para tokens:", tokens, error);
     throw error;
@@ -128,29 +168,22 @@ async function getPoolReserves(
       allowHttp: true,
     });
 
-    // Para datos de tipo instancia, usamos scvLedgerKeyContractInstance
     const instanceKey = xdr.ScVal.scvLedgerKeyContractInstance();
 
-    // Obtener todos los datos de la instancia
     const response = await server.getContractData(poolAddress, instanceKey);
 
     if (response) {
-      // Decodificar datos de la instancia
       const storage = response.val.contractData().val().instance().storage();
 
-      // Crear un objeto para almacenar todos los valores
       const contractValues: { [key: string]: any } = {};
 
-      // Iterar a través del almacenamiento para obtener todos los valores
       storage?.forEach((entry) => {
         const key = scValToNative(entry.key());
         const value = scValToNative(entry.val());
         contractValues[key] = value;
       });
 
-      // Verificar si es un pool de tipo stable
       if (poolType === "stable") {
-        // Para pools stable, buscar el array de Reserves
         const reserves =
           contractValues["Reserves"] || contractValues["reserves"] || contractValues["RESERVES"];
 
@@ -171,7 +204,6 @@ async function getPoolReserves(
           console.log(`⚠️ Pool stable sin array de reservas válido: ${poolAddress}`);
         }
       } else {
-        // Para pools constant_product, buscar nombres individuales
         const reserveA =
           contractValues["ReserveA"]?.toString() ||
           contractValues["reserve_a"]?.toString() ||
@@ -338,7 +370,9 @@ export async function getAquaPreStart(): Promise<void> {
           );
 
           for (const key in pools) {
-            const poolAddress = pools[key];
+            const poolInfo = pools[key];
+            const poolAddress = poolInfo.address;
+            const poolIdx = poolInfo.idx;
 
             if (poolAddressSet.has(poolAddress)) {
               console.log(`⏭️ Pool ${poolAddress} ya procesado, saltando...`);
@@ -351,6 +385,7 @@ export async function getAquaPreStart(): Promise<void> {
               tokenA: tokens[0],
               tokenB: tokens[1],
               address: poolAddress,
+              idx: poolIdx
             };
             
             if (tokens.length >= 3) {
@@ -369,6 +404,7 @@ export async function getAquaPreStart(): Promise<void> {
               poolData.fee = fee.toString();
               console.log(`💰 Fee del pool ${poolAddress}: ${fee}`);
             }
+
 
             const reserves = await getPoolReserves(poolAddress, poolType);
             if (reserves.reserveA) poolData.reserveA = reserves.reserveA;
@@ -414,6 +450,7 @@ export interface AquaPool {
     tokenB: string;
     tokenC?: string;
     address: string;
+    idx?: string;
     reserveA?: string;
     reserveB?: string;
     reserveC?: string;
@@ -459,6 +496,7 @@ export const aquaPoolsList: AquaPool[] = ${JSON.stringify(aquaPools, null, 2)};
     const poolsWithoutReserves = aquaPools.length - poolsWithReserves;
     const poolsWithType = aquaPools.filter((pool) => pool.poolType).length;
     const poolsWithFee = aquaPools.filter((pool) => pool.fee).length;
+    const poolsWithIdx = aquaPools.filter((pool) => pool.idx).length;
     const poolsWithZeroReserves = aquaPools.filter(
       (pool) => pool.reserveA === "0" && pool.reserveB === "0"
     ).length;
@@ -487,6 +525,9 @@ export const aquaPoolsList: AquaPool[] = ${JSON.stringify(aquaPools, null, 2)};
     );
     console.log(
       `💰 Pools con fee: ${poolsWithFee} (${((poolsWithFee / aquaPools.length) * 100).toFixed(2)}%)`
+    );
+    console.log(
+      `🔑 Pools con idx: ${poolsWithIdx} (${((poolsWithIdx / aquaPools.length) * 100).toFixed(2)}%)`
     );
     console.log(
       `⚠️ Pools con reservas cero: ${poolsWithZeroReserves} (${(

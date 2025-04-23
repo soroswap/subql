@@ -7,6 +7,7 @@ export function extractAddPoolAquaValues(event: any): {
   tokenB: string;
   tokenC?: string;
   poolType: string;
+  idx: string;
 } {
   let result = {
     address: "",
@@ -14,6 +15,7 @@ export function extractAddPoolAquaValues(event: any): {
     tokenB: "",
     tokenC: "",
     poolType: "",
+    idx: "",
   };
 
   try {
@@ -39,6 +41,13 @@ export function extractAddPoolAquaValues(event: any): {
     if (poolType) {
       result.poolType = Buffer.from(poolType).toString("utf8");
       logger.debug(`→ Pool type: ${result.poolType}`);
+    }
+    
+    // subpool_salt (idx) 
+    const subpoolSalt = values[2]?._value?.data;
+    if (subpoolSalt) {
+      result.idx = Buffer.from(subpoolSalt).toString("hex");
+      logger.debug(`→ Subpool salt (idx): ${result.idx}`);
     }
 
     // Tokens del topic[1]
