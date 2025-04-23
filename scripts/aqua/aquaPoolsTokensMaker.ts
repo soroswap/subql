@@ -31,7 +31,6 @@ interface AquaPool {
   precisionMulC?: string;
 }
 
-// Funciones para interactuar con el contrato
 async function getTokenSetsCount(): Promise<number> {
   try {
     const result = await invokeCustomContract(
@@ -44,7 +43,7 @@ async function getTokenSetsCount(): Promise<number> {
     );
     return Number(scValToNative(result.result.retval));
   } catch (error) {
-    console.error("❌ Error obteniendo el número total de token sets:", error);
+    console.error("❌ Error getting the total number of token sets:", error);
     throw error;
   }
 }
@@ -62,7 +61,7 @@ async function getTokens(index: number): Promise<string[]> {
     );
     return scValToNative(result.result.retval) as string[];
   } catch (error) {
-    console.error(`❌ Error obteniendo tokens para índice ${index}:`, error);
+    console.error(`❌ Error getting tokens for index ${index}:`, error);
     throw error;
   }
 }
@@ -80,37 +79,37 @@ async function getPools(tokens: string[]): Promise<{ [key: string]: { idx: strin
       Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
     );
     
-    // Obtener el resultado en formato ScVal (sin convertir a nativo)
+    
     const scValMap = result.result.retval;
     
-    // Verificar si el resultado es un mapa
+    
     if (scValMap.switch() !== xdr.ScValType.scvMap()) {
-      throw new Error("El resultado no es un mapa");
+      throw new Error("The result is not a map");
     }
     
     const map = scValMap.map();
     const processedResult: { [key: string]: { idx: string, address: string } } = {};
     
-    // Iterar a través de las entradas del mapa
+    
     if (map) {
       for (let i = 0; i < map.length; i++) {
         const entry = map[i];
         const keyScVal = entry.key();
         const valueScVal = entry.val();
         
-        // Si la clave es un BytesN/Binary, convertirla directamente a base64
+        
         let idxBase64 = "";
         if (keyScVal.switch() === xdr.ScValType.scvBytes()) {
           const bytes = keyScVal.bytes();
-          // Convertir los bytes directamente a base64
+          // Convert to base64
           idxBase64 = Buffer.from(bytes).toString('base64');
-          console.log(`BytesN<32> original a Base64: ${idxBase64}`);
+          console.log(`BytesN<32> original to Base64: ${idxBase64}`);
         }
         
-        // Convertir el valor (address) a string
+        // Convert to string
         const address = scValToNative(valueScVal);
         
-        // Usar la clave original como índice en el objeto resultado
+        // Use original key as index in the result object
         processedResult[idxBase64] = {
           idx: idxBase64,
           address: address as string
@@ -120,7 +119,7 @@ async function getPools(tokens: string[]): Promise<{ [key: string]: { idx: strin
     
     return processedResult;
   } catch (error) {
-    console.error("❌ Error obteniendo pools para tokens:", tokens, error);
+    console.error("❌ Error getting pools for tokens:", tokens, error);
     throw error;
   }
 }
@@ -137,7 +136,7 @@ async function getPoolType(contract: string): Promise<string> {
     );
     return scValToNative(result.result.retval) as string;
   } catch (error) {
-    console.error(`❌ Error obteniendo tipo de pool para ${contract}:`, error);
+    console.error(`❌ Error getting pool type for ${contract}:`, error);
     return "";
   }
 }
@@ -154,7 +153,7 @@ async function getPoolFee(contract: string): Promise<string> {
     );
     return scValToNative(result.result.retval) as string;
   } catch (error) {
-    console.error(`❌ Error obteniendo fee para ${contract}:`, error);
+    console.error(`❌ Error getting fee for ${contract}:`, error);
     return "";
   }
 }
@@ -235,7 +234,7 @@ async function getPoolReserves(
 
     return {};
   } catch (error) {
-    console.error(`❌ Error obteniendo reservas para pool ${poolAddress}:`, error);
+    console.error(`❌ Error getting reserves for pool ${poolAddress}:`, error);
     return {};
   }
 }
@@ -263,27 +262,27 @@ async function getStablePoolData(
       allowHttp: true,
     });
 
-    // Para datos de tipo instancia, usamos scvLedgerKeyContractInstance
+    // For data type instance, we use scvLedgerKeyContractInstance
     const instanceKey = xdr.ScVal.scvLedgerKeyContractInstance();
 
-    // Obtener todos los datos de la instancia
+    // Get all data from the instance
     const response = await server.getContractData(poolAddress, instanceKey);
 
     if (response) {
-      // Decodificar datos de la instancia
+      // Decode data from the instance
       const storage = response.val.contractData().val().instance().storage();
 
-      // Crear un objeto para almacenar todos los valores
+      // Create an object to store all values
       const contractValues: { [key: string]: any } = {};
 
-      // Iterar a través del almacenamiento para obtener todos los valores
+      // Iterate through storage to get all values
       storage?.forEach((entry) => {
         const key = scValToNative(entry.key());
         const value = scValToNative(entry.val());
         contractValues[key] = value;
       });
-        const precisionMul =
-          contractValues["PrecisionMul"];
+      const precisionMul =
+        contractValues["PrecisionMul"];
 
         if (Array.isArray(precisionMul) && precisionMul.length >= 2) {
           console.log(`PrecisionMul: [${precisionMul[0]}, ${precisionMul[1]}]`);
@@ -327,18 +326,18 @@ async function getStablePoolData(
     }
 
 
-// Función principal simplificada
+// Simplified main function
 export async function getAquaPreStart(): Promise<void> {
   const aquaPools: AquaPool[] = [];
   const failedIndices: number[] = [];
-  const poolAddressSet = new Set<string>(); // Para evitar duplicados
+  const poolAddressSet = new Set<string>(); 
 
   try {
     console.log("🚀 Iniciando generación de lista de pools de Aqua...");
 
-    // Obtener total de sets
+    // Get total of sets
     const totalSets = await getTokenSetsCount();
-    console.log(`📊 Total de sets de tokens: ${totalSets}`);
+    console.log(`📊 Total of sets of tokens: ${totalSets}`);
 
     const pLimit = await getPLimit(); // Adjust concurrency limit as needed
     const limit = pLimit(20); // Adjust concurrency level
@@ -346,25 +345,25 @@ export async function getAquaPreStart(): Promise<void> {
       limit(async () => {
         try {
           console.log(
-            `🔍 Procesando índice ${i}/${totalSets - 1} (${(((i + 1) / totalSets) * 100).toFixed(
+            `🔍 Processing index ${i}/${totalSets - 1} (${(((i + 1) / totalSets) * 100).toFixed(
               1
             )}%)`
           );
 
           const tokens = await getTokens(i);
           if (!tokens || tokens.length < 2) {
-            console.warn(`⚠️ Tokens inválidos para índice ${i}`);
+            console.warn(`⚠️ Invalid tokens for index ${i}`);
             return;
           }
 
           const pools = await getPools(tokens);
           if (!pools || Object.keys(pools).length === 0) {
-            console.warn(`⚠️ No se encontraron pools para índice ${i}`);
+            console.warn(`⚠️ No pools found for index ${i}`);
             return;
           }
 
           console.log(
-            `📊 Encontrados ${Object.keys(pools).length} pools para tokens [${tokens[0]}, ${
+            `📊 Found ${Object.keys(pools).length} pools for tokens [${tokens[0]}, ${
               tokens[1]
             }]`
           );
@@ -375,7 +374,7 @@ export async function getAquaPreStart(): Promise<void> {
             const poolIdx = poolInfo.idx;
 
             if (poolAddressSet.has(poolAddress)) {
-              console.log(`⏭️ Pool ${poolAddress} ya procesado, saltando...`);
+              console.log(`⏭️ Pool ${poolAddress} already processed, skipping...`);
               continue;
             }
 
@@ -396,15 +395,14 @@ export async function getAquaPreStart(): Promise<void> {
             const poolType = await getPoolType(poolAddress);
             if (poolType) {
               poolData.poolType = poolType;
-              console.log(`ℹ️ Tipo de pool para ${poolAddress}: ${poolType}`);
+              console.log(`ℹ️ Pool type for ${poolAddress}: ${poolType}`);
             }
 
             const fee = await getPoolFee(poolAddress);
             if (fee) {
               poolData.fee = fee.toString();
-              console.log(`💰 Fee del pool ${poolAddress}: ${fee}`);
+              console.log(`💰 Fee for pool ${poolAddress}: ${fee}`);
             }
-
 
             const reserves = await getPoolReserves(poolAddress, poolType);
             if (reserves.reserveA) poolData.reserveA = reserves.reserveA;
@@ -430,7 +428,7 @@ export async function getAquaPreStart(): Promise<void> {
 
           await new Promise((resolve) => setTimeout(resolve, 200));
         } catch (error) {
-          console.error(`❌ Error en índice ${i}:`, error);
+          console.error(`❌ Error in index ${i}:`, error);
           failedIndices.push(i);
         }
       })
@@ -440,10 +438,10 @@ export async function getAquaPreStart(): Promise<void> {
 
     // Generar contenido del archivo
     const fileContent = `
-// Este archivo fue generado automáticamente por aquaPoolsTokensMaker.ts
-// No modificar manualmente
+// This file was generated automatically by aquaPoolsTokensMaker.ts
+// Do not modify manually
 
-// Total de pools: ${aquaPools.length}
+// Total of pools: ${aquaPools.length}
 
 export interface AquaPool {
     tokenA: string;
@@ -474,24 +472,24 @@ export const aquaPoolsList: AquaPool[] = ${JSON.stringify(aquaPools, null, 2)};
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    // Escribir archivo
+    // Write file
     const filePath = path.join(outputDir, "aquaPools.ts");
     fs.writeFileSync(filePath, fileContent);
-    console.log(`\n✅ aquaPools.ts generado exitosamente en ${filePath}`);
+    console.log(`\n✅ aquaPools.ts generated successfully in ${filePath}`);
 
-    // Estadísticas finales
-    console.log("\n📊 Resumen de ejecución:");
-    console.log(`✅ Total de pools guardados: ${aquaPools.length}`);
+    // Final statistics
+    console.log("\n📊 Execution summary:");
+    console.log(`✅ Total of pools saved: ${aquaPools.length}`);
 
     if (failedIndices.length > 0) {
-      console.log(`❌ Índices con errores: ${failedIndices.length}`);
-      // Guardar errores en archivo
+      console.log(`❌ Indices with errors: ${failedIndices.length}`);
+      // Save errors to file
       const errorPath = path.join(__dirname, "../aquapools-errors.json");
       fs.writeFileSync(errorPath, JSON.stringify(failedIndices, null, 2));
-      console.log(`📝 Lista de errores guardada en ${errorPath}`);
+      console.log(`📝 Errors list saved in ${errorPath}`);
     }
 
-    // Estadísticas adicionales
+    // Additional statistics
     const poolsWithReserves = aquaPools.filter((pool) => pool.reserveA && pool.reserveB).length;
     const poolsWithoutReserves = aquaPools.length - poolsWithReserves;
     const poolsWithType = aquaPools.filter((pool) => pool.poolType).length;
@@ -505,32 +503,32 @@ export const aquaPoolsList: AquaPool[] = ${JSON.stringify(aquaPools, null, 2)};
     const poolsWithThreeTokens = aquaPools.filter((pool) => pool.tokenC).length;
     const poolsWithThreeReserves = aquaPools.filter((pool) => pool.reserveC).length;
 
-    console.log(`\n📊 Estadísticas de pools`);
+    console.log(`\n📊 Pool statistics`);
     console.log(
-      `✅ Pools con reservas: ${poolsWithReserves} (${(
+      `✅ Pools with reserves: ${poolsWithReserves} (${(
         (poolsWithReserves / aquaPools.length) *
         100
       ).toFixed(2)}%)`
     );
     console.log(
-      `⚠️ Pools sin reservas: ${poolsWithoutReserves} (${(
+      `⚠️ Pools without reserves: ${poolsWithoutReserves} (${(
         (poolsWithoutReserves / aquaPools.length) *
         100
       ).toFixed(2)}%)`
     );
     console.log(
-      `ℹ️ Pools con tipo: ${poolsWithType} (${((poolsWithType / aquaPools.length) * 100).toFixed(
+      `ℹ️ Pools with type: ${poolsWithType} (${((poolsWithType / aquaPools.length) * 100).toFixed(
         2
       )}%)`
     );
     console.log(
-      `💰 Pools con fee: ${poolsWithFee} (${((poolsWithFee / aquaPools.length) * 100).toFixed(2)}%)`
+      `💰 Pools with fee: ${poolsWithFee} (${((poolsWithFee / aquaPools.length) * 100).toFixed(2)}%)`
     );
     console.log(
-      `🔑 Pools con idx: ${poolsWithIdx} (${((poolsWithIdx / aquaPools.length) * 100).toFixed(2)}%)`
+      `🔑 Pools with idx: ${poolsWithIdx} (${((poolsWithIdx / aquaPools.length) * 100).toFixed(2)}%)`
     );
     console.log(
-      `⚠️ Pools con reservas cero: ${poolsWithZeroReserves} (${(
+      `⚠️ Pools with zero reserves: ${poolsWithZeroReserves} (${(
         (poolsWithZeroReserves / aquaPools.length) *
         100
       ).toFixed(2)}%)`
@@ -542,19 +540,19 @@ export const aquaPoolsList: AquaPool[] = ${JSON.stringify(aquaPools, null, 2)};
       `🔄 stable pools with data: ${stablePoolsWithData} (${((stablePoolsWithData / stablePools || 1) * 100).toFixed(2)}%)`
     );
     console.log(
-      `🔄 Pools con tres tokens: ${poolsWithThreeTokens} (${((poolsWithThreeTokens / aquaPools.length) * 100).toFixed(2)}%)`
+      `🔄 Pools with three tokens: ${poolsWithThreeTokens} (${((poolsWithThreeTokens / aquaPools.length) * 100).toFixed(2)}%)`
     );
     console.log(
-      `🔄 Pools con tres reservas: ${poolsWithThreeReserves} (${((poolsWithThreeReserves / aquaPools.length) * 100).toFixed(2)}%)`
+      `🔄 Pools with three reserves: ${poolsWithThreeReserves} (${((poolsWithThreeReserves / aquaPools.length) * 100).toFixed(2)}%)`
     );
   } catch (error) {
-    console.error("❌ Error general:", error);
+    console.error("❌ General error:", error);
 
-    // Guardar checkpoint de emergencia
+    // Save emergency checkpoint
     if (aquaPools.length > 0) {
       const emergencyPath = path.join(__dirname, "../aquapools-emergency.json");
       fs.writeFileSync(emergencyPath, JSON.stringify(aquaPools, null, 2));
-      console.log(`🆘 Datos guardados en ${emergencyPath}`);
+      console.log(`🆘 Data saved in ${emergencyPath}`);
     }
 
     throw error;
