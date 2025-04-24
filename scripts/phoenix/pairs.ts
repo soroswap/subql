@@ -1,14 +1,9 @@
 import { invokeCustomContract } from "soroban-toolkit";
 import { NETWORK, getPhoenixFactory } from "../../src/constants";
-import { toolkit } from "../toolkit";
+import { toolkit, sleep } from "../toolkit";
 import { scValToNative } from "@stellar/stellar-sdk";
 import * as fs from "fs";
 import * as path from "path";
-
-// Add this function to implement delays between calls
-async function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 const FACTORY_CONTRACT = getPhoenixFactory(process.env.NETWORK as NETWORK);
 

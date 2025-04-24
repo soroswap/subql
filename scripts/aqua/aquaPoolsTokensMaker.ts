@@ -2,7 +2,7 @@ import { invokeCustomContract } from "soroban-toolkit";
 import { Keypair, scValToNative, xdr, nativeToScVal, ScInt, rpc } from "@stellar/stellar-sdk";
 import * as fs from "fs";
 import * as path from "path";
-import { toolkit } from "../toolkit";
+import { toolkit, retry, sleep } from "../toolkit";
 import { NETWORK } from "../../src/constants";
 import { getAquaFactory } from "../../src/constants/aquaContracts";
 import { getPLimit } from "../soroswap/pairsTokensMaker";
@@ -86,7 +86,7 @@ async function getPools(tokens: string[]): Promise<{ [key: string]: { idx: strin
         // Verificar si es un error 429 (rate limit)
         if (error?.response?.status === 429 && retries > 0) {
           console.log(`⚠️ Límite de velocidad alcanzado. Reintentando en ${delay}ms... (${retries} intentos restantes)`);
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await sleep(delay);
           // Reintento con backoff exponencial
           return getPoolsWithRetry(retries - 1, delay * 2);
         }
@@ -139,11 +139,6 @@ async function getPools(tokens: string[]): Promise<{ [key: string]: { idx: strin
     console.error("❌ Error getting pools for tokens:", tokens, error);
     throw error;
   }
-}
-
-// Add this function to implement delays between calls
-async function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // Modify the getPoolType function to include retries

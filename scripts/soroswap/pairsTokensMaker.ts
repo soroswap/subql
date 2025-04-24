@@ -3,7 +3,7 @@ import { Keypair, scValToNative, xdr } from "@stellar/stellar-sdk";
 import * as fs from "fs";
 import * as path from "path";
 import { NETWORK, getSoroswapFactory } from "../../src/constants";
-import { retry, toolkit } from "../toolkit";
+import { retry, toolkit, sleep } from "../toolkit";
 
 import { LimitFunction } from "p-limit";
 
@@ -12,11 +12,6 @@ export async function getPLimit(): Promise<(concurrency: number) => LimitFunctio
     default: (concurrency: number) => LimitFunction;
   };
   return module.default;
-}
-
-// Add this function to implement delays between calls
-async function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 const FACTORY_CONTRACT = getSoroswapFactory(process.env.NETWORK as NETWORK).address;

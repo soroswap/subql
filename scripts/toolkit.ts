@@ -4,6 +4,11 @@ import { NETWORK } from "../src/constants";
 import { config } from "dotenv";
 config();
 
+// Sleep function to implement delays between calls
+export async function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // Retry function with exponential delay
 export async function retry<T>(
   fn: () => Promise<T>,
@@ -20,13 +25,13 @@ export async function retry<T>(
       // Use a longer initial delay for rate limit errors
       if (retries === 0) throw error;
       console.log(`⚠️ Retrying in ${delay*2}ms... (${retries} attempts remaining)`);
-      await new Promise((resolve) => setTimeout(resolve, delay*2));
+      await sleep(delay*2);
       return retry(fn, retries - 1, delay * backoff, backoff);
     }
     
     if (retries === 0) throw error;
     console.log(`⚠️ Retrying in ${delay}ms... (${retries} attempts remaining)`);
-    await new Promise((resolve) => setTimeout(resolve, delay));
+    await sleep(delay);
     return retry(fn, retries - 1, delay * backoff, backoff);
   }
 }
