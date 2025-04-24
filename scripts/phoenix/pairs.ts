@@ -1,6 +1,6 @@
 import { invokeCustomContract } from "soroban-toolkit";
 import { NETWORK, getPhoenixFactory } from "../../src/constants";
-import { toolkit, sleep, retry } from "../toolkit";
+import { toolkit, retry } from "../toolkit";
 import { scValToNative } from "@stellar/stellar-sdk";
 import * as fs from "fs";
 import * as path from "path";
@@ -9,20 +9,15 @@ const FACTORY_CONTRACT = getPhoenixFactory(process.env.NETWORK as NETWORK);
 
 async function getPools(): Promise<any> {
   try {
-    const rawResult = await retry(
-      async () => {
-        return await invokeCustomContract(
-          toolkit,
-          FACTORY_CONTRACT,
-          "query_all_pools_details",
-          [],
-          true
-        );
-      },
-      3,
-      500,
-      2
-    );
+    const rawResult = await retry(async () => {
+      return await invokeCustomContract(
+        toolkit,
+        FACTORY_CONTRACT,
+        "query_all_pools_details",
+        [],
+        true
+      );
+    });
     const result = scValToNative(rawResult.result.retval);
     return result;
   } catch (error) {
@@ -44,10 +39,7 @@ export async function getPhoenixPreStart(): Promise<any> {
     }
     
     const parsedPools = parsePoolData(pools);
-
-    // Add a small delay to avoid rate limiting
-    await sleep(200);
-
+    
     const newParsedPools = parsedPools.map((pool) => {
       return {
         address: pool.poolAddress,

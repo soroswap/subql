@@ -3,7 +3,7 @@ import { Keypair, scValToNative, xdr } from "@stellar/stellar-sdk";
 import * as fs from "fs";
 import * as path from "path";
 import { NETWORK, getSoroswapFactory } from "../../src/constants";
-import { retry, toolkit, sleep } from "../toolkit";
+import { retry, toolkit } from "../toolkit";
 
 import { LimitFunction } from "p-limit";
 
@@ -18,20 +18,15 @@ const FACTORY_CONTRACT = getSoroswapFactory(process.env.NETWORK as NETWORK).addr
 
 async function getAllPairsLength(): Promise<number> {
   try {
-    const result = await retry(
-      async () => {
-        return await invokeCustomContract(
-          toolkit,
-          FACTORY_CONTRACT,
-          "all_pairs_length",
-          [],
-          true
-        );
-      },
-      3,
-      500,
-      2
-    );
+    const result = await retry(async () => {
+      return await invokeCustomContract(
+        toolkit,
+        FACTORY_CONTRACT,
+        "all_pairs_length",
+        [],
+        true
+      );
+    });
     return Number(scValToNative(result.result.retval));
   } catch (error) {
     console.error("❌ Error getting total number of pairs:", error);
@@ -41,20 +36,15 @@ async function getAllPairsLength(): Promise<number> {
 
 async function getPairAddress(index: number): Promise<string> {
   try {
-    const result = await retry(
-      async () => {
-        return await invokeCustomContract(
-          toolkit,
-          FACTORY_CONTRACT,
-          "all_pairs",
-          [xdr.ScVal.scvU32(index)],
-          true
-        );
-      },
-      3,
-      500,
-      2
-    );
+    const result = await retry(async () => {
+      return await invokeCustomContract(
+        toolkit,
+        FACTORY_CONTRACT,
+        "all_pairs",
+        [xdr.ScVal.scvU32(index)],
+        true
+      );
+    });
     return scValToNative(result.result.retval);
   } catch (error) {
     console.error(`❌ Error getting pair address ${index}:`, error);
@@ -64,14 +54,9 @@ async function getPairAddress(index: number): Promise<string> {
 
 async function getToken(pairAddress: string, method: "token_0" | "token_1"): Promise<string> {
   try {
-    const result = await retry(
-      async () => {
-        return await invokeCustomContract(toolkit, pairAddress, method, [], true);
-      },
-      3,
-      500,
-      2
-    );
+    const result = await retry(async () => {
+      return await invokeCustomContract(toolkit, pairAddress, method, [], true);
+    });
     return scValToNative(result.result.retval);
   } catch (error) {
     console.error(`❌ Error getting token (${method}) for pair ${pairAddress}:`, error);
@@ -81,14 +66,9 @@ async function getToken(pairAddress: string, method: "token_0" | "token_1"): Pro
 
 async function getPairReserves(pairAddress: string): Promise<[bigint, bigint]> {
   try {
-    const result = await retry(
-      async () => {
-        return await invokeCustomContract(toolkit, pairAddress, "get_reserves", [], true);
-      },
-      3,
-      500,
-      2
-    );
+    const result = await retry(async () => {
+      return await invokeCustomContract(toolkit, pairAddress, "get_reserves", [], true);
+    });
     const [reserve0, reserve1] = scValToNative(result.result.retval);
     return [BigInt(reserve0), BigInt(reserve1)];
   } catch (error) {
@@ -112,7 +92,7 @@ export async function generatePairTokenReservesList(): Promise<void> {
     console.log("🚀 Getting pairs information...");
 
     const pLimit = await getPLimit();
-    const limit = pLimit(10); // Reduced from 20 to 10 to avoid API overload
+    const limit = pLimit(10); // Reduced concurrency for API limit
     const tasks = Array.from({ length: totalPairs }, (_, i) =>
       limit(async () => {
         try {
@@ -132,8 +112,6 @@ export async function generatePairTokenReservesList(): Promise<void> {
           });
 
           console.log(`✅ Information obtained for pair: ${pairAddress}`);
-          // Add delay between pair processing
-          await sleep(200);
         } catch (error) {
           console.error(`❌ Error processing pair ${i}:`, error);
           failedPairs.push(`Pair index ${i}`);

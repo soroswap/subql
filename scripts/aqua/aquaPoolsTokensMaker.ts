@@ -2,7 +2,7 @@ import { invokeCustomContract } from "soroban-toolkit";
 import { Keypair, scValToNative, xdr, nativeToScVal, ScInt, rpc } from "@stellar/stellar-sdk";
 import * as fs from "fs";
 import * as path from "path";
-import { toolkit, retry, sleep } from "../toolkit";
+import { toolkit, retry } from "../toolkit";
 import { NETWORK } from "../../src/constants";
 import { getAquaFactory } from "../../src/constants/aquaContracts";
 import { getPLimit } from "../soroswap/pairsTokensMaker";
@@ -33,14 +33,16 @@ interface AquaPool {
 
 async function getTokenSetsCount(): Promise<number> {
   try {
-    const result = await invokeCustomContract(
-      toolkit,
-      FACTORY_CONTRACT_AQUA,
-      "get_tokens_sets_count",
-      [],
-      true,
-      Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
-    );
+    const result = await retry(async () => {
+      return await invokeCustomContract(
+        toolkit,
+        FACTORY_CONTRACT_AQUA,
+        "get_tokens_sets_count",
+        [],
+        true,
+        Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+      );
+    });
     return Number(scValToNative(result.result.retval));
   } catch (error) {
     console.error("❌ Error getting the total number of token sets:", error);
@@ -51,14 +53,16 @@ async function getTokenSetsCount(): Promise<number> {
 async function getTokens(index: number): Promise<string[]> {
   try {
     const indexScVal = new ScInt(BigInt(index)).toU128();
-    const result = await invokeCustomContract(
-      toolkit,
-      FACTORY_CONTRACT_AQUA,
-      "get_tokens",
-      [indexScVal],
-      true,
-      Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
-    );
+    const result = await retry(async () => {
+      return await invokeCustomContract(
+        toolkit,
+        FACTORY_CONTRACT_AQUA,
+        "get_tokens",
+        [indexScVal],
+        true,
+        Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+      );
+    });
     return scValToNative(result.result.retval) as string[];
   } catch (error) {
     console.error(`❌ Error getting tokens for index ${index}:`, error);
@@ -70,21 +74,16 @@ async function getPools(tokens: string[]): Promise<{ [key: string]: { idx: strin
   try {
     const tokenScVals = tokens.map((token) => nativeToScVal(token, { type: "address" }));
 
-    const result = await retry(
-      async () => {
-        return await invokeCustomContract(
-          toolkit,
-          FACTORY_CONTRACT_AQUA,
-          "get_pools",
-          [xdr.ScVal.scvVec(tokenScVals)],
-          true,
-          Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
-        );
-      },
-      5,  // más reintentos para esta operación crítica
-      500,
-      2
-    );
+    const result = await retry(async () => {
+      return await invokeCustomContract(
+        toolkit,
+        FACTORY_CONTRACT_AQUA,
+        "get_pools",
+        [xdr.ScVal.scvVec(tokenScVals)],
+        true,
+        Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+      );
+    });
     
     const scValMap = result.result.retval;
     
@@ -124,24 +123,18 @@ async function getPools(tokens: string[]): Promise<{ [key: string]: { idx: strin
   }
 }
 
-
 async function getPoolType(contract: string): Promise<string> {
   try {
-    const result = await retry(
-      async () => {
-        return await invokeCustomContract(
-          toolkit,
-          contract,
-          "pool_type",
-          [],
-          true,
-          Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
-        );
-      },
-      3,
-      500,
-      2
-    );
+    const result = await retry(async () => {
+      return await invokeCustomContract(
+        toolkit,
+        contract,
+        "pool_type",
+        [],
+        true,
+        Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+      );
+    });
     return scValToNative(result.result.retval) as string;
   } catch (error) {
     console.error(`❌ Error getting pool type for ${contract}:`, error);
@@ -149,24 +142,18 @@ async function getPoolType(contract: string): Promise<string> {
   }
 }
 
-
 async function getPoolFee(contract: string): Promise<string> {
   try {
-    const result = await retry(
-      async () => {
-        return await invokeCustomContract(
-          toolkit,
-          contract,
-          "get_fee_fraction",
-          [],
-          true,
-          Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
-        );
-      },
-      3,
-      500,
-      2
-    );
+    const result = await retry(async () => {
+      return await invokeCustomContract(
+        toolkit,
+        contract,
+        "get_fee_fraction",
+        [],
+        true,
+        Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+      );
+    });
     return scValToNative(result.result.retval) as string;
   } catch (error) {
     console.error(`❌ Error getting fee for ${contract}:`, error);
@@ -341,7 +328,6 @@ async function getStablePoolData(
       };
     }
 
-
 // Simplified main function
 export async function getAquaPreStart(): Promise<void> {
   const aquaPools: AquaPool[] = [];
@@ -355,7 +341,7 @@ export async function getAquaPreStart(): Promise<void> {
     const totalSets = await getTokenSetsCount();
     console.log(`📊 Total of sets of tokens: ${totalSets}`);
 
-    const pLimit = await getPLimit(); // Adjust concurrency limit as needed
+    const pLimit = await getPLimit();
     const limit = pLimit(10); // Adjust concurrency level
     const tasks = Array.from({ length: totalSets }, (_, i) =>
       limit(async () => {
@@ -440,13 +426,7 @@ export async function getAquaPreStart(): Promise<void> {
 
             aquaPools.push(poolData);
             console.log(`✅ Pool added: ${poolAddress} (${tokens[0]} - ${tokens[1]})`);
-
-            // Add a small delay between processing pools
-            await sleep(100); // 100ms between pools
           }
-
-          // Increase delay between token sets to avoid rate limits
-          await sleep(100); // 100ms between token sets
         } catch (error) {
           console.error(`❌ Error in index ${i}:`, error);
           failedIndices.push(i);

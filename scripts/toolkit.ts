@@ -13,7 +13,7 @@ export async function sleep(ms: number): Promise<void> {
 export async function retry<T>(
   fn: () => Promise<T>,
   retries: number = 3,
-  delay: number = 500,
+  delay: number = 100,
   backoff: number = 2
 ): Promise<T> {
   try {
