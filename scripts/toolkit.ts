@@ -13,7 +13,17 @@ export async function retry<T>(
 ): Promise<T> {
   try {
     return await fn();
-  } catch (error) {
+  } catch (error: any) {
+    // Check specifically for rate limit errors
+    if (error?.response?.status === 429) {
+      console.log(`⚠️ Rate limit reached (429). Retrying with longer delay.`);
+      // Use a longer initial delay for rate limit errors
+      if (retries === 0) throw error;
+      console.log(`⚠️ Retrying in ${delay*2}ms... (${retries} attempts remaining)`);
+      await new Promise((resolve) => setTimeout(resolve, delay*2));
+      return retry(fn, retries - 1, delay * backoff, backoff);
+    }
+    
     if (retries === 0) throw error;
     console.log(`⚠️ Retrying in ${delay}ms... (${retries} attempts remaining)`);
     await new Promise((resolve) => setTimeout(resolve, delay));

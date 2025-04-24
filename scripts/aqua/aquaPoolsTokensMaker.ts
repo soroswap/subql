@@ -70,14 +70,31 @@ async function getPools(tokens: string[]): Promise<{ [key: string]: { idx: strin
   try {
     const tokenScVals = tokens.map((token) => nativeToScVal(token, { type: "address" }));
 
-    const result = await invokeCustomContract(
-      toolkit,
-      FACTORY_CONTRACT_AQUA,
-      "get_pools",
-      [xdr.ScVal.scvVec(tokenScVals)],
-      true,
-      Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
-    );
+    // Implementar una función de reintento específica para esta llamada
+    const getPoolsWithRetry = async (retries = 5, delay = 1000): Promise<any> => {
+      try {
+        const result = await invokeCustomContract(
+          toolkit,
+          FACTORY_CONTRACT_AQUA,
+          "get_pools",
+          [xdr.ScVal.scvVec(tokenScVals)],
+          true,
+          Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+        );
+        return result;
+      } catch (error: any) {
+        // Verificar si es un error 429 (rate limit)
+        if (error?.response?.status === 429 && retries > 0) {
+          console.log(`⚠️ Límite de velocidad alcanzado. Reintentando en ${delay}ms... (${retries} intentos restantes)`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          // Reintento con backoff exponencial
+          return getPoolsWithRetry(retries - 1, delay * 2);
+        }
+        throw error;
+      }
+    };
+
+    const result = await getPoolsWithRetry();
     
     
     const scValMap = result.result.retval;
@@ -124,34 +141,67 @@ async function getPools(tokens: string[]): Promise<{ [key: string]: { idx: strin
   }
 }
 
+// Add this function to implement delays between calls
+async function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Modify the getPoolType function to include retries
 async function getPoolType(contract: string): Promise<string> {
+  const retryWithBackoff = async (retries = 3, delay = 1000): Promise<string> => {
+    try {
+      const result = await invokeCustomContract(
+        toolkit,
+        contract,
+        "pool_type",
+        [],
+        true,
+        Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+      );
+      return scValToNative(result.result.retval) as string;
+    } catch (error: any) {
+      if (error?.response?.status === 429 && retries > 0) {
+        console.log(`⚠️ Límite de velocidad alcanzado en getPoolType. Reintentando en ${delay}ms... (${retries} intentos restantes)`);
+        await sleep(delay);
+        return retryWithBackoff(retries - 1, delay * 2);
+      }
+      throw error;
+    }
+  };
+
   try {
-    const result = await invokeCustomContract(
-      toolkit,
-      contract,
-      "pool_type",
-      [],
-      true,
-      Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
-    );
-    return scValToNative(result.result.retval) as string;
+    return await retryWithBackoff();
   } catch (error) {
-    console.error(`❌ Error getting pool type for ${contract}:`, error);
+    console.error(`❌ Error obteniendo pool type para ${contract}:`, error);
     return "";
   }
 }
 
+// Modify the getPoolFee function in a similar way
 async function getPoolFee(contract: string): Promise<string> {
+  const retryWithBackoff = async (retries = 3, delay = 1000): Promise<string> => {
+    try {
+      const result = await invokeCustomContract(
+        toolkit,
+        contract,
+        "get_fee_fraction",
+        [],
+        true,
+        Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+      );
+      return scValToNative(result.result.retval) as string;
+    } catch (error: any) {
+      if (error?.response?.status === 429 && retries > 0) {
+        console.log(`⚠️ Límite de velocidad alcanzado en getPoolFee. Reintentando en ${delay}ms... (${retries} intentos restantes)`);
+        await sleep(delay);
+        return retryWithBackoff(retries - 1, delay * 2);
+      }
+      throw error;
+    }
+  };
+
   try {
-    const result = await invokeCustomContract(
-      toolkit,
-      contract,
-      "get_fee_fraction",
-      [],
-      true,
-      Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
-    );
-    return scValToNative(result.result.retval) as string;
+    return await retryWithBackoff();
   } catch (error) {
     console.error(`❌ Error getting fee for ${contract}:`, error);
     return "";
@@ -340,7 +390,7 @@ export async function getAquaPreStart(): Promise<void> {
     console.log(`📊 Total of sets of tokens: ${totalSets}`);
 
     const pLimit = await getPLimit(); // Adjust concurrency limit as needed
-    const limit = pLimit(20); // Adjust concurrency level
+    const limit = pLimit(10); // Adjust concurrency level
     const tasks = Array.from({ length: totalSets }, (_, i) =>
       limit(async () => {
         try {
@@ -424,9 +474,13 @@ export async function getAquaPreStart(): Promise<void> {
 
             aquaPools.push(poolData);
             console.log(`✅ Pool added: ${poolAddress} (${tokens[0]} - ${tokens[1]})`);
+
+            // Add a small delay between processing pools
+            await sleep(100); // 100ms between pools
           }
 
-          await new Promise((resolve) => setTimeout(resolve, 200));
+          // Increase delay between token sets to avoid rate limits
+          await sleep(100); // 100ms between token sets
         } catch (error) {
           console.error(`❌ Error in index ${i}:`, error);
           failedIndices.push(i);
