@@ -1,6 +1,6 @@
 import { invokeCustomContract } from "soroban-toolkit";
 import { NETWORK, getPhoenixFactory } from "../../src/constants";
-import { toolkit, sleep } from "../toolkit";
+import { toolkit, sleep, retry } from "../toolkit";
 import { scValToNative } from "@stellar/stellar-sdk";
 import * as fs from "fs";
 import * as path from "path";
@@ -8,29 +8,23 @@ import * as path from "path";
 const FACTORY_CONTRACT = getPhoenixFactory(process.env.NETWORK as NETWORK);
 
 async function getPools(): Promise<any> {
-  const retryWithBackoff = async (retries = 3, delay = 1000): Promise<any> => {
-    try {
-      const rawResult = await invokeCustomContract(
-        toolkit,
-        FACTORY_CONTRACT,
-        "query_all_pools_details",
-        [],
-        true
-      );
-      const result = scValToNative(rawResult.result.retval);
-      return result;
-    } catch (error: any) {
-      if (error?.response?.status === 429 && retries > 0) {
-        console.log(`⚠️ Rate limit reached in getPools. Retrying in ${delay}ms... (${retries} attempts remaining)`);
-        await sleep(delay);
-        return retryWithBackoff(retries - 1, delay * 2);
-      }
-      throw error;
-    }
-  };
-
   try {
-    return await retryWithBackoff();
+    const rawResult = await retry(
+      async () => {
+        return await invokeCustomContract(
+          toolkit,
+          FACTORY_CONTRACT,
+          "query_all_pools_details",
+          [],
+          true
+        );
+      },
+      3,
+      500,
+      2
+    );
+    const result = scValToNative(rawResult.result.retval);
+    return result;
   } catch (error) {
     console.error(`❌ Error getting pools`, error);
     return null;

@@ -17,28 +17,22 @@ export async function getPLimit(): Promise<(concurrency: number) => LimitFunctio
 const FACTORY_CONTRACT = getSoroswapFactory(process.env.NETWORK as NETWORK).address;
 
 async function getAllPairsLength(): Promise<number> {
-  const retryWithBackoff = async (retries = 3, delay = 1000): Promise<number> => {
-    try {
-      const result = await invokeCustomContract(
-        toolkit,
-        FACTORY_CONTRACT,
-        "all_pairs_length",
-        [],
-        true
-      );
-      return Number(scValToNative(result.result.retval));
-    } catch (error: any) {
-      if (error?.response?.status === 429 && retries > 0) {
-        console.log(`⚠️ Rate limit reached in getAllPairsLength. Retrying in ${delay}ms... (${retries} attempts remaining)`);
-        await sleep(delay);
-        return retryWithBackoff(retries - 1, delay * 2);
-      }
-      throw error;
-    }
-  };
-
   try {
-    return await retryWithBackoff();
+    const result = await retry(
+      async () => {
+        return await invokeCustomContract(
+          toolkit,
+          FACTORY_CONTRACT,
+          "all_pairs_length",
+          [],
+          true
+        );
+      },
+      3,
+      500,
+      2
+    );
+    return Number(scValToNative(result.result.retval));
   } catch (error) {
     console.error("❌ Error getting total number of pairs:", error);
     throw error;
@@ -46,28 +40,22 @@ async function getAllPairsLength(): Promise<number> {
 }
 
 async function getPairAddress(index: number): Promise<string> {
-  const retryWithBackoff = async (retries = 3, delay = 1000): Promise<string> => {
-    try {
-      const result = await invokeCustomContract(
-        toolkit,
-        FACTORY_CONTRACT,
-        "all_pairs",
-        [xdr.ScVal.scvU32(index)],
-        true
-      );
-      return scValToNative(result.result.retval);
-    } catch (error: any) {
-      if (error?.response?.status === 429 && retries > 0) {
-        console.log(`⚠️ Rate limit reached in getPairAddress. Retrying in ${delay}ms... (${retries} attempts remaining)`);
-        await sleep(delay);
-        return retryWithBackoff(retries - 1, delay * 2);
-      }
-      throw error;
-    }
-  };
-
   try {
-    return await retryWithBackoff();
+    const result = await retry(
+      async () => {
+        return await invokeCustomContract(
+          toolkit,
+          FACTORY_CONTRACT,
+          "all_pairs",
+          [xdr.ScVal.scvU32(index)],
+          true
+        );
+      },
+      3,
+      500,
+      2
+    );
+    return scValToNative(result.result.retval);
   } catch (error) {
     console.error(`❌ Error getting pair address ${index}:`, error);
     throw error;
@@ -75,22 +63,16 @@ async function getPairAddress(index: number): Promise<string> {
 }
 
 async function getToken(pairAddress: string, method: "token_0" | "token_1"): Promise<string> {
-  const retryWithBackoff = async (retries = 3, delay = 1000): Promise<string> => {
-    try {
-      const result = await invokeCustomContract(toolkit, pairAddress, method, [], true);
-      return scValToNative(result.result.retval);
-    } catch (error: any) {
-      if (error?.response?.status === 429 && retries > 0) {
-        console.log(`⚠️ Rate limit reached in getToken. Retrying in ${delay}ms... (${retries} attempts remaining)`);
-        await sleep(delay);
-        return retryWithBackoff(retries - 1, delay * 2);
-      }
-      throw error;
-    }
-  };
-
   try {
-    return await retryWithBackoff();
+    const result = await retry(
+      async () => {
+        return await invokeCustomContract(toolkit, pairAddress, method, [], true);
+      },
+      3,
+      500,
+      2
+    );
+    return scValToNative(result.result.retval);
   } catch (error) {
     console.error(`❌ Error getting token (${method}) for pair ${pairAddress}:`, error);
     throw error;
@@ -98,23 +80,17 @@ async function getToken(pairAddress: string, method: "token_0" | "token_1"): Pro
 }
 
 async function getPairReserves(pairAddress: string): Promise<[bigint, bigint]> {
-  const retryWithBackoff = async (retries = 3, delay = 1000): Promise<[bigint, bigint]> => {
-    try {
-      const result = await invokeCustomContract(toolkit, pairAddress, "get_reserves", [], true);
-      const [reserve0, reserve1] = scValToNative(result.result.retval);
-      return [BigInt(reserve0), BigInt(reserve1)];
-    } catch (error: any) {
-      if (error?.response?.status === 429 && retries > 0) {
-        console.log(`⚠️ Rate limit reached in getPairReserves. Retrying in ${delay}ms... (${retries} attempts remaining)`);
-        await sleep(delay);
-        return retryWithBackoff(retries - 1, delay * 2);
-      }
-      return [BigInt(0), BigInt(0)];
-    }
-  };
-
   try {
-    return await retryWithBackoff();
+    const result = await retry(
+      async () => {
+        return await invokeCustomContract(toolkit, pairAddress, "get_reserves", [], true);
+      },
+      3,
+      500,
+      2
+    );
+    const [reserve0, reserve1] = scValToNative(result.result.retval);
+    return [BigInt(reserve0), BigInt(reserve1)];
   } catch (error) {
     console.error(`❌ Error getting reserves for ${pairAddress}:`, error);
     return [BigInt(0), BigInt(0)];
