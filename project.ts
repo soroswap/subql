@@ -30,39 +30,47 @@ const soroswapHandlers: SubqlRuntimeHandler[] = [
   },
 ];
 
-// Phoenix Handlers
-const phoenixFactory = getPhoenixFactory(process.env.NETWORK as NETWORK);
-const phoenixHandlers: SubqlRuntimeHandler[] = [
-  {
-    handler: "handlePhoenixEvent",
-    kind: StellarHandlerKind.Event,
-    filter: {
-      topics: ["swap", "sender"],
+// Phoenix Handlers - only included in mainnet
+let phoenixHandlers: SubqlRuntimeHandler[] = [];
+
+// Only configure Phoenix handlers in mainnet
+if (process.env.NETWORK !== "testnet") {
+  const phoenixFactory = getPhoenixFactory(process.env.NETWORK as NETWORK);
+  phoenixHandlers = [
+    {
+      handler: "handlePhoenixEvent",
+      kind: StellarHandlerKind.Event,
+      filter: {
+        topics: ["swap", "sender"],
+      },
     },
-  },
-  {
-    handler: "handlePhoenixEvent",
-    kind: StellarHandlerKind.Event,
-    filter: {
-      topics: ["provide_liquidity", "sender"],
+    {
+      handler: "handlePhoenixEvent",
+      kind: StellarHandlerKind.Event,
+      filter: {
+        topics: ["provide_liquidity", "sender"],
+      },
     },
-  },
-  {
-    handler: "handlePhoenixEvent",
-    kind: StellarHandlerKind.Event,
-    filter: {
-      topics: ["withdraw_liquidity", "sender"],
+    {
+      handler: "handlePhoenixEvent",
+      kind: StellarHandlerKind.Event,
+      filter: {
+        topics: ["withdraw_liquidity", "sender"],
+      },
     },
-  },
-  {
-    handler: "handlePhoenixCreateLPEvent",
-    kind: StellarHandlerKind.Event,
-    filter: {
-      contractId: phoenixFactory,
-      topics: ["create", "liquidity_pool"],
+    {
+      handler: "handlePhoenixCreateLPEvent",
+      kind: StellarHandlerKind.Event,
+      filter: {
+        contractId: phoenixFactory,
+        topics: ["create", "liquidity_pool"],
+      },
     },
-  },
-];
+  ];
+
+} else {
+  console.log("⏭️ Skipping Phoenix handlers in testnet");
+}
 
 //Aqua handlers
 const aquaFactory = getAquaFactory(process.env.NETWORK as NETWORK);
