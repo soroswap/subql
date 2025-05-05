@@ -40,20 +40,37 @@ export async function getLatestRouterLedger(): Promise<any> {
           events.events[events.events.length - 1].ledger;
         console.log("🚀 « latestLedgerWithEvent:", latestLedgerWithEvent);
 
-        const constantsFilePath = path.resolve(
+        const startBlockFilePath = path.resolve(
           __dirname,
-          "../../src/constants/soroswapContracts.ts"
+          "../../src/constants/startblock.json"
         );
-        const constantsFileContent = fs.readFileSync(
-          constantsFilePath,
+    
+        const dirPath = path.dirname(startBlockFilePath);
+        if (!fs.existsSync(dirPath)) {
+          fs.mkdirSync(dirPath, { recursive: true });
+        }
+        
+        let startBlockData = { startBlock: latestLedgerWithEvent };
+        if (fs.existsSync(startBlockFilePath)) {
+          try {
+            const startBlockFileContent = fs.readFileSync(
+              startBlockFilePath,
+              "utf-8"
+            );
+            startBlockData = JSON.parse(startBlockFileContent);
+            startBlockData.startBlock = latestLedgerWithEvent;
+          } catch (error) {
+            console.log("Error reading the startblock.json file, creating a new one:", error);
+          }
+        } else {
+          console.log("The startblock.json file does not exist, creating a new one");
+        }
+
+        fs.writeFileSync(
+          startBlockFilePath,
+          JSON.stringify(startBlockData, null, 2),
           "utf-8"
         );
-        const network = process.env.NETWORK as NETWORK;
-        const updatedContent = constantsFileContent.replace(
-          new RegExp(`(${network}:\\s*{[^}]*startBlock:\\s*)\\d+(\\s*,)`),
-          `$1${latestLedgerWithEvent}$2`
-        );
-        fs.writeFileSync(constantsFilePath, updatedContent, "utf-8");
 
         break;
       } else {

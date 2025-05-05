@@ -7,6 +7,7 @@ import {
 import { Networks } from "@stellar/stellar-sdk";
 import { config } from "dotenv";
 import { getPhoenixFactory, getSoroswapFactory, getAquaFactory, NETWORK } from "./src/constants";
+import startBlockData from "./src/constants/startblock.json";
 config();
 
 // Soroswap Handlers
@@ -140,8 +141,7 @@ const project: StellarProject = {
   dataSources: [
     {
       kind: StellarDatasourceKind.Runtime,
-      /* Set this as a logical start block, it might be block 1 (genesis) or when your contract was deployed */
-      startBlock: soroswapFactory.startBlock,
+      startBlock: startBlockData.startBlock,
       mapping: {
         file: "./dist/index.js",
         handlers: [...soroswapHandlers, ...phoenixHandlers, ...aquaHandlers],
