@@ -59,7 +59,7 @@ npm run dev
 
 ---
 # Extenral Ports
-- 3001 subql
+- 7000 subql
 - 5432 postgres
 ---
 
@@ -159,11 +159,11 @@ type phoenixPair @entity {
 Once the indexer is running, access the GraphQL Playground at:
 
 ```
-http://localhost:3001
+http://localhost:7000
 ```
 You can also access from:
 https://studio.apollographql.com/sandbox/explorer,
-with sandbox `http://localhost:3001`
+with sandbox `http://localhost:7000`
 
 ### 🔍 Example Query
 
@@ -188,19 +188,29 @@ query GetPairsAqua {
   aquaPairs(orderBy: DATE_DESC) {
     totalCount
     nodes {
-      id
+			id
+      idx
+      ledger
+      date
       tokenA
       tokenB
-      fee
+      tokenC
       reserveA
       reserveB
-      poolType 
-      ledger
-      date     
+      reserveC
+      poolType
+      fee
+      futureA
+      futureATime
+      initialA
+      initialATime
+      precisionMulA
+      precisionMulB
+      precisionMulC
     }
   }
 }
-query {
+query GetPairsPhoenix{
   phoenixPairs (orderBy: DATE_DESC){
     totalCount
     nodes {
