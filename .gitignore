@@ -70,9 +70,10 @@ scripts/extract-values-events/
 .stellar
 
 # pre-start
-/src/constants/startblock.json
-/src/aqua/aquaPools.ts
-/src/soroswap/pairReservesData.ts
-/scripts/soroswap/aquapools-errors.json
+src/constants/startblock.json
+src/aqua/aquaPools.ts
+src/soroswap/pairReservesData.ts
+src/phoenix/pairReservesData.ts
 
-/src/phoenix/pairReservesData.ts
+scripts/aquapools-errors.json
+scripts/phoenix-errors.json
