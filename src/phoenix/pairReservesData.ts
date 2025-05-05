@@ -13,7 +13,7 @@ export interface PhoenixPairReserves {
     total_fee_bps: string;
 }
 
-export const phoenixPairsGeneratedDate = "2025-05-05T12:27:57.080Z";
+export const phoenixPairsGeneratedDate = "2025-05-05T12:33:00.355Z";
 
 export const phoenixPairReservesList: PhoenixPairReserves[] = [
   {
