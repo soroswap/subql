@@ -68,3 +68,11 @@ scripts/extract-values-events/
 .env
 .project-cid
 .stellar
+
+# pre-start
+/src/constants/startblock.json
+/src/aqua/aquaPools.ts
+/src/soroswap/pairReservesData.ts
+/scripts/soroswap/aquapools-errors.json
+
+/src/phoenix/pairReservesData.ts
