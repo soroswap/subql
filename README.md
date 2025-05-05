@@ -58,9 +58,14 @@ npm run dev
 ```
 
 ---
-# Extenral Ports
-- 7000 subql
-- 5432 postgres
+# Extenral Ports.
+This will run 3 docker containters called, `subql-graphql-engine-1`, `subql-subquery-node-1` and `postgres`.
+The one you will pay attention are
+- 7000 for the  `subql-graphql-engine`
+- 5432 for the `postgres`
+
+If you are calling the indexer from a local docker container of the same network, you will need to use:
+`GRAPHQL_INDEXER_MAINNET=http://graphql-engine:7000`
 ---
 
 ### 6️⃣ Deploy to OnFinality
