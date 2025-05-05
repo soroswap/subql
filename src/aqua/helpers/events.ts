@@ -73,7 +73,7 @@ export async function extractAquaValues(event: any): Promise<{
         logger.debug(`[AQUA] → Fee from contract: ${result.fee.toString()}`);
       }
 
-      // Asignar valores para pools estables
+      // Assign values for stable pools
       if (contractData.tokenC !== undefined) {
         result.tokenC = contractData.tokenC;
         logger.debug(`[AQUA] → TokenC from contract: ${result.tokenC}`);

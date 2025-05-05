@@ -33,20 +33,19 @@ export async function aquaEventHandler(event: SorobanEvent): Promise<void> {
     existingPool.reserveB = eventData.reserveB;
     existingPool.date = currentDate;
     existingPool.ledger = event.ledger.sequence;
-    
-    // Actualizar fee solo si existe
+    // Update fee only if it exists
     if (eventData.fee !== undefined) {
       existingPool.fee = eventData.fee;
     }
     
-    // Actualizar campos para pools estables si existen
+    // Update fields for stable pools if they exist
     if (existingPool.poolType === "stable") {
-      // Actualizar reserveC si existe
+      // Update reserveC if it exists
       if (eventData.reserveC !== undefined) {
         existingPool.reserveC = eventData.reserveC;
       }
       
-      // Actualizar campos de A
+      // Update A fields if they exist
       if (eventData.futureA !== undefined) {
         existingPool.futureA = eventData.futureA;
       }
@@ -60,7 +59,7 @@ export async function aquaEventHandler(event: SorobanEvent): Promise<void> {
         existingPool.initialATime = eventData.initialATime;
       }
       
-      // Actualizar precisiones si existen
+      // Update precisions if they exist
       if (eventData.precisionMulA !== undefined) {
         existingPool.precisionMulA = eventData.precisionMulA;
       }
@@ -73,7 +72,7 @@ export async function aquaEventHandler(event: SorobanEvent): Promise<void> {
       
 
       
-      // Actualizar tokenC si existe
+      // Update tokenC if it exists
       if (eventData.tokenC !== undefined) {
         existingPool.tokenC = eventData.tokenC;
       }
@@ -106,31 +105,28 @@ export async function aquaAddPoolHandler(event: SorobanEvent): Promise<void> {
         `[AQUA] ⏭️ Existing pool data for contract ${eventData.address} is more recent, NOT updating`
       );
       return;
-    }
-
-    // Determinar si es un pool estable o constant_product
-    const isStablePool = eventData.poolType === "stable";
-    
-    // Crear valores por defecto para nuevo pool
+    }    
+    // Create default values for new pool
     const poolDefaults = {
       id: eventData.address,
+      idx: eventData.idx,
       ledger: event.ledger.sequence,
       date: currentDate,
       tokenA: eventData.tokenA,
       tokenB: eventData.tokenB,
-      tokenC: eventData.tokenC || "", // Campo para pools estables
+      tokenC: eventData.tokenC || "", // Field for stable pools
       reserveA: BigInt(0),
       reserveB: BigInt(0),
-      reserveC: BigInt(0), // Campo para pools estables
+      reserveC: BigInt(0), // Field for stable pools
       poolType: eventData.poolType,
       fee: BigInt(0),
-      futureA: BigInt(0), // Campo para pools estables
-      futureATime: BigInt(0), // Campo para pools estables
-      initialA: BigInt(0), // Campo para pools estables
-      initialATime: BigInt(0), // Campo para pools estables
-      precisionMulA: BigInt(0), // Campo para pools estables
-      precisionMulB: BigInt(0), // Campo para pools estables
-      precisionMulC: BigInt(0), // Campo para pools estables
+      futureA: BigInt(0), // Field for stable pools
+      futureATime: BigInt(0), // Field for stable pools
+      initialA: BigInt(0), // Field for stable pools
+      initialATime: BigInt(0), // Field for stable pools
+      precisionMulA: BigInt(0), // Field for stable pools
+      precisionMulB: BigInt(0), // Field for stable pools
+      precisionMulC: BigInt(0), // Field for stable pools
     };
 
     // Create record

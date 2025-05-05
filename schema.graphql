@@ -33,6 +33,7 @@ AquaPair entity: Stores Aqua swap events
 """
 type AquaPair @entity {
   id: ID! # Address
+  idx: String!
   ledger: Int! @index
   date: Date! @index
   tokenA: String! @index
