@@ -45,15 +45,6 @@ async function getTokenSetsCount(): Promise<number> {
     });
     return Number(scValToNative(result.result.retval));
   } catch (error) {
-    console.error("❌ Error getting the total number of token sets:", error);
-    console.log(`⚠️ Checking contract existence...`);
-    try {
-      // Try to get basic contract information to verify its existence
-      const contractData = await toolkit.rpc.getLatestLedger();
-      console.log(`📊 Latest ledger: ${contractData.sequence}`);
-    } catch (innerError) {
-      console.error(`❌ Error verifying the network: ${innerError}`);
-    }
     throw error;
   }
 }
