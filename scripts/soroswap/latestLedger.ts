@@ -40,18 +40,15 @@ export async function getLatestRouterLedger(): Promise<any> {
         eventFound = true;
         const latestLedgerWithEvent = events.events[events.events.length - 1].ledger;
         console.log("🚀 « latestLedgerWithEvent:", latestLedgerWithEvent);
-        
-        // Here we save the value of the ledger with the event
         saveStartBlock(latestLedgerWithEvent);
         break;
       } else {
         console.log("🚀 « No events found, retrying with 50 earlier ledgers");
-        startLedger -= 50; // Subtract more to the startLedger
+        startLedger -= 50;
         tries++;
       }
     } while (events.events.length === 0 && startLedger > 0 && tries < maxTries);
 
-    // if after all attempts we don't find events, we use the latest ledger available
     if (!eventFound) {
       console.log(`⚠️ No swap events found after ${maxTries} attempts. Using latest ledger as default.`);
       saveStartBlock(latestLedger);
@@ -60,7 +57,6 @@ export async function getLatestRouterLedger(): Promise<any> {
     return startLedger;
   } catch (error) {
     console.log("🚀 « error:", error);
-    // In case of error, also save the last known ledger
     if (latestLedger > 0) {
       console.log(`⚠️ Error occurred, but saving latest ledger (${latestLedger}) as default.`);
       saveStartBlock(latestLedger);
