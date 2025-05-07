@@ -33,19 +33,18 @@ interface AquaPool {
 
 async function getTokenSetsCount(): Promise<number> {
   try {
+    
     const result = await retry(async () => {
       return await invokeCustomContract(
         toolkit,
         FACTORY_CONTRACT_AQUA,
         "get_tokens_sets_count",
         [],
-        true,
-        Keypair.fromSecret(process.env.SECRET_KEY_HELPER as string)
+        true
       );
     });
     return Number(scValToNative(result.result.retval));
   } catch (error) {
-    console.error("❌ Error getting the total number of token sets:", error);
     throw error;
   }
 }
@@ -335,8 +334,15 @@ export async function getAquaPreStart(): Promise<void> {
   const poolAddressSet = new Set<string>(); 
 
   try {
-    console.log("🚀 Iniciando generación de lista de pools de Aqua...");
-
+    // Verify endpoint
+    try {
+      const latestLedger = await toolkit.rpc.getLatestLedger();
+      console.log(`✅ Connection to endpoint successful. Latest ledger: ${latestLedger.sequence}`);
+    } catch (error) {
+      console.error(`❌ Error connecting to endpoint: ${error}`);
+      throw new Error("Error connecting to Soroban endpoint");
+    }
+    
     // Get total of sets
     const totalSets = await getTokenSetsCount();
     console.log(`📊 Total of sets of tokens: ${totalSets}`);
@@ -547,6 +553,12 @@ export const aquaPoolsList: AquaPool[] = ${JSON.stringify(aquaPools, null, 2)};
     );
   } catch (error) {
     console.error("❌ General error:", error);
+
+    // Additional diagnostic information
+    console.log(`⚠️ Additional diagnostic information:`);
+    console.log(`🌐 Network: ${process.env.NETWORK}`);
+    console.log(`🔌 Endpoint: ${process.env.SOROBAN_ENDPOINT}`);
+    console.log(`📝 Aqua Factory contract: ${FACTORY_CONTRACT_AQUA}`);
 
     // Save emergency checkpoint
     if (aquaPools.length > 0) {
