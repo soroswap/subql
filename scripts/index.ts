@@ -3,6 +3,7 @@ import { generatePairTokenReservesList } from "./soroswap/pairsTokensMaker";
 import { getLatestRouterLedger } from "./soroswap/latestLedger";
 import { getPhoenixPreStart } from "./phoenix/pairs";
 import { getAquaPreStart } from "./aqua/aquaPoolsTokensMaker";
+import { Keypair } from "@stellar/stellar-sdk";
 config();
 
 export const { SOROBAN_ENDPOINT, SECRET_KEY_HELPER, NETWORK } = process.env;
@@ -14,6 +15,11 @@ function validateEnvVariables() {
     );
     process.exit(1);
   }
+  
+  console.log(`🔧 Initial configuration:`);
+  console.log(`🌐 Network: ${NETWORK}`);
+  console.log(`🔌 Endpoint: ${SOROBAN_ENDPOINT}`);
+  console.log(`🔑 Helper account (public): ${Keypair.fromSecret(SECRET_KEY_HELPER).publicKey()}`);
 }
 
 async function main() {
@@ -21,6 +27,7 @@ async function main() {
 
   // SOROSWAP
   try {
+    console.log(`\n📊 Starting Soroswap processing...`);
     await generatePairTokenReservesList();
     await getLatestRouterLedger();
   } catch (error) {
@@ -28,19 +35,26 @@ async function main() {
   }
 
   // PHOENIX
-  try {
-    await getPhoenixPreStart();
-  } catch (error) {
-    console.error("❌ Error generating Phoenix pairs:", error);
+  if (NETWORK !== "testnet") {
+    try {
+      console.log(`\n📊 Starting Phoenix processing...`);
+      await getPhoenixPreStart();
+    } catch (error) {
+      console.error("❌ Error generating Phoenix pairs:", error);
+    }
+  } else {
+    console.log(`\n⏭️ Skipping Phoenix in testnet`);
   }
 
   // AQUA
   try {
+    console.log(`\n📊 Starting Aqua processing...`);
     await getAquaPreStart();
   } catch (error) {
     console.error("❌ Error generating Aqua pairs:", error);
   }
 
+  console.log(`\n🏁 Processing complete`);
   process.exit(1);
 }
 
