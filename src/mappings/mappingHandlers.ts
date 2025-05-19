@@ -8,7 +8,7 @@ import { aquaEventHandler, aquaAddPoolHandler } from "../aqua";
 import { getFactoryTopic } from "../aqua/helpers/events";
 import { getAquaFactory, NETWORK } from "../constants";
 
-const factoryAqua = getAquaFactory(process.env.NETWORK as NETWORK);
+const factoryAqua = getAquaFactory("testnet" as NETWORK);
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(event: SorobanEvent): Promise<void> {
   logger.info(`[SOROSWAP] 🔁 Sync event received`);
