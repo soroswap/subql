@@ -3,6 +3,13 @@ import { SorobanEvent } from "@subql/types-stellar";
 import { hexToSorobanAddress } from "../utils";
 import { DeFindexVault } from "../types";
 import { DeFindexVaultProps } from "../types/models/DeFindexVault";
+import { createHash } from 'crypto';
+
+// Function to generate a unique hash for an event
+const generateEventId = (contractId: string, ledger: number, date: string): string => {
+  const data = `${contractId}-${ledger}-${date}`;
+  return createHash('sha256').update(data).digest('hex');
+};
 
 export const defindexEventHandler = async (event: SorobanEvent) => {
   const contractId = event.contractId.toString();
@@ -215,7 +222,7 @@ export const defindexEventHandler = async (event: SorobanEvent) => {
     logger.info(`🚀 | APY: ${apy.toFixed(2)}%`);
 
     const entryData: DeFindexVaultProps = {
-      id: contractId,
+      id: generateEventId(contractId, ledger, date),
       date: new Date(date),
       ledger: ledger,
       vault: contractId,
