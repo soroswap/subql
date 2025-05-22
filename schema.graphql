@@ -52,3 +52,22 @@ type AquaPair @entity {
   precisionMulB: BigInt!
   precisionMulC: BigInt!
 }
+
+"""
+TEMP DO NOT COMMIT TO MAIN
+Defindex entity: Stores defindex events
+"""
+type DeFindexVault @entity {
+  id: ID! # Event ID
+  date: Date! @index
+  ledger: Int! @index
+  vault: String! @index # Vault contract address
+  eventType: String! # Deposit or Withdraw
+  from: String! @index # Depositor or Withdrawer address
+  amounts: [BigInt!]! # Array of deposit or withdrawn amounts
+  dfTokens: BigInt! # Df tokens minted or burned
+  totalSupplyBefore: BigInt! # Total supply before
+  totalManagedFundsBefore: String! # Total managed funds before as JSON string
+  previousPricePerShare: BigInt! # Previous price per share
+  newPricePerShare: BigInt! # New price per share
+}
