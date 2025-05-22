@@ -48,7 +48,6 @@ export const defindexEventHandler = async (event: SorobanEvent) => {
       const parsedVal = JSON.parse(JSON.stringify(val));
       const keyBuffer = parsedVal._attributes?.key?._value?.data;
       const keyText = Buffer.from(keyBuffer).toString();
-      logger.info(`🚀 | keyText: ${keyText}`);
 
       switch (keyText) {
         case "amounts_withdrawn":
@@ -140,6 +139,80 @@ export const defindexEventHandler = async (event: SorobanEvent) => {
     logger.info(`🚀 | date: ${new Date(date)}`);
     logger.info(`🚀 | ledger: ${ledger}`);
 
+    // Calculate date one week ago
+    const oneWeekAgo = new Date(date);
+    logger.info(`🚀 | oneWeekAgo: ${oneWeekAgo}`);
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    logger.info(`🚀 | oneWeekAgo: ${oneWeekAgo}`);
+
+    // Get entries from the last week
+    const previousEntries = await DeFindexVault.getByFields(
+      [
+        ['date', '=', oneWeekAgo],
+        ['date', '!=', new Date(date)],
+        ['vault', '=', contractId]
+      ],
+      {
+        orderBy: 'date',
+        orderDirection: 'DESC',
+        limit: 1
+      }
+    );
+    logger.info(`🚀 | previousEntries: ${JSON.stringify(previousEntries, replacer)}`);
+
+    const previousEntry = previousEntries[0];
+    logger.info(`🚀 | previousEntry: ${previousEntry ? JSON.stringify(previousEntry, replacer) : 'No previous entry found'}`);
+
+    // Calculate price per share if we have a previous entry
+    let previousPricePerShare = BigInt(0);
+    let newPricePerShare = BigInt(0);
+    let apy = 0;
+
+    if (previousEntry) {
+      // Parse the totalManagedFundsBefore from JSON string
+      const previousManagedFunds = JSON.parse(previousEntry.totalManagedFundsBefore);
+      
+      // Calculate previous price per share
+      // (total_managed_funds_before + amounts) / (total_supply_before + df_tokens_minted)
+      // or (total_managed_funds_before - amounts) / (total_supply_before - df_tokens_burned)
+      const previousTotalManagedFunds = previousManagedFunds.total_amount;
+      const previousTotalSupply = previousEntry.totalSupplyBefore;
+      const previousDfTokens = previousEntry.dfTokens;
+      const previousAmounts = previousEntry.amounts.reduce((a, b) => a + b, BigInt(0));
+
+      if (previousEntry.eventType === 'deposit') {
+        previousPricePerShare = (previousTotalManagedFunds + previousAmounts) / (previousTotalSupply + previousDfTokens);
+      } else {
+        previousPricePerShare = (previousTotalManagedFunds - previousAmounts) / (previousTotalSupply - previousDfTokens);
+      }
+
+      // Calculate new price per share
+      const currentTotalManagedFunds = totalManagedFundsBefore.total_amount;
+      const currentTotalSupply = totalSupplyBefore;
+      const currentDfTokens = dfTokens;
+      const currentAmounts = amounts.reduce((a, b) => a + b, BigInt(0));
+
+      if (eventType === 'deposit') {
+        newPricePerShare = (currentTotalManagedFunds + currentAmounts) / (currentTotalSupply + currentDfTokens);
+      } else {
+        newPricePerShare = (currentTotalManagedFunds - currentAmounts) / (currentTotalSupply - currentDfTokens);
+      }
+
+      // Calculate period in days
+      const previousDate = new Date(previousEntry.date);
+      const currentDate = new Date(date);
+      const periodInDays = (currentDate.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24);
+
+      // Calculate daily APR
+      const dailyApr = (Number(newPricePerShare) - Number(previousPricePerShare)) / Number(previousPricePerShare) / periodInDays;
+
+      // Calculate APY
+      apy = (Math.pow(1 + dailyApr, 365.2425) - 1) * 100; // Convert to percentage
+    }
+
+    logger.info(`🚀 | previousPricePerShare: ${previousPricePerShare}`);
+    logger.info(`🚀 | newPricePerShare: ${newPricePerShare}`);
+    logger.info(`🚀 | APY: ${apy.toFixed(2)}%`);
 
     const entryData: DeFindexVaultProps = {
       id: contractId,
@@ -152,13 +225,13 @@ export const defindexEventHandler = async (event: SorobanEvent) => {
       dfTokens: dfTokens,
       totalSupplyBefore: totalSupplyBefore,
       totalManagedFundsBefore: JSON.stringify(totalManagedFundsBefore, replacer),
-      previousPricePerShare: BigInt(0),
-      newPricePerShare: BigInt(0),
-    }
+      previousPricePerShare: previousPricePerShare,
+      newPricePerShare: newPricePerShare,
+      apy: apy,
+    };
 
-    const createdEntry = DeFindexVault.create(entryData)
-  
-    await createdEntry.save();
+    const entry = DeFindexVault.create(entryData);
+    await entry.save();
 
   } else {
     logger.info("🚀 | No matching event found");
