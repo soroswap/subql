@@ -35,9 +35,9 @@ export const defindexEventHandler = async (event: SorobanEvent) => {
     const dataXdr = eventData.body().value().data().toXDR();
     const scValData = xdr.ScVal.fromXDR(dataXdr).value() as xdr.ScVal[];
 
-    let amounts: bigint[];
-    let from: string;
-    let dfTokens: bigint;
+    let amounts: bigint[] = [];
+    let from: string = "";
+    let dfTokens: bigint = BigInt(0);
     let totalManagedFundsBefore: {
       asset: string;
       idle_amount: bigint;
@@ -49,7 +49,7 @@ export const defindexEventHandler = async (event: SorobanEvent) => {
       }[];
       total_amount: bigint;
     };
-    let totalSupplyBefore: bigint;
+    let totalSupplyBefore: bigint = BigInt(0);
 
     for (const val of scValData) {
       const parsedVal = JSON.parse(JSON.stringify(val));
