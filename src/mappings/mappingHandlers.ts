@@ -9,7 +9,6 @@ import { getFactoryTopic } from "../aqua/helpers/events";
 import { getAquaFactory, NETWORK } from "../constants";
 import * as DefindexHandler from "../defindex"; // TEMP: DEFINDEX EVENTS
 
-const factoryAqua = getAquaFactory("mainnet" as NETWORK);
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(event: SorobanEvent): Promise<void> {
   logger.info(`[SOROSWAP] 🔁 Sync event received`);
@@ -40,7 +39,7 @@ export async function handlePhoenixCreateLPEvent(event: SorobanEvent): Promise<v
 export async function handleEventAqua(event: SorobanEvent): Promise<void> {
   logger.info(`[AQUA] 🔁 ${String(event.topic[0]?.value()).toUpperCase()} Event received`);
   const factoryAddress = await getFactoryTopic(event);
-  if (String(event.topic[0]?.value()).toUpperCase() === "TRADE" && factoryAddress === factoryAqua) {
+  if (String(event.topic[0]?.value()).toUpperCase() === "TRADE" && (factoryAddress === getAquaFactory(NETWORK.MAINNET) || factoryAddress === getAquaFactory(NETWORK.TESTNET))) {
     await initializeAquaDb(event.contractId.toString());
   }
 
