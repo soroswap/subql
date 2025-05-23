@@ -188,9 +188,9 @@ export const defindexEventHandler = async (event: SorobanEvent) => {
       const previousAmounts = previousEntry.amounts.reduce((a, b) => a + b, BigInt(0));
 
       if (previousEntry.eventType === 'deposit') {
-        previousPricePerShare = (previousTotalManagedFunds + previousAmounts) / (previousTotalSupply + previousDfTokens);
+        previousPricePerShare = BigInt(previousTotalManagedFunds + previousAmounts) / BigInt(previousTotalSupply + previousDfTokens);
       } else {
-        previousPricePerShare = (previousTotalManagedFunds - previousAmounts) / (previousTotalSupply - previousDfTokens);
+        previousPricePerShare = BigInt(previousTotalManagedFunds - previousAmounts) / BigInt(previousTotalSupply - previousDfTokens);
       }
 
       // Calculate new price per share
