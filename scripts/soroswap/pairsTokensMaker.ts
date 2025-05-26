@@ -15,13 +15,9 @@ export async function getPLimit(): Promise<(concurrency: number) => LimitFunctio
 }
 
 const FACTORY_CONTRACT = getSoroswapFactory(process.env.NETWORK as NETWORK).address;
-console.log(`🔍 Soroswap Factory contract address: ${FACTORY_CONTRACT}`);
-console.log(`🌐 Network configured: ${process.env.NETWORK}`);
 
 async function getAllPairsLength(): Promise<number> {
   try {
-    console.log(`🔍 Trying to get total number of pairs from: ${FACTORY_CONTRACT}`);
-    
     const result = await retry(async () => {
       return await invokeCustomContract(
         toolkit,
@@ -34,16 +30,6 @@ async function getAllPairsLength(): Promise<number> {
     return Number(scValToNative(result.result.retval));
   } catch (error) {
     console.error("❌ Error getting total number of pairs:", error);
-    
-    // Additional diagnostic information
-    console.log(`⚠️ Verifying existence of Soroswap Factory contract...`);
-    try {
-      const latestLedger = await toolkit.rpc.getLatestLedger();
-      console.log(`📊 Latest ledger: ${latestLedger.sequence}`);
-    } catch (innerError) {
-      console.error(`❌ Error accessing the network: ${innerError}`);
-    }
-    
     throw error;
   }
 }
@@ -100,14 +86,10 @@ export async function generatePairTokenReservesList(): Promise<void> {
     reserve_b: string;
   }[] = [];
   const failedPairs: string[] = [];
-  
-  console.log(`🚀 Starting to get Soroswap pairs information...`);
-  console.log(`🌐 Network: ${process.env.NETWORK}`);
-  console.log(`🔌 Endpoint: ${process.env.SOROBAN_ENDPOINT}`);
-  
+  const totalPairs = await getAllPairsLength();
+  console.log(`📊 Total pairs found: ${totalPairs}`);
   try {
-    const totalPairs = await getAllPairsLength();
-    console.log(`📊 Total pairs found: ${totalPairs}`);
+    console.log("🚀 Getting pairs information...");
 
     const pLimit = await getPLimit();
     const limit = pLimit(10); // Reduced concurrency for API limit

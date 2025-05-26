@@ -27,8 +27,6 @@ cd subql
 cp .env.example .env
 ```
 
-Check RPC, wallet and network in .env in testnet or mainnet case.
-
 ### 2️⃣ Clean Previous Installation (If Necessary)
 
 To ensure a clean setup, remove previous configurations:
@@ -49,14 +47,6 @@ Prepare the environment by executing:
 
 ```bash
 npm run prestart
-```
-
-### Local network
-
-You need create to local network or edit docker-compose.yaml
-
-```bash
-   docker network create soroswap-network
 ```
 
 ### 5️⃣ Start the Indexer
