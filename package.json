@@ -27,16 +27,16 @@
   "dependencies": {
     "@stellar/stellar-sdk": "^13.1.0",
     "@subql/common": "^5.4.0",
-    "@subql/common-stellar": "^4.3.0",
-    "@subql/types-stellar": "4.3.0",
+    "@subql/common-stellar": "^4.4.2",
+    "@subql/types-stellar": "^4.3.0",
     "base32.js": "^0.1.0",
     "p-limit": "^6.2.0",
     "soroban-toolkit": "^0.1.5"
   },
   "devDependencies": {
-    "@subql/cli": "^5.7.0",
+    "@subql/cli": "^5.11.0",
     "@subql/testing": "latest",
-    "@subql/types": "^3.11.5",
+    "@subql/types": "^3.12.2",
     "@types/node": "^22.13.1",
     "dotenv": "latest",
     "ts-node": "^10.9.2",
