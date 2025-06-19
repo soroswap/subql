@@ -6,8 +6,8 @@ const soroswapFactory = {
     startBlock: 56931112,
   },
   testnet: {
-    address: "CBVFAI4TEJCHIICFUYN2C5VYW5TD3CKPIZ4S5P5LVVUWMF5MRLJH77NH",
-    startBlock: 84371,
+    address: "CBEEH4UPEYYJIT6INNYMXOXP5UTN6IBU3NKQFOFUYCZM2IHYITW6N22Z",
+    startBlock: 15631,
   },
 };
 
