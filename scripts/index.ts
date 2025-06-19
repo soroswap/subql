@@ -1,20 +1,24 @@
-import { config } from "dotenv";
-import { generatePairTokenReservesList } from "./soroswap/pairsTokensMaker";
-import { getLatestRouterLedger } from "./soroswap/latestLedger";
-import { getPhoenixPreStart } from "./phoenix/pairs";
-import { getAquaPreStart } from "./aqua/aquaPoolsTokensMaker";
-config();
+  import { config } from "dotenv";
+  import { generatePairTokenReservesList } from "./soroswap/pairsTokensMaker";
+  import { getLatestRouterLedger } from "./soroswap/latestLedger";
+  import { getPhoenixPreStart } from "./phoenix/pairs";
+  import { getAquaPreStart } from "./aqua/aquaPoolsTokensMaker";
+  import { NETWORK } from "../src/constants";
 
-export const { SOROBAN_ENDPOINT, SECRET_KEY_HELPER, NETWORK } = process.env;
 
-function validateEnvVariables() {
-  if (!SOROBAN_ENDPOINT || !SECRET_KEY_HELPER) {
-    console.error(
-      "❌ Error: SOROBAN_ENDPOINT and SECRET_KEY_HELPER environment variables are required"
-    );
-    process.exit(1);
+
+  config();
+
+  export const { SOROBAN_ENDPOINT, SECRET_KEY_HELPER } = process.env;
+
+  function validateEnvVariables() {
+    if (!SOROBAN_ENDPOINT || !SECRET_KEY_HELPER) {
+      console.error(
+        "❌ Error: SOROBAN_ENDPOINT and SECRET_KEY_HELPER environment variables are required"
+      );
+      process.exit(1);
+    }
   }
-}
 
 async function main() {
   validateEnvVariables();
@@ -27,19 +31,21 @@ async function main() {
     console.error("❌ Error generating Soroswap pairs:", error);
   }
 
-  // PHOENIX
-  try {
-    await getPhoenixPreStart();
-  } catch (error) {
-    console.error("❌ Error generating Phoenix pairs:", error);
+  if ((process.env.NETWORK as NETWORK) == NETWORK.MAINNET) {
+    // PHOENIX
+    try {
+      await getPhoenixPreStart();
+    } catch (error) {
+      console.error("❌ Error generating Phoenix pairs:", error);
+    }
+    // AQUA
+    try {
+      await getAquaPreStart();
+    } catch (error) {
+      console.error("❌ Error generating Aqua pairs:", error);
+    }
   }
 
-  // AQUA
-  try {
-    await getAquaPreStart();
-  } catch (error) {
-    console.error("❌ Error generating Aqua pairs:", error);
-  }
 
   process.exit(1);
 }

@@ -76,6 +76,5 @@ services:
       - default
 
 networks:
-  default:
-    external: 
-      name: soroswap-network
+  soroswap-network:
+    external: true
