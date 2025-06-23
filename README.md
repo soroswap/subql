@@ -27,7 +27,31 @@ cd subql
 cp .env.example .env
 ```
 
-### 2️⃣ Clean Previous Installation (If Necessary)
+### 2️⃣ Configure Testnet Environment
+
+#### Update Factory Contract Address
+Edit the file `src/constants/soroswapContracts.ts` using the factory address from:
+https://github.com/soroswap/core/blob/main/public/testnet.contracts.json
+
+Set `startBlock` to a recent block number.
+
+#### Set Environment Variables
+```bash
+# Set network to testnet in .env file
+NETWORK=testnet
+```
+
+#### Verify Testnet Endpoints
+Ensure all endpoints in your configuration are pointing to testnet.
+
+#### Commit Changes
+```bash
+git add src/constants/soroswapContracts.ts
+git commit -m "Testnet Reset $(date +%Y-%m-%d)"
+git push origin main
+```
+
+### 3️⃣ Clean Previous Installation (If Necessary)
 
 To ensure a clean setup, remove previous configurations:
 
@@ -35,13 +59,13 @@ To ensure a clean setup, remove previous configurations:
 npm run reset
 ```
 
-### 3️⃣ Install Dependencies
+### 4️⃣ Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 4️⃣ Run Initial Scripts
+### 5️⃣ Run Initial Scripts
 
 Prepare the environment by executing:
 
@@ -49,7 +73,7 @@ Prepare the environment by executing:
 npm run prestart
 ```
 
-### 5️⃣ Start the Indexer
+### 6️⃣ Start the Indexer
 
 Launch the indexer in development mode:
 
@@ -57,18 +81,35 @@ Launch the indexer in development mode:
 npm run dev
 ```
 
+**Important Note**: For the indexer to function properly, you need to execute a transaction on an existing pool (mint, add liquidity, or swap) to trigger the indexing process.
+
 ---
-# Extenral Ports.
-This will run 3 docker containters called, `subql-graphql-engine-1`, `subql-subquery-node-1` and `postgres`.
-The one you will pay attention are
-- 7000 for the  `subql-graphql-engine`
+# External Ports
+This will run 3 docker containers called, `subql-graphql-engine-1`, `subql-subquery-node-1` and `postgres`.
+The ones you will pay attention to are:
+- 7000 for the `subql-graphql-engine`
 - 5432 for the `postgres`
 
 If you are calling the indexer from a local docker container of the same network, you will need to use:
 `GRAPHQL_INDEXER_MAINNET=http://graphql-engine:7000`
 ---
 
-### 6️⃣ Deploy to OnFinality
+### 7️⃣ Test Before Deployment
+
+Before deploying to OnFinality, you can test locally:
+
+```bash
+npm run dev
+```
+
+Then visit http://localhost:7000 to access the GraphQL playground.
+
+**Prerequisites for Testing**:
+- Ensure your frontend is working with the new pools
+- Execute a transaction (mint, add liquidity, or swap) on an existing pool like XTWR
+- Verify that the indexer captures the transaction data
+
+### 8️⃣ Deploy to OnFinality
 
 To deploy to OnFinality, you first need to get the Token from [OnFinality](https://indexing.onfinality.io/). Once you have the token, add it to your `.env` file under `SUBQL_ACCESS_TOKEN` and run:
 
@@ -79,7 +120,30 @@ npm run subql-publish
 
 This will build and upload the project to IPFS and return a hash that will be used in OnFinality's deployment.
 
-Important! Dont forget to enable unsafe flag!
+#### Deployment Steps:
+
+1. **Copy the IPFS Hash** (e.g., `QmabvKWHyYVWV9kEX4KSj2SNRLN8KLcvjVkWiituqxd4Uk`)
+
+2. **Go to OnFinality Dashboard**:
+   - Visit https://indexing.onfinality.io/login
+   - Navigate to your soroswap project
+   - Click "Deploy to Staging Slot"
+
+3. **Configure Advanced Settings**:
+   - In Advanced Settings, enable **"Unsafe Flag"** to **TRUE**
+   - Paste the IPFS hash from step 1
+
+4. **Test in Staging**:
+   - Once deployed, review it in the explorer
+   - Execute a swap transaction in your frontend
+   - Verify that the indexer is functioning correctly
+
+5. **Move to Production**:
+   - After successful testing in staging, move the deployment to production
+   - Review again in the explorer to ensure everything works as expected
+
+**Important**: Don't forget to enable the unsafe flag in OnFinality's advanced settings!
+
 ## 🛠 Project Structure
 
 The project consists of the following key files:
