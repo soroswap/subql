@@ -13,16 +13,16 @@ export interface PhoenixPairReserves {
     total_fee_bps: string;
 }
 
-export const phoenixPairsGeneratedDate = "2025-06-06T14:23:50.342Z";
+export const phoenixPairsGeneratedDate = "2025-07-11T18:23:15.079Z";
 
 export const phoenixPairReservesList: PhoenixPairReserves[] = [
   {
     "address": "CBHCRSVX3ZZ7EGTSYMKPEFGZNWRVCSESQR3UABET4MIW52N4EVU6BIZX",
     "token_a": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
     "token_b": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "reserve_a": "65215299641782",
-    "reserve_b": "17102774049627",
-    "reserve_lp": "33391457032352",
+    "reserve_a": "54462732783196",
+    "reserve_b": "20399707942864",
+    "reserve_lp": "33326448392916",
     "stake_address": "CAF3UJ45ZQJP6USFUIMVMGOUETUTXEC35R2247VJYIVQBGKTKBZKNBJ3",
     "total_fee_bps": "100"
   },
@@ -30,9 +30,9 @@ export const phoenixPairReservesList: PhoenixPairReserves[] = [
     "address": "CBCZGGNOEUZG4CAAE7TGTQQHETZMKUT4OIPFHHPKEUX46U4KXBBZ3GLH",
     "token_a": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
     "token_b": "CBZ7M5B3Y4WWBZ5XK5UZCAFOEZ23KSSZXYECYX3IXM6E2JOLQC52DK32",
-    "reserve_a": "775766139449",
-    "reserve_b": "1115105794749",
-    "reserve_lp": "888300995799",
+    "reserve_a": "873340251250",
+    "reserve_b": "1242183511046",
+    "reserve_lp": "994766888915",
     "stake_address": "CBRGNWGAC25CPLMOAMR7WBPOF5QTFA5RYXQH4DEJ4K65G2QFLTLMW7RO",
     "total_fee_bps": "100"
   },
@@ -40,8 +40,8 @@ export const phoenixPairReservesList: PhoenixPairReserves[] = [
     "address": "CBISULYO5ZGS32WTNCBMEFCNKNSLFXCQ4Z3XHVDP4X4FLPSEALGSY3PS",
     "token_a": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
     "token_b": "CDTKPWPLOURQA2SGTKTUQOWRCBZEORB4BWBOMJ3D3ZTQQSGE5F6JBQLV",
-    "reserve_a": "117835633796",
-    "reserve_b": "26995211010",
+    "reserve_a": "99641962553",
+    "reserve_b": "31924278794",
     "reserve_lp": "56400335921",
     "stake_address": "CDEQYRWFU3IHPRR6H6VOQRUU3JFS6DTUYUL4YAQSD3ALB5IPBTEOZUFM",
     "total_fee_bps": "100"
@@ -70,8 +70,8 @@ export const phoenixPairReservesList: PhoenixPairReserves[] = [
     "address": "CDMXKSLG5GITGFYERUW2MRYOBUQCMRT2QE5Y4PU3QZ53EBFWUXAXUTBC",
     "token_a": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
     "token_b": "CDIKURWHYS4FFTR5KOQK6MBFZA2K3E26WGBQI6PXBYWZ4XIOPJHDFJKP",
-    "reserve_a": "5981424988294",
-    "reserve_b": "1566912925284",
+    "reserve_a": "5005856541542",
+    "reserve_b": "1872281406069",
     "reserve_lp": "3061432790694",
     "stake_address": "CBULEXIMZ5C4CSUPZ4E5LXATWDZNS6MDM2A57DAUD5GXSUG4IWKLOSOC",
     "total_fee_bps": "100"
@@ -80,9 +80,9 @@ export const phoenixPairReservesList: PhoenixPairReserves[] = [
     "address": "CD5XNKK3B6BEF2N7ULNHHGAMOKZ7P6456BFNIHRF4WNTEDKBRWAE7IAA",
     "token_a": "CBZ7M5B3Y4WWBZ5XK5UZCAFOEZ23KSSZXYECYX3IXM6E2JOLQC52DK32",
     "token_b": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "reserve_a": "674117834488",
-    "reserve_b": "125364937952",
-    "reserve_lp": "257054560751",
+    "reserve_a": "588942290796",
+    "reserve_b": "153485749107",
+    "reserve_lp": "265857669166",
     "stake_address": "CDOXQONPND365K6MHR3QBSVVTC3MKR44ORK6TI2GQXUXGGAS5SNDAYRI",
     "total_fee_bps": "100"
   },
@@ -90,9 +90,9 @@ export const phoenixPairReservesList: PhoenixPairReserves[] = [
     "address": "CC6MJZN3HFOJKXN42ANTSCLRFOMHLFXHWPNAX64DQNUEBDMUYMPHASAV",
     "token_a": "CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U",
     "token_b": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "reserve_a": "1072315129858",
-    "reserve_b": "969943506391",
-    "reserve_lp": "1019845587171",
+    "reserve_a": "835214943817",
+    "reserve_b": "1245809907243",
+    "reserve_lp": "1020058320133",
     "stake_address": "CD2YKNPX3JPTGDANJRPEJS42MPQLEVUVVRZKJYLLUSPJKQJA7LUANBO4",
     "total_fee_bps": "100"
   },
@@ -100,8 +100,8 @@ export const phoenixPairReservesList: PhoenixPairReserves[] = [
     "address": "CB5QUVK5GS3IU23TMFZQ3P5J24YBBZP5PHUQAEJ2SP5K55PFTJRUQG2L",
     "token_a": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
     "token_b": "CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U",
-    "reserve_a": "3284281942477",
-    "reserve_b": "948233247137",
+    "reserve_a": "3541655323268",
+    "reserve_b": "879324791977",
     "reserve_lp": "1764727956217",
     "stake_address": "CDBMVFP7KJXW3YEFSLOU5GYUQHHJJI7QPZJPCSPDK6HHBCBZAMCHS2QY",
     "total_fee_bps": "100"
@@ -110,8 +110,8 @@ export const phoenixPairReservesList: PhoenixPairReserves[] = [
     "address": "CCKOC2LJTPDBKDHTL3M5UO7HFZ2WFIHSOKCELMKQP3TLCIVUBKOQL4HB",
     "token_a": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
     "token_b": "CBCO65UOWXY2GR66GOCMCN6IU3Y45TXCPBY3FLUNL4AOUMOCKVIVV6JC",
-    "reserve_a": "2741972321827",
-    "reserve_b": "655027282851",
+    "reserve_a": "2878382356698",
+    "reserve_b": "623984744497",
     "reserve_lp": "1340173942192",
     "stake_address": "CDH6JILIADIC5SKE6OZJAYV3GM62RTR4O54OMVNP4ZOK4HH4J2JWJPVW",
     "total_fee_bps": "100"
@@ -120,8 +120,8 @@ export const phoenixPairReservesList: PhoenixPairReserves[] = [
     "address": "CCUCE5H5CKW3S7JBESGCES6ZGDMWLNRY3HOFET3OH33MXZWKXNJTKSM3",
     "token_a": "CBCO65UOWXY2GR66GOCMCN6IU3Y45TXCPBY3FLUNL4AOUMOCKVIVV6JC",
     "token_b": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "reserve_a": "804804339337",
-    "reserve_b": "873718872561",
+    "reserve_a": "640785189732",
+    "reserve_b": "1097361098772",
     "reserve_lp": "838553852686",
     "stake_address": "CBDCTYZSZIOWCK5IGCQZNFUOJ53KMPYG2MG7GMVGE3A2LEYCFTDYYZ3S",
     "total_fee_bps": "100"
