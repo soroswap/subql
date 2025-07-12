@@ -2,7 +2,7 @@
 // This file was generated automatically by aquaPoolsTokensMaker.ts
 // Do not modify manually
 
-// Total of pools: 105
+// Total of pools: 127
 
 export interface AquaPool {
     tokenA: string;
@@ -23,38 +23,8 @@ export interface AquaPool {
     precisionMulB?: string;
     precisionMulC?: string;
 }
-export const aquaPoolsGeneratedDate = "2025-05-05T13:28:00.071Z";
+export const aquaPoolsGeneratedDate = "2025-07-11T18:23:36.429Z";
 export const aquaPoolsList: AquaPool[] = [
-  {
-    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
-    "tokenB": "CBXE6V454EUYWVQCI4TCSOG4CSNPQ2BLYOTKAKXYFHO3KNVX4CXYCY2T",
-    "address": "CBP67KMDEOZHRJ5YM7DS4MOVYJH66YCEFCVBDBQVNTI46X37DU6KOZMB",
-    "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
-    "poolType": "constant_product",
-    "fee": "100",
-    "reserveA": "13708519291742",
-    "reserveB": "9643397648962"
-  },
-  {
-    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
-    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "address": "CCP3PPN6A5GRAGZTQAXYWSROV4QQMEE3FOR2IXSYYVOXCXPMZRB2QAWZ",
-    "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
-    "poolType": "constant_product",
-    "fee": "100",
-    "reserveA": "0",
-    "reserveB": "0"
-  },
-  {
-    "tokenA": "CBHBD77PWZ3AXPQVYVDBHDKEMVNOR26UZUZHWCB6QC7J5SETQPRUQAS4",
-    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "address": "CDUX476HQ4JZBPLLVEVRIVXDRKAGYDNDL7OLBE5DD37JXOUFI2NACXJ5",
-    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
-    "poolType": "constant_product",
-    "fee": "30",
-    "reserveA": "73898832821",
-    "reserveB": "54901238"
-  },
   {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
     "tokenB": "CA6UGBC4PRUILK3J44WJMXLYKZXM7KEDW25K5B4A32MGX37UYT3C5VZW",
@@ -66,62 +36,34 @@ export const aquaPoolsList: AquaPool[] = [
     "reserveB": "941199835"
   },
   {
-    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
-    "tokenB": "CD25MNVTZDL4Y3XBCPCJXGXATV5WUHHOWMYFF4YBEGU5FCPGMYTVG5JY",
-    "address": "CAB6MICC2WKRT372U3FRPKGGVB5R3FDJSMWSLPF2UJNJPYMBZ76RQVYE",
+    "tokenA": "CBHBD77PWZ3AXPQVYVDBHDKEMVNOR26UZUZHWCB6QC7J5SETQPRUQAS4",
+    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "address": "CDUX476HQ4JZBPLLVEVRIVXDRKAGYDNDL7OLBE5DD37JXOUFI2NACXJ5",
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "617344934035949",
-    "reserveB": "8352034760389"
+    "reserveA": "188899892116",
+    "reserveB": "111009120"
   },
   {
-    "tokenA": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "tokenB": "CDIKURWHYS4FFTR5KOQK6MBFZA2K3E26WGBQI6PXBYWZ4XIOPJHDFJKP",
-    "address": "CCLZQDL5LY2DBPNNFBRKPSROGFGTT7Y7AI2SM6QUI3SUTTKA672X4PDF",
-    "idx": "yy5OG7xqTdImPNVSp7ZU4S499xjgaGS//WWSMG+HFb4=",
-    "poolType": "stable",
-    "fee": "10",
-    "reserveA": "8081331009684",
-    "reserveB": "10462677228239",
-    "futureA": "1500",
-    "futureATime": "1722466834",
-    "initialA": "1500",
-    "initialATime": "1722466834",
-    "precisionMulA": "1",
-    "precisionMulB": "1"
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "address": "CCP3PPN6A5GRAGZTQAXYWSROV4QQMEE3FOR2IXSYYVOXCXPMZRB2QAWZ",
+    "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
+    "poolType": "constant_product",
+    "fee": "100",
+    "reserveA": "654902575971",
+    "reserveB": "674622152"
   },
   {
-    "tokenA": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "tokenB": "CDTSZ2VWVPLNCTHVFK7Y2KKOYDH32NAZ5KMPZIMP3BJ2WBAVPH6SWECE",
-    "address": "CDRRLXLBXYVENKIUCCTFUT5WW6BW43NJMAPEMGU6VIU74LV6526OLS35",
-    "idx": "TXI5SZBHRBq/UisaZj5ZsLCMJXOP8u0XTx8115ou1vs=",
-    "poolType": "stable",
-    "fee": "10",
-    "reserveA": "116125509075",
-    "reserveB": "197920158591",
-    "futureA": "1500",
-    "futureATime": "1721909947",
-    "initialA": "1500",
-    "initialATime": "1721909947",
-    "precisionMulA": "1",
-    "precisionMulB": "1"
-  },
-  {
-    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
-    "tokenB": "CBZVSNVB55ANF24QVJL2K5QCLOAB6XITGTGXYEAF6NPTXYKEJUYQOHFC",
-    "address": "CCFGZJTHQZGDZP5PK6WMLKHKJ72ACSVMJGCI2NFR7Q6EAVSKWLJB3ZH3",
-    "idx": "NH/MyvcEYtwzR6k3foZac530XS1gtQdcDbKa92J3qQQ=",
-    "poolType": "stable",
-    "fee": "10",
-    "reserveA": "18459435934508",
-    "reserveB": "10315533854581",
-    "futureA": "1500",
-    "futureATime": "1721992162",
-    "initialA": "1500",
-    "initialATime": "1721992162",
-    "precisionMulA": "1",
-    "precisionMulB": "1"
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CBXE6V454EUYWVQCI4TCSOG4CSNPQ2BLYOTKAKXYFHO3KNVX4CXYCY2T",
+    "address": "CBP67KMDEOZHRJ5YM7DS4MOVYJH66YCEFCVBDBQVNTI46X37DU6KOZMB",
+    "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
+    "poolType": "constant_product",
+    "fee": "100",
+    "reserveA": "19319815103273",
+    "reserveB": "14509656066786"
   },
   {
     "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
@@ -130,8 +72,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "31824269162686",
-    "reserveB": "8334346101840"
+    "reserveA": "54357674723941",
+    "reserveB": "20489055909949"
   },
   {
     "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
@@ -150,14 +92,72 @@ export const aquaPoolsList: AquaPool[] = [
     "precisionMulB": "1"
   },
   {
+    "tokenA": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "tokenB": "CDIKURWHYS4FFTR5KOQK6MBFZA2K3E26WGBQI6PXBYWZ4XIOPJHDFJKP",
+    "address": "CCLZQDL5LY2DBPNNFBRKPSROGFGTT7Y7AI2SM6QUI3SUTTKA672X4PDF",
+    "idx": "yy5OG7xqTdImPNVSp7ZU4S499xjgaGS//WWSMG+HFb4=",
+    "poolType": "stable",
+    "fee": "10",
+    "reserveA": "9385565668734",
+    "reserveB": "9427670958480",
+    "futureA": "1500",
+    "futureATime": "1722466834",
+    "initialA": "1500",
+    "initialATime": "1722466834",
+    "precisionMulA": "1",
+    "precisionMulB": "1"
+  },
+  {
+    "tokenA": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "tokenB": "CDTSZ2VWVPLNCTHVFK7Y2KKOYDH32NAZ5KMPZIMP3BJ2WBAVPH6SWECE",
+    "address": "CDRRLXLBXYVENKIUCCTFUT5WW6BW43NJMAPEMGU6VIU74LV6526OLS35",
+    "idx": "TXI5SZBHRBq/UisaZj5ZsLCMJXOP8u0XTx8115ou1vs=",
+    "poolType": "stable",
+    "fee": "10",
+    "reserveA": "5064809939",
+    "reserveB": "15467090849",
+    "futureA": "1500",
+    "futureATime": "1721909947",
+    "initialA": "1500",
+    "initialATime": "1721909947",
+    "precisionMulA": "1",
+    "precisionMulB": "1"
+  },
+  {
+    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "tokenB": "CBZVSNVB55ANF24QVJL2K5QCLOAB6XITGTGXYEAF6NPTXYKEJUYQOHFC",
+    "address": "CCFGZJTHQZGDZP5PK6WMLKHKJ72ACSVMJGCI2NFR7Q6EAVSKWLJB3ZH3",
+    "idx": "NH/MyvcEYtwzR6k3foZac530XS1gtQdcDbKa92J3qQQ=",
+    "poolType": "stable",
+    "fee": "10",
+    "reserveA": "10072621539837",
+    "reserveB": "35545938443071",
+    "futureA": "1500",
+    "futureATime": "1721992162",
+    "initialA": "1500",
+    "initialATime": "1721992162",
+    "precisionMulA": "1",
+    "precisionMulB": "1"
+  },
+  {
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CD25MNVTZDL4Y3XBCPCJXGXATV5WUHHOWMYFF4YBEGU5FCPGMYTVG5JY",
+    "address": "CAB6MICC2WKRT372U3FRPKGGVB5R3FDJSMWSLPF2UJNJPYMBZ76RQVYE",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "627896770410267",
+    "reserveB": "14659821140518"
+  },
+  {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
     "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
     "address": "CA6GAFOJCW4MGQQBUCQUSA3CLIH25G4SNKB2JHYKZCVWZTNW5VXMSC4O",
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "2787740739033386",
-    "reserveB": "1906510916984"
+    "reserveA": "5345178191619470",
+    "reserveB": "5623880799806"
   },
   {
     "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
@@ -166,28 +166,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
     "poolType": "constant_product",
     "fee": "100",
-    "reserveA": "68159966620",
-    "reserveB": "26260217475242"
-  },
-  {
-    "tokenA": "CBLLEW7HD2RWATVSMLAGWM4G3WCHSHDJ25ALP4DI6LULV5TU35N2CIZA",
-    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "address": "CB7FKGSTHP75ORTIZGGMVUTQLEMVTSEOI4QORQPCABJSGTAATDFCE2YV",
-    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
-    "poolType": "constant_product",
-    "fee": "30",
-    "reserveA": "612268353919",
-    "reserveB": "149491570088"
-  },
-  {
-    "tokenA": "CBLK4KSE3CZNQNSVVJMD3VMF4AKF4XG7Y2JCIGEC6Q5XAMGN2WAALGJ5",
-    "tokenB": "CCOB35AE6UJQPEUCSJYYX42NAEHQD2FHRQSQYGLJAWJL7STGES7BNVYR",
-    "address": "CBSJVUIJEWSNJ7GCDMRW22VDBDQAG4ESR42ECZGB6X4Y2J6C2UAR6LSY",
-    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
-    "poolType": "constant_product",
-    "fee": "10",
-    "reserveA": "22144462",
-    "reserveB": "691150108"
+    "reserveA": "49988425760",
+    "reserveB": "17930369272008"
   },
   {
     "tokenA": "CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U",
@@ -196,8 +176,18 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "10288913967",
-    "reserveB": "10410232178"
+    "reserveA": "7073160395",
+    "reserveB": "10491940945"
+  },
+  {
+    "tokenA": "CBLK4KSE3CZNQNSVVJMD3VMF4AKF4XG7Y2JCIGEC6Q5XAMGN2WAALGJ5",
+    "tokenB": "CCOB35AE6UJQPEUCSJYYX42NAEHQD2FHRQSQYGLJAWJL7STGES7BNVYR",
+    "address": "CBSJVUIJEWSNJ7GCDMRW22VDBDQAG4ESR42ECZGB6X4Y2J6C2UAR6LSY",
+    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
+    "poolType": "constant_product",
+    "fee": "10",
+    "reserveA": "15171645",
+    "reserveB": "1010859665"
   },
   {
     "tokenA": "CBEOWRDE3GBMF6XF5LPIST3E4FUSXW4LYTOSQPVBJXGDVNWR6IK3GIYI",
@@ -206,8 +196,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "829932",
-    "reserveB": "873055"
+    "reserveA": "794617",
+    "reserveB": "911901"
   },
   {
     "tokenA": "CBN3NCJSMOQTC6SPEYK3A44NU4VS3IPKTARJLI3Y77OH27EWBY36TP7U",
@@ -216,8 +206,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "DjIOGWnp6UBaGBs2wje+mtbfOCpJvfDjboPNpflSKSQ=",
     "poolType": "stable",
     "fee": "10",
-    "reserveA": "16577132241",
-    "reserveB": "453385436",
+    "reserveA": "319961477",
+    "reserveB": "18051413260",
     "futureA": "1500",
     "futureATime": "1727197472",
     "initialA": "1500",
@@ -226,40 +216,14 @@ export const aquaPoolsList: AquaPool[] = [
     "precisionMulB": "1"
   },
   {
-    "tokenA": "CB226ZOEYXTBPD3QEGABTJYSKZVBP2PASEISLG3SBMTN5CE4QZUVZ3CE",
-    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "address": "CAC56QNJ2CX456TPC5S4MSOU3DBULG4TGN7AZ2SAYGBLD3GICFMZBIT2",
-    "idx": "ifU66Nekl1AUWT8oKYoVI1sKPgUt5jDHqTahxlZtMgU=",
-    "poolType": "stable",
-    "fee": "10",
-    "reserveA": "315132605423",
-    "reserveB": "164181214984",
-    "futureA": "1500",
-    "futureATime": "1728402743",
-    "initialA": "1500",
-    "initialATime": "1728402743",
-    "precisionMulA": "1",
-    "precisionMulB": "1"
-  },
-  {
-    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
-    "tokenB": "CDAY5PVTMRGTOAQ3VAEXIV5CG2GG54LVFLEZ7UGJQAUYFKYZ6C366JXY",
-    "address": "CDDLTOODRYTIJE4KPS4BIIXWPLVMSIYVG7GE4W7MG2UBQ3QCCET4SUFA",
-    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
-    "poolType": "constant_product",
-    "fee": "10",
-    "reserveA": "4983818737",
-    "reserveB": "10105699734112"
-  },
-  {
     "tokenA": "CBEOWRDE3GBMF6XF5LPIST3E4FUSXW4LYTOSQPVBJXGDVNWR6IK3GIYI",
     "tokenB": "CDTKPWPLOURQA2SGTKTUQOWRCBZEORB4BWBOMJ3D3ZTQQSGE5F6JBQLV",
     "address": "CBUTKQ3Z35FZLUKODPV7MS7NHWA3ED4IJZL5GOBQQQIHQIL4AFGJS45O",
     "idx": "T/1fVqn/SukvxZ1VoWY87of7Hg+rAqiUYplLXF5cteU=",
     "poolType": "stable",
     "fee": "10",
-    "reserveA": "83991525",
-    "reserveB": "6053308",
+    "reserveA": "43631639",
+    "reserveB": "47497421",
     "futureA": "1500",
     "futureATime": "1727959776",
     "initialA": "1500",
@@ -268,14 +232,50 @@ export const aquaPoolsList: AquaPool[] = [
     "precisionMulB": "1"
   },
   {
+    "tokenA": "CBLLEW7HD2RWATVSMLAGWM4G3WCHSHDJ25ALP4DI6LULV5TU35N2CIZA",
+    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "address": "CB7FKGSTHP75ORTIZGGMVUTQLEMVTSEOI4QORQPCABJSGTAATDFCE2YV",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "1070767062687",
+    "reserveB": "199607481007"
+  },
+  {
+    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "tokenB": "CDAY5PVTMRGTOAQ3VAEXIV5CG2GG54LVFLEZ7UGJQAUYFKYZ6C366JXY",
+    "address": "CDDLTOODRYTIJE4KPS4BIIXWPLVMSIYVG7GE4W7MG2UBQ3QCCET4SUFA",
+    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
+    "poolType": "constant_product",
+    "fee": "10",
+    "reserveA": "5551259059",
+    "reserveB": "9074817949556"
+  },
+  {
     "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
     "tokenB": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
     "address": "CCY2PXGMKNQHO7WNYXEWX76L2C5BH3JUW3RCATGUYKY7QQTRILBZIFWV",
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "29523223243011",
-    "reserveB": "11326634809174528"
+    "reserveA": "54809289258582",
+    "reserveB": "19622134939550097"
+  },
+  {
+    "tokenA": "CB226ZOEYXTBPD3QEGABTJYSKZVBP2PASEISLG3SBMTN5CE4QZUVZ3CE",
+    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "address": "CAC56QNJ2CX456TPC5S4MSOU3DBULG4TGN7AZ2SAYGBLD3GICFMZBIT2",
+    "idx": "ifU66Nekl1AUWT8oKYoVI1sKPgUt5jDHqTahxlZtMgU=",
+    "poolType": "stable",
+    "fee": "10",
+    "reserveA": "257360355981",
+    "reserveB": "222235414822",
+    "futureA": "1500",
+    "futureATime": "1728402743",
+    "initialA": "1500",
+    "initialATime": "1728402743",
+    "precisionMulA": "1",
+    "precisionMulB": "1"
   },
   {
     "tokenA": "CANIDMEFQAKFECKVZ7GIIXQWTY35BPIBPBPUWNMUMR7VGBMVVLRCFLMT",
@@ -294,8 +294,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "279071883964",
-    "reserveB": "107283143848469"
+    "reserveA": "312701564566",
+    "reserveB": "112217654038766"
   },
   {
     "tokenA": "CANIDMEFQAKFECKVZ7GIIXQWTY35BPIBPBPUWNMUMR7VGBMVVLRCFLMT",
@@ -304,8 +304,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "43157165",
-    "reserveB": "54656426"
+    "reserveA": "0",
+    "reserveB": "0"
   },
   {
     "tokenA": "CAB7CSQK7TNVYGVMYEMOAPM56S6WZSZD3MPJCZ5KFPCUVQ4X2VLQOQDT",
@@ -318,34 +318,24 @@ export const aquaPoolsList: AquaPool[] = [
     "reserveB": "0"
   },
   {
-    "tokenA": "CBEOWRDE3GBMF6XF5LPIST3E4FUSXW4LYTOSQPVBJXGDVNWR6IK3GIYI",
-    "tokenB": "CCHBWUYVW4QAXQ2KVKSCXT37SWLQOCTAYG2QRQDMLAZXVJJPUO2ZAGXS",
-    "address": "CAFELOFDTDFZUCLQ75ZBIQO2JJOLJTSDMGCDPSO2HXAU55VPJHE2IS5K",
-    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
-    "poolType": "constant_product",
-    "fee": "10",
-    "reserveA": "862050",
-    "reserveB": "715222"
-  },
-  {
-    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
-    "tokenB": "CCKCKCPHYVXQD4NECBFJTFSCU2AMSJGCNG4O6K4JVRE2BLPR7WNDBQIQ",
-    "address": "CAQENB7J57NTUWKTPDJ6CRIMI734US7Q2U2VXRWTNMMFSVXDTPWEUJGU",
-    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
-    "poolType": "constant_product",
-    "fee": "30",
-    "reserveA": "942213459874000",
-    "reserveB": "81558951306969"
-  },
-  {
     "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
     "tokenB": "CBLLEW7HD2RWATVSMLAGWM4G3WCHSHDJ25ALP4DI6LULV5TU35N2CIZA",
     "address": "CDPBOIGPIMZW7ZUHXHDEIE5FN4GXC5T7HCAHT6NKAIXMNNZWPBHC3W54",
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "593430116643",
-    "reserveB": "640581361742"
+    "reserveA": "656178052053",
+    "reserveB": "1318532825742"
+  },
+  {
+    "tokenA": "CBEOWRDE3GBMF6XF5LPIST3E4FUSXW4LYTOSQPVBJXGDVNWR6IK3GIYI",
+    "tokenB": "CCHBWUYVW4QAXQ2KVKSCXT37SWLQOCTAYG2QRQDMLAZXVJJPUO2ZAGXS",
+    "address": "CAFELOFDTDFZUCLQ75ZBIQO2JJOLJTSDMGCDPSO2HXAU55VPJHE2IS5K",
+    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
+    "poolType": "constant_product",
+    "fee": "10",
+    "reserveA": "52827410",
+    "reserveB": "44267335"
   },
   {
     "tokenA": "CBLLEW7HD2RWATVSMLAGWM4G3WCHSHDJ25ALP4DI6LULV5TU35N2CIZA",
@@ -354,8 +344,24 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "4879151230",
-    "reserveB": "1055463755"
+    "reserveA": "3765185692",
+    "reserveB": "591752543"
+  },
+  {
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CCKCKCPHYVXQD4NECBFJTFSCU2AMSJGCNG4O6K4JVRE2BLPR7WNDBQIQ",
+    "address": "CBKENQ33KITYE4JKPAWALHU4KGWV5AXQLJFUNRNIDGCRLRDENX6PYVDE",
+    "idx": "JXyEzKaFU4T0rXZHbMFXBayMygN8jz81cU/xonmMhbY=",
+    "poolType": "stable",
+    "fee": "22",
+    "reserveA": "218752064",
+    "reserveB": "534633",
+    "futureA": "1500",
+    "futureATime": "1749278529",
+    "initialA": "1500",
+    "initialATime": "1749278529",
+    "precisionMulA": "1",
+    "precisionMulB": "1"
   },
   {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
@@ -364,8 +370,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "174888143364210",
-    "reserveB": "492180301313"
+    "reserveA": "186390051002800",
+    "reserveB": "1045737934567"
   },
   {
     "tokenA": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
@@ -375,9 +381,9 @@ export const aquaPoolsList: AquaPool[] = [
     "tokenC": "CDOFW7HNKLUZRLFZST4EW7V3AV4JI5IHMT6BPXXSY2IEFZ4NE5TWU2P4",
     "poolType": "stable",
     "fee": "15",
-    "reserveA": "1305121333",
-    "reserveB": "1952024102",
-    "reserveC": "928972325",
+    "reserveA": "1492537445",
+    "reserveB": "1102226461",
+    "reserveC": "1617651549",
     "futureA": "1500",
     "futureATime": "1735371283",
     "initialA": "1500",
@@ -393,32 +399,12 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "GW4vWGaxv0+OStI8AWHpOPE7AcjHEHtUgQ8tugZ0ckY=",
     "poolType": "stable",
     "fee": "10",
-    "reserveA": "277967077",
-    "reserveB": "454314272",
+    "reserveA": "0",
+    "reserveB": "0",
     "futureA": "1500",
     "futureATime": "1735545274",
     "initialA": "1500",
     "initialATime": "1735545274"
-  },
-  {
-    "tokenA": "CBEOWRDE3GBMF6XF5LPIST3E4FUSXW4LYTOSQPVBJXGDVNWR6IK3GIYI",
-    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "address": "CC6MJT4233D354EZTYWRTF6X5LS223C3TEUPVEA6G5KVTV5SYSEVP44S",
-    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
-    "poolType": "constant_product",
-    "fee": "10",
-    "reserveA": "114056957",
-    "reserveB": "126800863"
-  },
-  {
-    "tokenA": "CAB7CSQK7TNVYGVMYEMOAPM56S6WZSZD3MPJCZ5KFPCUVQ4X2VLQOQDT",
-    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "address": "CCPHQ3GS6TMBGEOFMXARRRQ35LTAGM3A4OFW7EMRZG2SJFSBD65XZFF6",
-    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
-    "poolType": "constant_product",
-    "fee": "10",
-    "reserveA": "499569358497862",
-    "reserveB": "351662800025"
   },
   {
     "tokenA": "CCHBWUYVW4QAXQ2KVKSCXT37SWLQOCTAYG2QRQDMLAZXVJJPUO2ZAGXS",
@@ -427,8 +413,38 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "764331914167",
-    "reserveB": "1018710387912"
+    "reserveA": "2860861731",
+    "reserveB": "3874491172"
+  },
+  {
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CCKCKCPHYVXQD4NECBFJTFSCU2AMSJGCNG4O6K4JVRE2BLPR7WNDBQIQ",
+    "address": "CAQENB7J57NTUWKTPDJ6CRIMI734US7Q2U2VXRWTNMMFSVXDTPWEUJGU",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "1153776015812194",
+    "reserveB": "88969900420189"
+  },
+  {
+    "tokenA": "CBEOWRDE3GBMF6XF5LPIST3E4FUSXW4LYTOSQPVBJXGDVNWR6IK3GIYI",
+    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "address": "CC6MJT4233D354EZTYWRTF6X5LS223C3TEUPVEA6G5KVTV5SYSEVP44S",
+    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
+    "poolType": "constant_product",
+    "fee": "10",
+    "reserveA": "111523555",
+    "reserveB": "129691099"
+  },
+  {
+    "tokenA": "CAB7CSQK7TNVYGVMYEMOAPM56S6WZSZD3MPJCZ5KFPCUVQ4X2VLQOQDT",
+    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "address": "CCPHQ3GS6TMBGEOFMXARRRQ35LTAGM3A4OFW7EMRZG2SJFSBD65XZFF6",
+    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
+    "poolType": "constant_product",
+    "fee": "10",
+    "reserveA": "109925032512",
+    "reserveB": "75611856"
   },
   {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
@@ -437,24 +453,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "892102970080147",
-    "reserveB": "614076956668"
-  },
-  {
-    "tokenA": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "tokenB": "CDFZUVS5YNLXU7VENKOUDEOHCJGKQNVUBWD7KMN6E7ZROKPYPFLRUJFG",
-    "address": "CDD3OQDUVL3ITL4ZJF27WVSO65PFEQQ5AOHEUPUHC7YNL7VUYM4QRLZ5",
-    "idx": "mqkJ7ZygkBPzIa5tqUWygm/c5D5JQp3LKCrdszpGMlc=",
-    "poolType": "stable",
-    "fee": "10",
-    "reserveA": "89416896692",
-    "reserveB": "592791085595",
-    "futureA": "1500",
-    "futureATime": "1736006856",
-    "initialA": "1500",
-    "initialATime": "1736006856",
-    "precisionMulA": "1",
-    "precisionMulB": "1"
+    "reserveA": "1132228726934173",
+    "reserveB": "1194001633594"
   },
   {
     "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
@@ -463,8 +463,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "339978122301",
-    "reserveB": "1980973"
+    "reserveA": "95529429950",
+    "reserveB": "1345855"
   },
   {
     "tokenA": "CCKCKCPHYVXQD4NECBFJTFSCU2AMSJGCNG4O6K4JVRE2BLPR7WNDBQIQ",
@@ -473,8 +473,24 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "37902470405",
-    "reserveB": "83116511409770342"
+    "reserveA": "38463135502",
+    "reserveB": "82365999191054749"
+  },
+  {
+    "tokenA": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "tokenB": "CDFZUVS5YNLXU7VENKOUDEOHCJGKQNVUBWD7KMN6E7ZROKPYPFLRUJFG",
+    "address": "CDD3OQDUVL3ITL4ZJF27WVSO65PFEQQ5AOHEUPUHC7YNL7VUYM4QRLZ5",
+    "idx": "mqkJ7ZygkBPzIa5tqUWygm/c5D5JQp3LKCrdszpGMlc=",
+    "poolType": "stable",
+    "fee": "10",
+    "reserveA": "771196413254",
+    "reserveB": "1737490096970",
+    "futureA": "1500",
+    "futureATime": "1736006856",
+    "initialA": "1500",
+    "initialATime": "1736006856",
+    "precisionMulA": "1",
+    "precisionMulB": "1"
   },
   {
     "tokenA": "CBH4M45TQBLDPXOK6L7VYKMEJWFITBOL64BN3WDAIIDT4LNUTWTTOCKF",
@@ -483,8 +499,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "73435375",
-    "reserveB": "132377661342"
+    "reserveA": "70537800",
+    "reserveB": "211137799839"
   },
   {
     "tokenA": "CAO7DDJNGMOYQPRYDY5JVZ5YEK4UQBSMGLAEWRCUOTRMDSBMGWSAATDZ",
@@ -493,8 +509,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "1758105",
-    "reserveB": "165711341306"
+    "reserveA": "1624309",
+    "reserveB": "191919049250"
   },
   {
     "tokenA": "CAO7DDJNGMOYQPRYDY5JVZ5YEK4UQBSMGLAEWRCUOTRMDSBMGWSAATDZ",
@@ -503,8 +519,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "40306640",
-    "reserveB": "2109846527"
+    "reserveA": "50957090",
+    "reserveB": "2006751715"
   },
   {
     "tokenA": "CBH4M45TQBLDPXOK6L7VYKMEJWFITBOL64BN3WDAIIDT4LNUTWTTOCKF",
@@ -513,8 +529,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "Pc3KJWpQNSWHv7K1ripxhdZhAV72hOLED3iq/u3YJoA=",
     "poolType": "stable",
     "fee": "10",
-    "reserveA": "440933982",
-    "reserveB": "445136234",
+    "reserveA": "450929048",
+    "reserveB": "427957291",
     "futureA": "1500",
     "futureATime": "1737004122",
     "initialA": "1500",
@@ -533,14 +549,34 @@ export const aquaPoolsList: AquaPool[] = [
     "reserveB": "0"
   },
   {
+    "tokenA": "CBLK4KSE3CZNQNSVVJMD3VMF4AKF4XG7Y2JCIGEC6Q5XAMGN2WAALGJ5",
+    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "address": "CBBIRRHJGR3W4YTDBSURB3X7GMA5BN3TO6DZJYKXWNFMXEMPXYQCNYGU",
+    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
+    "poolType": "constant_product",
+    "fee": "10",
+    "reserveA": "0",
+    "reserveB": "0"
+  },
+  {
+    "tokenA": "CANIDMEFQAKFECKVZ7GIIXQWTY35BPIBPBPUWNMUMR7VGBMVVLRCFLMT",
+    "tokenB": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "address": "CBRNBLCGEYOEXD2JVCT5YEZ4RZY3IPQGYEI2D4MKSG7I62NWYJFZ2JRY",
+    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
+    "poolType": "constant_product",
+    "fee": "10",
+    "reserveA": "11424660654810",
+    "reserveB": "1079943860127071"
+  },
+  {
     "tokenA": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
     "tokenB": "CDOFW7HNKLUZRLFZST4EW7V3AV4JI5IHMT6BPXXSY2IEFZ4NE5TWU2P4",
     "address": "CCWNKTTMHZ4VRR3FYQT3G253MHOGRLUEVTO6YPENM7ZN65DGC345LHI6",
     "idx": "bi7nVssQUCDL1liedhAVGYxMhfLoXh5NN/KAtit4gw4=",
     "poolType": "stable",
     "fee": "1",
-    "reserveA": "970068476554",
-    "reserveB": "1374125396325",
+    "reserveA": "1229910506647",
+    "reserveB": "1226064987776",
     "futureA": "1500",
     "futureATime": "1737050054",
     "initialA": "1500",
@@ -555,28 +591,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
     "poolType": "constant_product",
     "fee": "100",
-    "reserveA": "303558730601570",
-    "reserveB": "134834401778"
-  },
-  {
-    "tokenA": "CANIDMEFQAKFECKVZ7GIIXQWTY35BPIBPBPUWNMUMR7VGBMVVLRCFLMT",
-    "tokenB": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
-    "address": "CBRNBLCGEYOEXD2JVCT5YEZ4RZY3IPQGYEI2D4MKSG7I62NWYJFZ2JRY",
-    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
-    "poolType": "constant_product",
-    "fee": "10",
-    "reserveA": "9392521425458",
-    "reserveB": "894003389030706"
-  },
-  {
-    "tokenA": "CBLK4KSE3CZNQNSVVJMD3VMF4AKF4XG7Y2JCIGEC6Q5XAMGN2WAALGJ5",
-    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "address": "CBBIRRHJGR3W4YTDBSURB3X7GMA5BN3TO6DZJYKXWNFMXEMPXYQCNYGU",
-    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
-    "poolType": "constant_product",
-    "fee": "10",
-    "reserveA": "0",
-    "reserveB": "0"
+    "reserveA": "918661089640781",
+    "reserveB": "411843634834"
   },
   {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
@@ -585,18 +601,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "1216929812639074",
-    "reserveB": "463853972"
-  },
-  {
-    "tokenA": "CAAV3AE3VKD2P4TY7LWTQMMJHIJ4WOCZ5ANCIJPC3NRSERKVXNHBU2W7",
-    "tokenB": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
-    "address": "CAQODUH4XNX2NTFVACRMO4UR7MA5RLSZA5ZQTHILQYGYYCFQ3LUATIGM",
-    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
-    "poolType": "constant_product",
-    "fee": "30",
-    "reserveA": "339110213794",
-    "reserveB": "2763585443338"
+    "reserveA": "1229398113272064",
+    "reserveB": "429133247"
   },
   {
     "tokenA": "CAO7DDJNGMOYQPRYDY5JVZ5YEK4UQBSMGLAEWRCUOTRMDSBMGWSAATDZ",
@@ -605,8 +611,18 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "2199794",
-    "reserveB": "303057747421073"
+    "reserveA": "2330308",
+    "reserveB": "263094088433656"
+  },
+  {
+    "tokenA": "CAAV3AE3VKD2P4TY7LWTQMMJHIJ4WOCZ5ANCIJPC3NRSERKVXNHBU2W7",
+    "tokenB": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "address": "CAQODUH4XNX2NTFVACRMO4UR7MA5RLSZA5ZQTHILQYGYYCFQ3LUATIGM",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "480217134413",
+    "reserveB": "3596008449045"
   },
   {
     "tokenA": "CAO7DDJNGMOYQPRYDY5JVZ5YEK4UQBSMGLAEWRCUOTRMDSBMGWSAATDZ",
@@ -615,8 +631,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "ZPGZOq447ys/lZ01VKMP/fgnz1df3khZEwOxPfjm/K4=",
     "poolType": "stable",
     "fee": "10",
-    "reserveA": "8611627",
-    "reserveB": "12347430",
+    "reserveA": "8617669",
+    "reserveB": "13814853",
     "futureA": "1500",
     "futureATime": "1737433259",
     "initialA": "1500",
@@ -631,8 +647,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
     "poolType": "constant_product",
     "fee": "100",
-    "reserveA": "33179148235514",
-    "reserveB": "597744936138850"
+    "reserveA": "59156561361876",
+    "reserveB": "862380360263097"
   },
   {
     "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
@@ -641,8 +657,24 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "448617261154",
-    "reserveB": "14975478782045"
+    "reserveA": "653175295822",
+    "reserveB": "18125731594783"
+  },
+  {
+    "tokenA": "CBVDRT5474OBUEXF5MJB3UGQ5CG7CKGCAH5M4RV5NBCDJUBZ5OXHJLOU",
+    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "address": "CBRXOYKXPQI4EEA6KA35TUIYN5OJLNWMTIVDOMNOIL2BG5Y5LEDHUU7V",
+    "idx": "tdLsGFyc5HTVzJiAwW90WCm/dVULm8c9BBaxQCu9cUw=",
+    "poolType": "stable",
+    "fee": "50",
+    "reserveA": "10570856838",
+    "reserveB": "306897899483",
+    "futureA": "1500",
+    "futureATime": "1737620043",
+    "initialA": "1500",
+    "initialATime": "1737620043",
+    "precisionMulA": "1",
+    "precisionMulB": "1"
   },
   {
     "tokenA": "CBVDRT5474OBUEXF5MJB3UGQ5CG7CKGCAH5M4RV5NBCDJUBZ5OXHJLOU",
@@ -651,24 +683,14 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "dIsXX7I9Typ19cjMtczKw3hTAgl/CMbJzJTPww7JHW8=",
     "poolType": "stable",
     "fee": "50",
-    "reserveA": "57459630014",
-    "reserveB": "98116884668",
+    "reserveA": "265693013247",
+    "reserveB": "8190924472",
     "futureA": "1500",
     "futureATime": "1737619146",
     "initialA": "1500",
     "initialATime": "1737619146",
     "precisionMulA": "1",
     "precisionMulB": "1"
-  },
-  {
-    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
-    "tokenB": "CDDL6HGNYGVRCQB37DDFTIFYMGTX36AQMCXI6U3NOAO2BBZDNGKMGQSY",
-    "address": "CD656U6QQK5VEPB4ASHALPMP3LIM3Y6ZKBEKNLSPIO3FBO6YIDYQCM4R",
-    "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
-    "poolType": "constant_product",
-    "fee": "100",
-    "reserveA": "84767217",
-    "reserveB": "24308920924782"
   },
   {
     "tokenA": "CBVDRT5474OBUEXF5MJB3UGQ5CG7CKGCAH5M4RV5NBCDJUBZ5OXHJLOU",
@@ -678,9 +700,9 @@ export const aquaPoolsList: AquaPool[] = [
     "tokenC": "CDTKPWPLOURQA2SGTKTUQOWRCBZEORB4BWBOMJ3D3ZTQQSGE5F6JBQLV",
     "poolType": "stable",
     "fee": "50",
-    "reserveA": "33057759",
-    "reserveB": "1336226516",
-    "reserveC": "33579934",
+    "reserveA": "57257597",
+    "reserveB": "1324046188",
+    "reserveC": "22295502",
     "futureA": "6750",
     "futureATime": "1737620407",
     "initialA": "6750",
@@ -690,30 +712,14 @@ export const aquaPoolsList: AquaPool[] = [
     "precisionMulC": "1"
   },
   {
-    "tokenA": "CBVDRT5474OBUEXF5MJB3UGQ5CG7CKGCAH5M4RV5NBCDJUBZ5OXHJLOU",
-    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "address": "CBRXOYKXPQI4EEA6KA35TUIYN5OJLNWMTIVDOMNOIL2BG5Y5LEDHUU7V",
-    "idx": "tdLsGFyc5HTVzJiAwW90WCm/dVULm8c9BBaxQCu9cUw=",
-    "poolType": "stable",
-    "fee": "50",
-    "reserveA": "3652257180",
-    "reserveB": "141681689880",
-    "futureA": "1500",
-    "futureATime": "1737620043",
-    "initialA": "1500",
-    "initialATime": "1737620043",
-    "precisionMulA": "1",
-    "precisionMulB": "1"
-  },
-  {
-    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
-    "tokenB": "CDCKFBZYF2AQCSM3JOF2ZM27O3Y6AJAI4OTCQKAFNZ3FHBYUTFOKICIY",
-    "address": "CBW7MXDIGZMY6UZN6T7P6J2AFGOVZQ6ZMF7IPHUAPJBD2S7J735UI2O6",
-    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "tokenB": "CDDL6HGNYGVRCQB37DDFTIFYMGTX36AQMCXI6U3NOAO2BBZDNGKMGQSY",
+    "address": "CD656U6QQK5VEPB4ASHALPMP3LIM3Y6ZKBEKNLSPIO3FBO6YIDYQCM4R",
+    "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
     "poolType": "constant_product",
-    "fee": "30",
-    "reserveA": "136487955605579",
-    "reserveB": "4460998738737084"
+    "fee": "100",
+    "reserveA": "71670385",
+    "reserveB": "28915350455952"
   },
   {
     "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
@@ -722,8 +728,18 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "102178545967",
-    "reserveB": "1284570949972686"
+    "reserveA": "96959956450",
+    "reserveB": "1346004037566055"
+  },
+  {
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CDCKFBZYF2AQCSM3JOF2ZM27O3Y6AJAI4OTCQKAFNZ3FHBYUTFOKICIY",
+    "address": "CBW7MXDIGZMY6UZN6T7P6J2AFGOVZQ6ZMF7IPHUAPJBD2S7J735UI2O6",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "163010119772253",
+    "reserveB": "6365805332102715"
   },
   {
     "tokenA": "CAESLMGW5LYTIEJI7FJHK6SFSWRELLNVX5Q4WR4UZEALMTRWQDBKDPAG",
@@ -732,8 +748,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
     "poolType": "constant_product",
     "fee": "100",
-    "reserveA": "11705282162876",
-    "reserveB": "18342734250538"
+    "reserveA": "22490496334928",
+    "reserveB": "24908493764211"
   },
   {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
@@ -742,8 +758,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "163746657289750",
-    "reserveB": "112208109469"
+    "reserveA": "170765761422799",
+    "reserveB": "179565776973"
   },
   {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
@@ -752,18 +768,18 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "129540256697787",
-    "reserveB": "49407695"
+    "reserveA": "215092813916558",
+    "reserveB": "75014100"
   },
   {
-    "tokenA": "CAAV3AE3VKD2P4TY7LWTQMMJHIJ4WOCZ5ANCIJPC3NRSERKVXNHBU2W7",
-    "tokenB": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
-    "address": "CD5N56WHTHT3XOB6BQBEK3OQFJUC3T5XGLIAZOP6GTBXZ6CLTEQKFY5Q",
-    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "tokenB": "CDCKFBZYF2AQCSM3JOF2ZM27O3Y6AJAI4OTCQKAFNZ3FHBYUTFOKICIY",
+    "address": "CBDSM7QDGYEK3DRM22DH6HG5CSKSCKKOVBJR64UT3GSHOOK6VYZMSLYG",
+    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
-    "fee": "30",
-    "reserveA": "32456111",
-    "reserveB": "101656298813"
+    "fee": "10",
+    "reserveA": "120113642",
+    "reserveB": "1656311775144"
   },
   {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
@@ -772,24 +788,18 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "119808266177",
-    "reserveB": "89262525616605"
+    "reserveA": "0",
+    "reserveB": "0"
   },
   {
-    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
-    "tokenB": "CDSSDKJZACMXIE4C25TAVLWUQWLRNXSC2TLOFTTRSUAOZOMU5PXGZYEX",
-    "address": "CBL7MWLEZ4SU6YC5XL4T3WXKNKNO2UQVDVONOQSW5VVCYFWORROHY4AM",
-    "idx": "lw5fu3Hd3wvRVuZRKTEaBIplI32KifK9RNgkiL4ONtM=",
-    "poolType": "stable",
-    "fee": "5",
-    "reserveA": "28281918646",
-    "reserveB": "1149769119",
-    "futureA": "1500",
-    "futureATime": "1738590917",
-    "initialA": "1500",
-    "initialATime": "1738590917",
-    "precisionMulA": "1",
-    "precisionMulB": "1"
+    "tokenA": "CAAV3AE3VKD2P4TY7LWTQMMJHIJ4WOCZ5ANCIJPC3NRSERKVXNHBU2W7",
+    "tokenB": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "address": "CD5N56WHTHT3XOB6BQBEK3OQFJUC3T5XGLIAZOP6GTBXZ6CLTEQKFY5Q",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "737412689",
+    "reserveB": "1991890950233"
   },
   {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
@@ -803,13 +813,29 @@ export const aquaPoolsList: AquaPool[] = [
   },
   {
     "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
-    "tokenB": "CDCKFBZYF2AQCSM3JOF2ZM27O3Y6AJAI4OTCQKAFNZ3FHBYUTFOKICIY",
-    "address": "CBDSM7QDGYEK3DRM22DH6HG5CSKSCKKOVBJR64UT3GSHOOK6VYZMSLYG",
-    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
+    "tokenB": "CB2UMFX5TNEUNT6F6U3UHZJFLJTWHDHQK3RZN4ZJFFGN2DAK7VQDAQZQ",
+    "address": "CC3EWBMN2RZVWZT2UPL6PRU5LU5IH4NM2QVV5IY5Z4FQSDAZF6DWTRB7",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
-    "fee": "10",
-    "reserveA": "125829954",
-    "reserveB": "1580196873976"
+    "fee": "30",
+    "reserveA": "36833832581",
+    "reserveB": "6566549216634"
+  },
+  {
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CDSSDKJZACMXIE4C25TAVLWUQWLRNXSC2TLOFTTRSUAOZOMU5PXGZYEX",
+    "address": "CBL7MWLEZ4SU6YC5XL4T3WXKNKNO2UQVDVONOQSW5VVCYFWORROHY4AM",
+    "idx": "lw5fu3Hd3wvRVuZRKTEaBIplI32KifK9RNgkiL4ONtM=",
+    "poolType": "stable",
+    "fee": "5",
+    "reserveA": "168092745040",
+    "reserveB": "1670509178898",
+    "futureA": "1500",
+    "futureATime": "1738590917",
+    "initialA": "1500",
+    "initialATime": "1738590917",
+    "precisionMulA": "1",
+    "precisionMulB": "1"
   },
   {
     "tokenA": "CAESLMGW5LYTIEJI7FJHK6SFSWRELLNVX5Q4WR4UZEALMTRWQDBKDPAG",
@@ -822,34 +848,14 @@ export const aquaPoolsList: AquaPool[] = [
     "reserveB": "0"
   },
   {
-    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
-    "tokenB": "CB2UMFX5TNEUNT6F6U3UHZJFLJTWHDHQK3RZN4ZJFFGN2DAK7VQDAQZQ",
-    "address": "CC3EWBMN2RZVWZT2UPL6PRU5LU5IH4NM2QVV5IY5Z4FQSDAZF6DWTRB7",
-    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
-    "poolType": "constant_product",
-    "fee": "30",
-    "reserveA": "35260607908",
-    "reserveB": "6842122934543"
-  },
-  {
     "tokenA": "CAM6B7Z7KQHYJWEZGAAXT4VGIJZT5FG4JKPPBLNBHJT5SRARKWKZL2IP",
     "tokenB": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
     "address": "CCDLVANSRYQ4IVO3A43UJAPKIWU2324D54NKGHCWWVCVCX2CNX2K4TAR",
     "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
     "poolType": "constant_product",
     "fee": "100",
-    "reserveA": "185166888183123",
-    "reserveB": "64604310745"
-  },
-  {
-    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
-    "tokenB": "CAU7TR4L52CSCYOLOPXPJJ7T6EMEXTEE4XKRH2ASY23EFYEMU5WUFYP2",
-    "address": "CCGYZEVHBYZVUD2C2VPREQRIBBV7Q46CKIP375VZTWQU7553Z3X5YH73",
-    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
-    "poolType": "constant_product",
-    "fee": "30",
-    "reserveA": "3509634854",
-    "reserveB": "95353288841"
+    "reserveA": "185055293027108",
+    "reserveB": "64719120429"
   },
   {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
@@ -858,8 +864,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
     "poolType": "constant_product",
     "fee": "100",
-    "reserveA": "326812789750697",
-    "reserveB": "849267483222"
+    "reserveA": "384336799586319",
+    "reserveB": "1078438217705"
   },
   {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
@@ -868,8 +874,44 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "545682588938",
-    "reserveB": "771908319095274"
+    "reserveA": "492513207885",
+    "reserveB": "913876783063057"
+  },
+  {
+    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "tokenB": "CAU7TR4L52CSCYOLOPXPJJ7T6EMEXTEE4XKRH2ASY23EFYEMU5WUFYP2",
+    "address": "CCGYZEVHBYZVUD2C2VPREQRIBBV7Q46CKIP375VZTWQU7553Z3X5YH73",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "9354212398",
+    "reserveB": "288451306090"
+  },
+  {
+    "tokenA": "CAESLMGW5LYTIEJI7FJHK6SFSWRELLNVX5Q4WR4UZEALMTRWQDBKDPAG",
+    "tokenB": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "address": "CD5TL5DHDYBUZKQDCUZNO4RV5SQMOG75O5APJZNYOZJJQVHS3ANKDSGQ",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "239098476828",
+    "reserveB": "9789756831"
+  },
+  {
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CCHETQ7SYZIKN35TZQF6GPNNF7HH4IADYKEICEA5OOKE5WZPQKWTAY4W",
+    "address": "CCPQAGAPB6J4WSO4A3SBRROTMYPS4YNBRSNHVNLV4GBPSBL7IOBIQL4Y",
+    "idx": "v1tCYy+blQto9U8eR7qKQdcRMkyTdWsINeToJL8YCFA=",
+    "poolType": "stable",
+    "fee": "25",
+    "reserveA": "278404888028939",
+    "reserveB": "916053590609510",
+    "futureA": "1500",
+    "futureATime": "1741052236",
+    "initialA": "1500",
+    "initialATime": "1741052236",
+    "precisionMulA": "1",
+    "precisionMulB": "1"
   },
   {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
@@ -882,60 +924,14 @@ export const aquaPoolsList: AquaPool[] = [
     "reserveB": "1390072927395"
   },
   {
-    "tokenA": "CAESLMGW5LYTIEJI7FJHK6SFSWRELLNVX5Q4WR4UZEALMTRWQDBKDPAG",
-    "tokenB": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
-    "address": "CD5TL5DHDYBUZKQDCUZNO4RV5SQMOG75O5APJZNYOZJJQVHS3ANKDSGQ",
-    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
-    "poolType": "constant_product",
-    "fee": "30",
-    "reserveA": "219180913689",
-    "reserveB": "10211480907"
-  },
-  {
     "tokenA": "CBZVSNVB55ANF24QVJL2K5QCLOAB6XITGTGXYEAF6NPTXYKEJUYQOHFC",
     "tokenB": "CDOFW7HNKLUZRLFZST4EW7V3AV4JI5IHMT6BPXXSY2IEFZ4NE5TWU2P4",
     "address": "CBD5B2VXYEQUVQSANUEECOTHUUA5LWFWNE4XCF3O5S7IC6HG57K4M7W5",
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "36654554",
-    "reserveB": "9859156"
-  },
-  {
-    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
-    "tokenB": "CCHETQ7SYZIKN35TZQF6GPNNF7HH4IADYKEICEA5OOKE5WZPQKWTAY4W",
-    "address": "CCPQAGAPB6J4WSO4A3SBRROTMYPS4YNBRSNHVNLV4GBPSBL7IOBIQL4Y",
-    "idx": "v1tCYy+blQto9U8eR7qKQdcRMkyTdWsINeToJL8YCFA=",
-    "poolType": "stable",
-    "fee": "25",
-    "reserveA": "383883023914485",
-    "reserveB": "493359623034144",
-    "futureA": "1500",
-    "futureATime": "1741052236",
-    "initialA": "1500",
-    "initialATime": "1741052236",
-    "precisionMulA": "1",
-    "precisionMulB": "1"
-  },
-  {
-    "tokenA": "CAL6ER2TI6CTRAY6BFXWNWA7WTYXUXTQCHUBCIBU5O6KM3HJFG6Z6VXV",
-    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "address": "CBLPZUFE6WJ7FNOTZINEWFDFKHGDSQZOLVCYLGTAX4JC6OABNRWAFTI5",
-    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
-    "poolType": "constant_product",
-    "fee": "30",
-    "reserveA": "8779112509051",
-    "reserveB": "489757909836"
-  },
-  {
-    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
-    "tokenB": "CB2XMFB6BDIHFOSFB5IXHDOYV3SI3IXMNIZLPDZHC7ENDCXSBEBZAO2Y",
-    "address": "CANOS4CG7YMDIREDAQIIB2ASVDRTIEPZ36HRIXXC5CDZE45XE4OG4ST6",
-    "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
-    "poolType": "constant_product",
-    "fee": "100",
-    "reserveA": "157319281338425",
-    "reserveB": "1150790"
+    "reserveA": "0",
+    "reserveB": "0"
   },
   {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
@@ -944,8 +940,28 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
     "poolType": "constant_product",
     "fee": "100",
-    "reserveA": "35032953",
-    "reserveB": "91798306035"
+    "reserveA": "35029914",
+    "reserveB": "91806353344"
+  },
+  {
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CB2XMFB6BDIHFOSFB5IXHDOYV3SI3IXMNIZLPDZHC7ENDCXSBEBZAO2Y",
+    "address": "CANOS4CG7YMDIREDAQIIB2ASVDRTIEPZ36HRIXXC5CDZE45XE4OG4ST6",
+    "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
+    "poolType": "constant_product",
+    "fee": "100",
+    "reserveA": "212062190490577",
+    "reserveB": "1862554"
+  },
+  {
+    "tokenA": "CAL6ER2TI6CTRAY6BFXWNWA7WTYXUXTQCHUBCIBU5O6KM3HJFG6Z6VXV",
+    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "address": "CBLPZUFE6WJ7FNOTZINEWFDFKHGDSQZOLVCYLGTAX4JC6OABNRWAFTI5",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "8502561015931",
+    "reserveB": "506042773172"
   },
   {
     "tokenA": "CBLV4ATSIWU67CFSQU2NVRKINQIKUZ2ODSZBUJTJ43VJVRSBTZYOPNUR",
@@ -954,18 +970,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "441493958054",
-    "reserveB": "454728872051"
-  },
-  {
-    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
-    "tokenB": "CC6V6TJZ3IQB5GOLQPRCKDUGNZQ3B25FZFCZE6IFRMVGQK2OOLNXGC5M",
-    "address": "CCRVANX7N2A4EZIDFOWI5SJA3B37SZ4XGZFLNIP73GN4Y5WZWZ7KI3BJ",
-    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
-    "poolType": "constant_product",
-    "fee": "30",
-    "reserveA": "140980408198",
-    "reserveB": "2812173159746"
+    "reserveA": "439645590287",
+    "reserveB": "456747799966"
   },
   {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
@@ -974,8 +980,28 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
     "poolType": "constant_product",
     "fee": "100",
-    "reserveA": "1399151910",
-    "reserveB": "4745788"
+    "reserveA": "3797612137",
+    "reserveB": "10167030"
+  },
+  {
+    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "tokenB": "CC6V6TJZ3IQB5GOLQPRCKDUGNZQ3B25FZFCZE6IFRMVGQK2OOLNXGC5M",
+    "address": "CCRVANX7N2A4EZIDFOWI5SJA3B37SZ4XGZFLNIP73GN4Y5WZWZ7KI3BJ",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "142351862748",
+    "reserveB": "2837866578751"
+  },
+  {
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CA4L5XQ7FY7BTJAAD6VPW6JPSJ3M2A62BBULXH7XYHLHAOFFY6SBT2Z4",
+    "address": "CCZ2ZX4VSPGP3VAECUVTIMUORYZCOI7OL2E7CT2YKPWOI6CVUFPLFV7Z",
+    "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
+    "poolType": "constant_product",
+    "fee": "100",
+    "reserveA": "16927150630",
+    "reserveB": "1521340081950"
   },
   {
     "tokenA": "CBCO65UOWXY2GR66GOCMCN6IU3Y45TXCPBY3FLUNL4AOUMOCKVIVV6JC",
@@ -988,50 +1014,14 @@ export const aquaPoolsList: AquaPool[] = [
     "reserveB": "0"
   },
   {
-    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
-    "tokenB": "CA4L5XQ7FY7BTJAAD6VPW6JPSJ3M2A62BBULXH7XYHLHAOFFY6SBT2Z4",
-    "address": "CCZ2ZX4VSPGP3VAECUVTIMUORYZCOI7OL2E7CT2YKPWOI6CVUFPLFV7Z",
-    "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
-    "poolType": "constant_product",
-    "fee": "100",
-    "reserveA": "9116412716",
-    "reserveB": "2800793566182"
-  },
-  {
-    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
-    "tokenB": "CDUYP3U6HGTOBUNQD2WTLWNMNADWMENROKZZIHGEVGKIU3ZUDF42CDOK",
-    "address": "CDRQCKVRPFNXUKXKS6TUFSEPFLP4TT5DP72M7YNHPHH2SVFWUQHVIJ6Z",
-    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
-    "poolType": "constant_product",
-    "fee": "30",
-    "reserveA": "1036344918",
-    "reserveB": "242060191"
-  },
-  {
     "tokenA": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
     "tokenB": "CD6M4R2322BYCY2LNWM74PEBQAQ63SA3DUJLI3L4225U4ZVCLMSCBCIS",
     "address": "CDPF7GMA3OLVUBLEVKNKXKEFSS3EQAXN75RHT7DR4SYIHFS5LH5JOTD7",
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "500224712091",
-    "reserveB": "2803443878359"
-  },
-  {
-    "tokenA": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "tokenB": "CDKLJRIL7E2OWHTPTIHCAXTXI6PEXFOS6PJFAFCDBYWDT3B3QI42EOJA",
-    "address": "CAIOFLKJ3DQGZR2C2OF2QA46ILIUT6ELTQIVO6GSQRTKUVL5B2EWMA4N",
-    "idx": "Kj5cktk3HzmnCfDJ6AxgdLVJLFEzoohPF7a5ku5s/pY=",
-    "poolType": "stable",
-    "fee": "10",
-    "reserveA": "4020704909",
-    "reserveB": "6013197247",
-    "futureA": "1500",
-    "futureATime": "1743558048",
-    "initialA": "1500",
-    "initialATime": "1743558048",
-    "precisionMulA": "1",
-    "precisionMulB": "1"
+    "reserveA": "505273374071",
+    "reserveB": "2775519807817"
   },
   {
     "tokenA": "CDKLJRIL7E2OWHTPTIHCAXTXI6PEXFOS6PJFAFCDBYWDT3B3QI42EOJA",
@@ -1040,18 +1030,24 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "16777322199",
-    "reserveB": "14771789559"
+    "reserveA": "17101102526",
+    "reserveB": "14498468516"
   },
   {
-    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
-    "tokenB": "CC54Q7EYBMPOEK7ZX4AKG76SXD3P3LQH325OHWKPMDUYA7M3XHZLWQ2N",
-    "address": "CCPR2Q3F2TPOVKPKTAHGLMMWPL5RBNBYDWGGUNBYP7KV7W245IAJXRI7",
-    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
-    "poolType": "constant_product",
-    "fee": "30",
-    "reserveA": "135014468370493",
-    "reserveB": "349211825673"
+    "tokenA": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "tokenB": "CDKLJRIL7E2OWHTPTIHCAXTXI6PEXFOS6PJFAFCDBYWDT3B3QI42EOJA",
+    "address": "CAIOFLKJ3DQGZR2C2OF2QA46ILIUT6ELTQIVO6GSQRTKUVL5B2EWMA4N",
+    "idx": "Kj5cktk3HzmnCfDJ6AxgdLVJLFEzoohPF7a5ku5s/pY=",
+    "poolType": "stable",
+    "fee": "10",
+    "reserveA": "3661637894",
+    "reserveB": "6409460917",
+    "futureA": "1500",
+    "futureATime": "1743558048",
+    "initialA": "1500",
+    "initialATime": "1743558048",
+    "precisionMulA": "1",
+    "precisionMulB": "1"
   },
   {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
@@ -1060,8 +1056,28 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "53213099014026",
-    "reserveB": "7319549556571"
+    "reserveA": "1592311211648",
+    "reserveB": "193303767158"
+  },
+  {
+    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "tokenB": "CDUYP3U6HGTOBUNQD2WTLWNMNADWMENROKZZIHGEVGKIU3ZUDF42CDOK",
+    "address": "CDRQCKVRPFNXUKXKS6TUFSEPFLP4TT5DP72M7YNHPHH2SVFWUQHVIJ6Z",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "898896579",
+    "reserveB": "280002588"
+  },
+  {
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CC54Q7EYBMPOEK7ZX4AKG76SXD3P3LQH325OHWKPMDUYA7M3XHZLWQ2N",
+    "address": "CCPR2Q3F2TPOVKPKTAHGLMMWPL5RBNBYDWGGUNBYP7KV7W245IAJXRI7",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "132048075659595",
+    "reserveB": "344770049178"
   },
   {
     "tokenA": "CBZLF6EHCZ44U5YYZC4GFBWLPCW7HOWDXZISEVCNHAH77AQSCWOYEVII",
@@ -1070,8 +1086,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
     "poolType": "constant_product",
     "fee": "30",
-    "reserveA": "2513207332029",
-    "reserveB": "247836483668"
+    "reserveA": "0",
+    "reserveB": "0"
   },
   {
     "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
@@ -1080,8 +1096,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "226771352",
-    "reserveB": "89851764757"
+    "reserveA": "214370493",
+    "reserveB": "95304618186"
   },
   {
     "tokenA": "CAB4PDJ2W6NBB3PUP4M46EFL5JF5NTVAA3F57FWPIP6CL3YBVVUDITTK",
@@ -1092,6 +1108,16 @@ export const aquaPoolsList: AquaPool[] = [
     "fee": "10",
     "reserveA": "0",
     "reserveB": "0"
+  },
+  {
+    "tokenA": "CBYFV4W2LTMXYZ3XWFX5BK2BY255DU2DSXNAE4FJ5A5VYUWGIBJDOIGG",
+    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "address": "CBTGLCDJ2DFOZF7C73ITBACMNX2MFCT3ETJALUSYFACKQBTKIOLXXUQK",
+    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
+    "poolType": "constant_product",
+    "fee": "10",
+    "reserveA": "96258655412",
+    "reserveB": "79713759"
   },
   {
     "tokenA": "CAAV3AE3VKD2P4TY7LWTQMMJHIJ4WOCZ5ANCIJPC3NRSERKVXNHBU2W7",
@@ -1108,24 +1134,14 @@ export const aquaPoolsList: AquaPool[] = [
     "initialATime": "1744837967"
   },
   {
-    "tokenA": "CBYFV4W2LTMXYZ3XWFX5BK2BY255DU2DSXNAE4FJ5A5VYUWGIBJDOIGG",
-    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "address": "CBTGLCDJ2DFOZF7C73ITBACMNX2MFCT3ETJALUSYFACKQBTKIOLXXUQK",
-    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
-    "poolType": "constant_product",
-    "fee": "10",
-    "reserveA": "106353730563",
-    "reserveB": "71819009"
-  },
-  {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
     "tokenB": "CDK7N44N4MDWWYKGQTHJNPFYY74Y63EXEMPBVY6G3DHBO5ENOXIVAY5E",
     "address": "CD3LLRLBD53BPVKZCRCXGQ5Y2QVVAY7TLCZPLAT6KTWT6SD5SKETRJVU",
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "228209875864",
-    "reserveB": "10938474782489"
+    "reserveA": "7874596138",
+    "reserveB": "453571470848"
   },
   {
     "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
@@ -1134,8 +1150,18 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "95925641029",
-    "reserveB": "98110418730"
+    "reserveA": "100099415109",
+    "reserveB": "124646690484"
+  },
+  {
+    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "tokenB": "CC6R4JUVHBFZVG5GVWOH4QTWFVRPVFEYKWNLEHDYZ2FN5GFNO5MD2G66",
+    "address": "CBYMDNTENBCYE5EYO642ZBTRJ2D5SPY3PAJO5P5BTYYWUVOY5N37A2OE",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "8463619649",
+    "reserveB": "26100100974530"
   },
   {
     "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
@@ -1154,18 +1180,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "29651386379664",
-    "reserveB": "6432613988891"
-  },
-  {
-    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
-    "tokenB": "CC6R4JUVHBFZVG5GVWOH4QTWFVRPVFEYKWNLEHDYZ2FN5GFNO5MD2G66",
-    "address": "CBYMDNTENBCYE5EYO642ZBTRJ2D5SPY3PAJO5P5BTYYWUVOY5N37A2OE",
-    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
-    "poolType": "constant_product",
-    "fee": "30",
-    "reserveA": "37211154797",
-    "reserveB": "135926647382469"
+    "reserveA": "8481952701",
+    "reserveB": "2006006104611"
   },
   {
     "tokenA": "CDFZUVS5YNLXU7VENKOUDEOHCJGKQNVUBWD7KMN6E7ZROKPYPFLRUJFG",
@@ -1174,8 +1190,8 @@ export const aquaPoolsList: AquaPool[] = [
     "idx": "hNGyOGjCpSQFi4+nrquYLUFtYJuh2xS930aKckLsuao=",
     "poolType": "stable",
     "fee": "10",
-    "reserveA": "3744818775",
-    "reserveB": "670794326",
+    "reserveA": "18967544404",
+    "reserveB": "7119715766",
     "futureA": "1500",
     "futureATime": "1745951203",
     "initialA": "1500",
@@ -1184,23 +1200,251 @@ export const aquaPoolsList: AquaPool[] = [
     "precisionMulB": "1"
   },
   {
-    "tokenA": "CBZLF6EHCZ44U5YYZC4GFBWLPCW7HOWDXZISEVCNHAH77AQSCWOYEVII",
-    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
-    "address": "CAKJT3HBDPOVJW6F5KJO56QXGWEZ3FHGUDBHBRQACWTBFQGWR4QXZWSN",
-    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
-    "poolType": "constant_product",
-    "fee": "10",
-    "reserveA": "2836888202205",
-    "reserveB": "14150333088"
-  },
-  {
     "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
     "tokenB": "CBZLF6EHCZ44U5YYZC4GFBWLPCW7HOWDXZISEVCNHAH77AQSCWOYEVII",
     "address": "CDSIQQSOHGILXJMV3OBTUCIMI7XQBVGNKWM5PVVC7ZGWYUWYABKLGXVO",
     "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
     "poolType": "constant_product",
     "fee": "10",
-    "reserveA": "51802239660",
-    "reserveB": "2740694057848"
+    "reserveA": "0",
+    "reserveB": "0"
+  },
+  {
+    "tokenA": "CBZLF6EHCZ44U5YYZC4GFBWLPCW7HOWDXZISEVCNHAH77AQSCWOYEVII",
+    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "address": "CAKJT3HBDPOVJW6F5KJO56QXGWEZ3FHGUDBHBRQACWTBFQGWR4QXZWSN",
+    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
+    "poolType": "constant_product",
+    "fee": "10",
+    "reserveA": "16344963",
+    "reserveB": "122010"
+  },
+  {
+    "tokenA": "CATNYPHNO3U72V7ZVUE6QESDWTSBORW2BE7WFM3BQABQNNZQ32F2HYNC",
+    "tokenB": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "address": "CATP23X4FIYDOSPTGJVVI7RTINYQUA32UGG5CORAXDGUMJCHQFFCERN6",
+    "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
+    "poolType": "constant_product",
+    "fee": "100",
+    "reserveA": "12183683303485",
+    "reserveB": "290353457480"
+  },
+  {
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CCI47SQMVMLJDW2JZ4272PH7ITMVY7XZPBO247TMSPBQQF4MZZWVSPKA",
+    "address": "CB6IBY244DYNEWMG4P5TVXR44CXL5QAGLH3QIJTQCT4MSDXKC3LKRMC5",
+    "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
+    "poolType": "constant_product",
+    "fee": "100",
+    "reserveA": "136638614316663",
+    "reserveB": "10830689225"
+  },
+  {
+    "tokenA": "CBHBD77PWZ3AXPQVYVDBHDKEMVNOR26UZUZHWCB6QC7J5SETQPRUQAS4",
+    "tokenB": "CC6R4JUVHBFZVG5GVWOH4QTWFVRPVFEYKWNLEHDYZ2FN5GFNO5MD2G66",
+    "address": "CBC5SYJYQRPBP7CV5LEPZKOZWAJWMOICO4BUFAGM7S2DU5YCSMKLTDA5",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "119604466306",
+    "reserveB": "582734969706"
+  },
+  {
+    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "tokenB": "CDPXFLUPV5AOMGWZTTAT336K672Z5LQSREFBAU3W5ASQHGZP4XX5PZJ6",
+    "address": "CCGC7E3J5UB4JZ35VMDTGM4GPVNOI4XU7UCQMI4E3I2DP5L2MAZ6JZT4",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "12849935760",
+    "reserveB": "296677145223100"
+  },
+  {
+    "tokenA": "CBZVSNVB55ANF24QVJL2K5QCLOAB6XITGTGXYEAF6NPTXYKEJUYQOHFC",
+    "tokenB": "CC6R4JUVHBFZVG5GVWOH4QTWFVRPVFEYKWNLEHDYZ2FN5GFNO5MD2G66",
+    "address": "CBUAQYC3JPFSDMNIOS3IA7VJG4XMB3ZSHLLDJJIQHAOQDLWM2KPOHRAR",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "0",
+    "reserveB": "0"
+  },
+  {
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CBEF3NDHJLMOASK2AVKRFXMFGSG4MZRRJIWVPCOIOXWVNRKFKCVI6MV4",
+    "address": "CAOSZ5OCJYWPUOGFAFNU7RCNWLMFGVKFOOI3SLKICNQCP6URLW7QGOCO",
+    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
+    "poolType": "constant_product",
+    "fee": "10",
+    "reserveA": "3017063920",
+    "reserveB": "62917670984"
+  },
+  {
+    "tokenA": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "tokenB": "CDTKPWPLOURQA2SGTKTUQOWRCBZEORB4BWBOMJ3D3ZTQQSGE5F6JBQLV",
+    "address": "CB37QM6EHVBDDNK7MAVQESV7WPLKV6G36TR7MHAOYWPZXLPQUWSDOK4E",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "709168848",
+    "reserveB": "601003552"
+  },
+  {
+    "tokenA": "CDFZUVS5YNLXU7VENKOUDEOHCJGKQNVUBWD7KMN6E7ZROKPYPFLRUJFG",
+    "tokenB": "CDTKPWPLOURQA2SGTKTUQOWRCBZEORB4BWBOMJ3D3ZTQQSGE5F6JBQLV",
+    "address": "CCVKDKAIHBPLWONBSS5DRFFZLP7WWAHK43PAA6XVTGHF5I3OMGVSBCDP",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "5803817063",
+    "reserveB": "4934018714"
+  },
+  {
+    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "tokenB": "CA4SNE3QSQP2AUQHVY4V55CMPVO6CO4ELW7NV2AY6YZCLNACBXZSMEZD",
+    "address": "CDJ3J3MSQIJLMZDBMXNH5MKGOFCL2TTLFSSU5SFI3PYYJDFHWEH7EB5E",
+    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
+    "poolType": "constant_product",
+    "fee": "10",
+    "reserveA": "197271354",
+    "reserveB": "101606972624420"
+  },
+  {
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CC6R4JUVHBFZVG5GVWOH4QTWFVRPVFEYKWNLEHDYZ2FN5GFNO5MD2G66",
+    "address": "CAYHCKBYLGW4A5EE5ANDRDRKMO5UGPU3CZJMDLCKDC3PIRF6D6EVVHPN",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "790599528",
+    "reserveB": "5473466132"
+  },
+  {
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CD2XOGQ7P4X4M23ADSOCLHIE47X6F72A5MGEO6AAKZT5Q5IHHMKTYNAM",
+    "address": "CDQVZWIT4ODRWWA5K2YWIFX7Z5KA76ASJP6UJLLAPM6DWLKU6RT6THHL",
+    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
+    "poolType": "constant_product",
+    "fee": "10",
+    "reserveA": "547140821",
+    "reserveB": "63138350218864"
+  },
+  {
+    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "tokenB": "CDFZUVS5YNLXU7VENKOUDEOHCJGKQNVUBWD7KMN6E7ZROKPYPFLRUJFG",
+    "address": "CAC3AUH3A3ZCABCOPDCXVJXSIL57WHAPGUPTKAOMSNFLAVE7CPPGNGZB",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "68418541428",
+    "reserveB": "25827561896"
+  },
+  {
+    "tokenA": "CBAZFN2YALTF5ODPW3BFSXTXXM5P2XLR355CNDJR5OB2UPAKQD6EDBIJ",
+    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "address": "CASL4PYESGRCUJVCSS33DX52JBSRWSZJEADCMPNL5CK4UWJJ5WQPAUMP",
+    "idx": "KizcyLY0LU361xbR3BB5qqbFdFOIMC0wTX5dpZ0OIsA=",
+    "poolType": "stable",
+    "fee": "50",
+    "reserveA": "58724742558",
+    "reserveB": "174863024035",
+    "futureA": "1500",
+    "futureATime": "1749400006",
+    "initialA": "1500",
+    "initialATime": "1749400006",
+    "precisionMulA": "1",
+    "precisionMulB": "1"
+  },
+  {
+    "tokenA": "CBVDRT5474OBUEXF5MJB3UGQ5CG7CKGCAH5M4RV5NBCDJUBZ5OXHJLOU",
+    "tokenB": "CDFZUVS5YNLXU7VENKOUDEOHCJGKQNVUBWD7KMN6E7ZROKPYPFLRUJFG",
+    "address": "CB7NBRNRMSZW576ABOBGCZCPC6RB6FCFNJTABLVI7FRTIBWFE3MKPBEK",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "11362893951",
+    "reserveB": "12121586997"
+  },
+  {
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CCML4KQOMYYE7FVOADYIXUCKRDEANKBFLGQV3QIBXLCSHQ3RZXSM4ACR",
+    "address": "CBMOKFM4SNJ2DAUZ4M5MJSP76M2A6A5V5CTIIJLM7TTPBRTRTLTATZ7O",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "5281408660120",
+    "reserveB": "53610954432215"
+  },
+  {
+    "tokenA": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "tokenB": "CDANHN6OUDZNFWDCEU6ZWCIC4DPHVFXP3QPARHALFOF26HLC45JWRTWP",
+    "address": "CC2QQVENM4W4C6DW4WZGMZSW4WI6ZWFISHRWVXMTWPIAHMB77IOIP77C",
+    "idx": "Vm/xgyztNRxZ+ygI+9cH9iJJyAn8ww85D2HvnYFFSpU=",
+    "poolType": "stable",
+    "fee": "10",
+    "reserveA": "1207285725",
+    "reserveB": "793254731",
+    "futureA": "1500",
+    "futureATime": "1750360151",
+    "initialA": "1500",
+    "initialATime": "1750360151",
+    "precisionMulA": "1",
+    "precisionMulB": "1"
+  },
+  {
+    "tokenA": "CBZPEXQLJCGUYTAQRQ4FGCXUV5O4TZER5WSOMCGNDNIIO4EJ4FU5GQNZ",
+    "tokenB": "CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75",
+    "address": "CBG2QNHFV3DJTKHGABZ3ZRCDWXE6JB2FXTNVXPSOGZUDHTTH3TQ7CGRM",
+    "idx": "znaPQFFreVSt68PC3zkZbhNggNcEEQhkxs0A7Prjr38=",
+    "poolType": "stable",
+    "fee": "10",
+    "reserveA": "66357806607",
+    "reserveB": "3803965818",
+    "futureA": "1500",
+    "futureATime": "1749884327",
+    "initialA": "1500",
+    "initialATime": "1749884327",
+    "precisionMulA": "1",
+    "precisionMulB": "1"
+  },
+  {
+    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "tokenB": "CCML4KQOMYYE7FVOADYIXUCKRDEANKBFLGQV3QIBXLCSHQ3RZXSM4ACR",
+    "address": "CAFA2BRSNIN6MVKY736R3237W6PFSBQMWOJ5HDTCF3Z4YCCCYLV2N46R",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "2411623795",
+    "reserveB": "8699635341628"
+  },
+  {
+    "tokenA": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "tokenB": "CBAZFN2YALTF5ODPW3BFSXTXXM5P2XLR355CNDJR5OB2UPAKQD6EDBIJ",
+    "address": "CD47PNGQZFFQ3KMQJXLMK6MBX36WEIR6OIFRCCXRTXJE5HOA2GWL7L6G",
+    "idx": "msepzeI6wq2hEQXuqkLkPC6oMyygqo9B9Y1xYCdNcY4=",
+    "poolType": "constant_product",
+    "fee": "30",
+    "reserveA": "669437310",
+    "reserveB": "585536"
+  },
+  {
+    "tokenA": "CAFD2IS6FEBUXWHAOH3G5LM4LMXIHVH6LAYRHUPYUU62NXH3I4TUCI2C",
+    "tokenB": "CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK",
+    "address": "CDCT6W2XW64ZCIUEMRG46CJVE734SZDL6WDEH2QQOABBNU2XUSCTQEMR",
+    "idx": "suAvz8pslvitXL2E53hKd3s22clqJFlALE9FhGKqt/A=",
+    "poolType": "constant_product",
+    "fee": "10",
+    "reserveA": "1010000000",
+    "reserveB": "1311764167535"
+  },
+  {
+    "tokenA": "CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA",
+    "tokenB": "CC5WCQQFYI7XYEYQ7ON3UN7UZORKQA5E4S3WTWK3AYZEAWOMMX4TBS7O",
+    "address": "CANI4O7DWL52SXP6T2NF5OCQ5A5LSV7WV5BVZPYFTAGSPAB4TTEOBLBN",
+    "idx": "N7lV83CNrnSMrUZUQfytcLJv/icjhSJ6SnNyNK5Cm98=",
+    "poolType": "constant_product",
+    "fee": "100",
+    "reserveA": "519899994",
+    "reserveB": "19238204683"
   }
 ];

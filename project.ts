@@ -97,6 +97,27 @@ const aquaHandlers: SubqlRuntimeHandler[] = [
   },
 ];
 
+////////////////////////////////////////////////////////////
+// TEMP: DO NOT COMMIT TO MAIN
+const defindexHandlers: SubqlRuntimeHandler[] = [
+  {
+    handler: "handleDefindexDepositEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["DeFindexVault", "deposit"],
+    },
+  },
+  {
+    handler: "handleDefindexWithdrawEvent",
+    kind: StellarHandlerKind.Event,
+    filter: {
+      topics: ["DeFindexVault", "withdraw"],
+    },
+  },
+];
+// END TEMP
+////////////////////////////////////////////////////////////
+
 /* This is your project configuration */
 const project: StellarProject = {
   specVersion: "1.0.0",
@@ -144,7 +165,7 @@ const project: StellarProject = {
       startBlock: soroswapFactory.startBlock,
       mapping: {
         file: "./dist/index.js",
-        handlers: [...soroswapHandlers, ...phoenixHandlers, ...aquaHandlers],
+        handlers: [...soroswapHandlers, ...aquaHandlers, ...defindexHandlers],
       },
     },
   ],
