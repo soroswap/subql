@@ -13,18 +13,21 @@ A [SubQuery](https://subquery.network) indexer implementation for the Soroswap p
 
 Ensure you have the following installed before setting up the project:
 
-- [Docker](https://www.docker.com/)
+- [Docker](https://www.docker.com/) ``
 - [Node.js](https://nodejs.org/) (Recommended: v18+)
 - [NPM](https://www.npmjs.com/)
+- Subql CLO npm i -g @subql/cli
 
 ## ⚙️ Setup and Configuration
 
 ### 1️⃣ Clone the Repository
 
 ```bash
+sudo apt install git-all
 git clone https://github.com/soroswap/subql.git
 cd subql
 cp .env.example .env
+docker network create soroswap-network
 ```
 
 ### 2️⃣ Clean Previous Installation (If Necessary)
@@ -57,6 +60,20 @@ Launch the indexer in development mode:
 npm run dev
 ```
 
+# Run this on a VM
+```
+# one-time install (Debian/Ubuntu)
+sudo apt-get update && sudo apt-get install -y tmux
+
+tmux new -s indexer          # start a new session
+# …run whatever commands you like…
+npm run dev
+Ctrl-b  d                      # detach (session keeps running)
+
+#later
+tmux attach -t mysession       # re-attach
+tmux ls                        # list sessions
+```
 ---
 # Extenral Ports.
 This will run 3 docker containters called, `subql-graphql-engine-1`, `subql-subquery-node-1` and `postgres`.
@@ -65,7 +82,7 @@ The one you will pay attention are
 - 5432 for the `postgres`
 
 If you are calling the indexer from a local docker container of the same network, you will need to use:
-`GRAPHQL_INDEXER_MAINNET=http://graphql-engine:7000`
+`GRAPHQL_INDEXER_MAINNET=http://graphql-engine:7000` 
 ---
 
 ### 6️⃣ Deploy to OnFinality
