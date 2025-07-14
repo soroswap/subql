@@ -67,11 +67,14 @@ sudo apt-get update && sudo apt-get install -y tmux
 
 tmux new -s indexer          # start a new session
 # …run whatever commands you like…
+npm run reset
+npm install
+npm run prestart
 npm run dev
 Ctrl-b  d                      # detach (session keeps running)
 
 #later
-tmux attach -t mysession       # re-attach
+tmux attach -t indexer       # re-attach
 tmux ls                        # list sessions
 ```
 ---
