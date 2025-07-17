@@ -12,7 +12,6 @@
     "test": "subql build && subql-node-stellar test",
     "test:aqua": "jest src/aqua",
     "test:aqua:watch": "jest src/aqua --watch",
-    "test:aqua:debug": "node --inspect-brk node_modules/.bin/jest src/aqua --runInBand",
     "build:develop": "NODE_ENV=develop subql codegen && NODE_ENV=develop subql build",
     "reset": "docker compose down -v && sudo rm -rf .data && sudo rm -rf dist",
     "prestart": "ts-node scripts/index.ts",
