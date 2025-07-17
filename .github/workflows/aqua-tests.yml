@@ -26,7 +26,10 @@ jobs:
           node-version: '20.18.0'
     
       - name: Install dependencies
-        run: yarn
+        run: npm install
       
-      - name: Run Aqua tests
-        run: yarn test:aqua
+      - name: Prepare environment
+        run: npm run prestart
+
+      - name: Run tests
+        run: npm run test:aqua
