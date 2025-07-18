@@ -16,7 +16,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - default
+      - soroswap-network
 
   subquery-node:
     # image: subql-stellar-node-development
@@ -49,7 +49,7 @@ services:
       timeout: 5s
       retries: 10
     networks:
-      - default
+      - soroswap-network
 
   graphql-engine:
     image: subquerynetwork/subql-query:latest
@@ -73,9 +73,8 @@ services:
       - --indexer=http://subquery-node:3000
       - --port=7000
     networks:
-      - default
+      - soroswap-network
 
 networks:
-  default:
-    external: 
-      name: soroswap-network
+  soroswap-network:
+    external: true
