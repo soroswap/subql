@@ -46,7 +46,7 @@ export function extractAddPoolAquaValues(event: any): {
     // subpool_salt (idx) 
     const subpoolSalt = values[2]?._value?.data;
     if (subpoolSalt) {
-      result.idx = Buffer.from(subpoolSalt).toString("hex");
+      result.idx = Buffer.from(subpoolSalt).toString('base64');
       logger.debug(`→ Subpool salt (idx): ${result.idx}`);
     }
 
