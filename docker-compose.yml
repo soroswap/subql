@@ -20,7 +20,7 @@ services:
 
   subquery-node:
     # image: subql-stellar-node-development
-    image: subquerynetwork/subql-node-stellar:latest
+    image: subquerynetwork/subql-node-stellar:v5.0.2
     depends_on:
       postgres:
         condition: service_healthy
