@@ -20,7 +20,7 @@ services:
 
   subquery-node:
     # image: subql-stellar-node-development
-    image: subquerynetwork/subql-node-stellar:v5.0.2
+    image: subquerynetwork/subql-node-stellar:v6.1.0
     depends_on:
       postgres:
         condition: service_healthy
@@ -52,7 +52,7 @@ services:
       - soroswap-network
 
   graphql-engine:
-    image: subquerynetwork/subql-query:latest
+    image: subquerynetwork/subql-query:2.23.4
     ports:
       - 7000:7000
     depends_on:
