@@ -31,10 +31,10 @@
     "@subql/types-stellar": "5.1.0",
     "base32.js": "^0.1.0",
     "p-limit": "^6.2.0",
-    "soroban-toolkit": "^0.1.5"
+    "soroban-toolkit": "0.2.0"
   },
   "devDependencies": {
-    "@subql/cli": "6.2.0",
+    "@subql/cli": "6.2.1",
     "@subql/testing": "2.3.0",
     "@types/node": "^22.13.1",
     "dotenv": "latest",
