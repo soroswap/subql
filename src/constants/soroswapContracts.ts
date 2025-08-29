@@ -3,7 +3,7 @@ import { NETWORK } from ".";
 const soroswapFactory = {
   mainnet: {
     address: "CA4HEQTL2WPEUYKYKCDOHCDNIV4QHNJ7EL4J4NQ6VADP7SYHVRYZ7AW2",
-    startBlock: 58587324,
+    startBlock: 58686020,
   },
   testnet: {
     address: "CB7X4DSYW4UTKJSJMO7A3ZX2YQQG4NQUD3TQOTAZ7UHOK2BGGLRW2ZIC",
