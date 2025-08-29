@@ -31,7 +31,8 @@
     "@subql/types-stellar": "5.1.0",
     "base32.js": "^0.1.0",
     "p-limit": "^6.2.0",
-    "soroban-toolkit": "0.2.0"
+    "soroban-toolkit": "0.2.0",
+    "text-encoding": "^0.7.0"
   },
   "devDependencies": {
     "@subql/cli": "6.2.1",
