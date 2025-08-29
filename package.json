@@ -28,7 +28,7 @@
     "@stellar/stellar-sdk": "14.0.0",
     "@subql/common": "5.7.4",
     "@subql/common-stellar": "4.5.0",
-    "@subql/types-core": "^2.1.1",
+    "@subql/types-core": "2.1.1",
     "@subql/types-stellar": "5.1.0",
     "base32.js": "^0.1.0",
     "p-limit": "^6.2.0",
