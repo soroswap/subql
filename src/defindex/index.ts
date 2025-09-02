@@ -13,27 +13,20 @@ const generateEventId = (contractId: string, ledger: number, date: string): stri
 
 export const defindexEventHandler = async (event: SorobanEvent) => {
   const contractId = event.contractId.toString();
+  logger.info(event.txHash);
   logger.info(`[DEFINDEX] 🔁 ${contractId}`);
   const date = event.ledger.closed_at;
-  const ledger = event.ledger.sequence
+  const ledger = event.ledger.sequence;
 
-  const resultMetaXdrString = event.transaction.result_meta_xdr;
-  const txMeta = xdr.TransactionMeta.fromXDR(resultMetaXdrString, "base64");
-  const txEvents = txMeta.v3().sorobanMeta().events();
+  const parsedEvent = JSON.parse(JSON.stringify(event))
+  const rawEventType = parsedEvent.topic[1]
+  const eventType = Buffer.from(rawEventType._value.data).toString()
+  logger.info(`🚀 | defindexEventHandler | eventType: ${eventType}`)
 
-  const eventData = txEvents.find(
-    (event) =>
-      (`${event.body().value().topics()[0].value()}` === "DeFindexVault" &&
-        `${event.body().value().topics()[1].value()}` === "deposit") ||
-      (`${event.body().value().topics()[0].value()}` === "DeFindexVault" &&
-        `${event.body().value().topics()[1].value()}` === "withdraw")
-  );
-
-  const eventType = `${eventData?.body().value().topics()[1].value()}`;
+  const eventData = parsedEvent.value._value
 
   if (eventData) {
-    const dataXdr = eventData.body().value().data().toXDR();
-    const scValData = xdr.ScVal.fromXDR(dataXdr).value() as xdr.ScVal[];
+    logger.info(`VALUE: ${JSON.stringify(eventData, replacer, 2)}`)
 
     let amounts: bigint[] = [];
     let from: string = "";
@@ -51,15 +44,16 @@ export const defindexEventHandler = async (event: SorobanEvent) => {
     };
     let totalSupplyBefore: bigint = BigInt(0);
 
-    for (const val of scValData) {
-      const parsedVal = JSON.parse(JSON.stringify(val));
-      const keyBuffer = parsedVal._attributes?.key?._value?.data;
+    for (const val of eventData) {
+      logger.info(`val: ${val}`)
+      const keyBuffer = val._attributes?.key?._value?.data;
       const keyText = Buffer.from(keyBuffer).toString();
+      logger.info(`🚀 | defindexEventHandler | keyText: ${keyText}`)
 
       switch (keyText) {
         case "amounts_withdrawn":
         case "amounts":
-          const amountsRawValue = parsedVal._attributes?.val?._value;
+          const amountsRawValue = val._attributes?.val?._value;
           const amountsArray = [];
           for (const amount of amountsRawValue) {
             const value = amount?._value?._attributes?.lo._value;
@@ -72,7 +66,7 @@ export const defindexEventHandler = async (event: SorobanEvent) => {
           break;
         case "depositor":
         case "withdrawer":
-          const depositorRawValue = parsedVal._attributes?.val?._value;
+          const depositorRawValue = val._attributes?.val?._value;
 
           if (depositorRawValue) {
             const buffer = depositorRawValue._value._value.data;
@@ -82,7 +76,7 @@ export const defindexEventHandler = async (event: SorobanEvent) => {
           break;
         case "df_tokens_minted":
         case "df_tokens_burned":
-          const dfTokensRawValue = parsedVal._attributes?.val?._value;
+          const dfTokensRawValue = val._attributes?.val?._value;
           if (dfTokensRawValue) {
             const rawAmount = dfTokensRawValue._attributes.lo._value;
             dfTokens = BigInt(rawAmount);
@@ -90,7 +84,7 @@ export const defindexEventHandler = async (event: SorobanEvent) => {
           break;
         case "total_managed_funds_before":
           const totalManagedFundsBeforeRawValue =
-            parsedVal._attributes?.val?._value;
+            val._attributes?.val?._value;
           if (totalManagedFundsBeforeRawValue) {
             const managedFunds = totalManagedFundsBeforeRawValue[0]._value;
             const parsedFunds = {
@@ -123,7 +117,7 @@ export const defindexEventHandler = async (event: SorobanEvent) => {
           }
           break;
         case "total_supply_before":
-          const totalSupplyBeforeRawValue = parsedVal._attributes?.val?._value;
+          const totalSupplyBeforeRawValue = val._attributes?.val?._value;
           if (totalSupplyBeforeRawValue) {
             const supply = BigInt(
               totalSupplyBeforeRawValue._attributes.lo._value
@@ -146,6 +140,7 @@ export const defindexEventHandler = async (event: SorobanEvent) => {
     logger.info(`🚀 | date: ${new Date(date)}`);
     logger.info(`🚀 | ledger: ${ledger}`);
 
+    // TODO: Review how to succesfully implement the code below
     // Calculate date one week ago
     const oneWeekAgo = new Date(date);
     logger.info(`🚀 | oneWeekAgo: ${oneWeekAgo}`);
@@ -220,6 +215,7 @@ export const defindexEventHandler = async (event: SorobanEvent) => {
     logger.info(`🚀 | previousPricePerShare: ${previousPricePerShare}`);
     logger.info(`🚀 | newPricePerShare: ${newPricePerShare}`);
     logger.info(`🚀 | APY: ${apy.toFixed(2)}%`);
+    /// END OF PREVIOUS IMPLEMENTATION
 
     const entryData: DeFindexVaultProps = {
       id: generateEventId(contractId, ledger, date),
