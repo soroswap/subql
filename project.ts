@@ -144,7 +144,9 @@ const project: StellarProject = {
       startBlock: soroswapFactory.startBlock,
       mapping: {
         file: "./dist/index.js",
-        handlers: [...soroswapHandlers, ...phoenixHandlers, ...aquaHandlers],
+        handlers: (process.env.NETWORK as NETWORK) === NETWORK.MAINNET ? 
+          [...soroswapHandlers, ...phoenixHandlers, ...aquaHandlers] :
+          [...soroswapHandlers], // If Testnet we will only use Soroswap handlers
       },
     },
   ],
