@@ -1,8 +1,26 @@
 import { StrKey } from "@stellar/stellar-sdk";
 import { getTransactionData } from "./utils";
+import { SorobanEvent } from "@subql/types-stellar";
 
-// Helper function to extract values from deposit event
-export async function extractAquaValues(event: any): Promise<{
+// Types and Interfaces
+interface ContractData {
+  tokenA?: any;
+  tokenB?: any;
+  tokenC?: any;
+  reserveA?: any;
+  reserveB?: any;
+  reserveC?: any;
+  fee?: any;
+  futureA?: any;
+  futureATime?: any;
+  initialA?: any;
+  initialATime?: any;
+  precisionMulA?: any;
+  precisionMulB?: any;
+  precisionMulC?: any;
+}
+
+interface AquaValues {
   address: string;
   tokenA: string;
   tokenB: string;
@@ -18,134 +36,331 @@ export async function extractAquaValues(event: any): Promise<{
   precisionMulA?: bigint;
   precisionMulB?: bigint;
   precisionMulC?: bigint;
-}> {
-  let result = {
-    address: "",
-    tokenA: "",
-    tokenB: "",
-    tokenC: undefined as string | undefined,
-    reserveA: undefined as bigint | undefined,
-    reserveB: undefined as bigint | undefined,
-    reserveC: undefined as bigint | undefined,
-    fee: undefined as bigint | undefined,
-    futureA: undefined as bigint | undefined,
-    futureATime: undefined as bigint | undefined,
-    initialA: undefined as bigint | undefined,
-    initialATime: undefined as bigint | undefined,
-    precisionMulA: undefined as bigint | undefined,
-    precisionMulB: undefined as bigint | undefined,
-    precisionMulC: undefined as bigint | undefined,
-  };
+}
 
-  try {
-    logger.debug(`txHash: ${event.txHash.toString()}`);
-    // User address (first value of the value)
-    result.address = event.contractId.toString();
+// Enums for field types and behaviors
+enum FieldType {
+  STRING = 'string',
+  OPTIONAL_STRING = 'optional_string',
+  RESERVE_BIGINT = 'reserve_bigint',
+  REGULAR_BIGINT = 'regular_bigint',
+  OPTIONAL_BIGINT = 'optional_bigint'
+}
 
-    // Get contract data using getLedgerEntries
-    if (result.address) {
-      logger.debug(`🔍 Fetching contract data for ${result.address}...`);
-      // let contractData = await getContractDataFetch(result.address);
-      let contractData = getTransactionData(event, result.address);
+// Value normalizer strategy interface
+interface ValueNormalizer<T> {
+  normalize(value: any): T;
+}
 
-      if (contractData.tokenA !== undefined) {
-        result.tokenA = contractData.tokenA;
-        logger.debug(`[AQUA] → TokenA from contract: ${result.tokenA.toString()}`);
-      }
-
-      if (contractData.tokenB !== undefined) {
-        result.tokenB = contractData.tokenB;
-        logger.debug(`[AQUA] → TokenB from contract: ${result.tokenB.toString()}`);
-      }
-
-      if (contractData.reserveA !== undefined) {
-        result.reserveA = contractData.reserveA;
-        logger.debug(`[AQUA] → ReserveA from contract: ${result.reserveA.toString()}`);
-      }
-
-      if (contractData.reserveB !== undefined) {
-        result.reserveB = contractData.reserveB;
-        logger.debug(`[AQUA] → ReserveB from contract: ${result.reserveB.toString()}`);
-      }
-
-      if (contractData.fee !== undefined) {
-        result.fee = contractData.fee;
-        logger.debug(`[AQUA] → Fee from contract: ${result.fee.toString()}`);
-      }
-
-      // Assign values for stable pools
-      if (contractData.tokenC !== undefined) {
-        result.tokenC = contractData.tokenC;
-        logger.debug(`[AQUA] → TokenC from contract: ${result.tokenC}`);
-      }
-
-      if (contractData.reserveC !== undefined) {
-        result.reserveC = contractData.reserveC;
-        logger.debug(`[AQUA] → ReserveC from contract: ${result.reserveC.toString()}`);
-      }
-
-      if (contractData.futureA !== undefined) {
-        result.futureA = contractData.futureA;
-        logger.debug(`[AQUA] → FutureA from contract: ${result.futureA.toString()}`);
-      }
-
-      if (contractData.futureATime !== undefined) {
-        result.futureATime = contractData.futureATime;
-        logger.debug(`[AQUA] → FutureATime from contract: ${result.futureATime.toString()}`);
-      }
-
-      if (contractData.initialA !== undefined) {
-        result.initialA = contractData.initialA;
-        logger.debug(`[AQUA] → InitialA from contract: ${result.initialA.toString()}`);
-      }
-
-      if (contractData.initialATime !== undefined) {
-        result.initialATime = contractData.initialATime;
-        logger.debug(`[AQUA] → InitialATime from contract: ${result.initialATime.toString()}`);
-      }
-
-      if (contractData.precisionMulA !== undefined) {
-        result.precisionMulA = contractData.precisionMulA;
-        logger.debug(`[AQUA] → PrecisionMulA from contract: ${result.precisionMulA.toString()}`);
-      }
-
-      if (contractData.precisionMulB !== undefined) {
-        result.precisionMulB = contractData.precisionMulB;
-        logger.debug(`[AQUA] → PrecisionMulB from contract: ${result.precisionMulB.toString()}`);
-      }
-
-      if (contractData.precisionMulC !== undefined) {
-        result.precisionMulC = contractData.precisionMulC;
-        logger.debug(`[AQUA] → PrecisionMulC from contract: ${result.precisionMulC.toString()}`);
-      }
-
-      // If no data is found, use default values
-      if (result.reserveA === undefined && result.reserveB === undefined) {
-        logger.debug(`⚠️ No reserve data found for contract ${result.address}, using default values`);
-        result.reserveA = BigInt(0);
-        result.reserveB = BigInt(0);
-      }
+// Concrete normalizer implementations
+class StringNormalizer implements ValueNormalizer<string> {
+  normalize(value: any): string {
+    if (value === null || value === undefined) {
+      return "";
     }
-
-    return result;
-  } catch (error) {
-    logger.error(`[AQUA] ❌ Error extracting Aqua values: ${error}`);
-    return result;
+    return String(value);
   }
 }
 
-export async function getFactoryTopic(event: any): Promise<string> {
-  let factoryAddress = "";
+class OptionalStringNormalizer implements ValueNormalizer<string | undefined> {
+  normalize(value: any): string | undefined {
+    if (value === null || value === undefined) {
+      return undefined;
+    }
+    return String(value);
+  }
+}
 
-  if (event.topic[3]) {
-    if (event.topic[3].address().switch().name === "scAddressTypeContract") {
+class ReserveBigIntNormalizer implements ValueNormalizer<bigint | undefined | null> {
+  normalize(value: any): bigint | undefined | null {
+    if (value === null) return null;
+    if (value === undefined) return undefined;
+    
+    const converted = this.convertToBigInt(value);
+    // Zero reserves become undefined
+    return converted === BigInt(0) ? undefined : converted;
+  }
+
+  private convertToBigInt(value: any): bigint | undefined {
+    if (typeof value === 'bigint') return value;
+    
+    if (typeof value === 'number' || typeof value === 'string') {
       try {
-        const contractIdBuffer = event.topic[3].address().contractId();
-        factoryAddress = StrKey.encodeContract(contractIdBuffer);
-      } catch (error) {
-        logger.error(`Error getting factory address: ${error}`);
+        return BigInt(value);
+      } catch {
+        return undefined;
       }
     }
+    return undefined;
   }
-  return factoryAddress;
+}
+
+class RegularBigIntNormalizer implements ValueNormalizer<bigint | undefined | null> {
+  normalize(value: any): bigint | undefined | null {
+    if (value === null) return null;
+    if (value === undefined) return undefined;
+    if (typeof value === 'bigint') return value;
+    
+    if (typeof value === 'number' || typeof value === 'string') {
+      try {
+        return BigInt(value);
+      } catch {
+        return undefined;
+      }
+    }
+    return undefined;
+  }
+}
+
+class OptionalBigIntNormalizer implements ValueNormalizer<bigint | undefined> {
+  normalize(value: any): bigint | undefined {
+    if (value === null || value === undefined) return undefined;
+    if (typeof value === 'bigint') return value;
+    
+    if (typeof value === 'number' || typeof value === 'string') {
+      try {
+        return BigInt(value);
+      } catch {
+        return undefined;
+      }
+    }
+    return undefined;
+  }
+}
+
+// Factory for creating normalizers
+class NormalizerFactory {
+  private static normalizers = new Map<FieldType, ValueNormalizer<any>>([
+    [FieldType.STRING, new StringNormalizer()],
+    [FieldType.OPTIONAL_STRING, new OptionalStringNormalizer()],
+    [FieldType.RESERVE_BIGINT, new ReserveBigIntNormalizer()],
+    [FieldType.REGULAR_BIGINT, new RegularBigIntNormalizer()],
+    [FieldType.OPTIONAL_BIGINT, new OptionalBigIntNormalizer()]
+  ]);
+
+  static getNormalizer<T>(type: FieldType): ValueNormalizer<T> {
+    const normalizer = this.normalizers.get(type);
+    if (!normalizer) {
+      throw new Error(`Unknown field type: ${type}`);
+    }
+    return normalizer;
+  }
+}
+
+// Field configuration for different types of fields
+interface FieldConfig {
+  type: FieldType;
+  logName?: string;
+  isRequired?: boolean;
+}
+
+// Field processor that handles validation, normalization, and logging
+class FieldProcessor {
+  constructor(
+    private logger: any,
+    private contractData: ContractData,
+    private allStableFieldsAreNull: boolean
+  ) {}
+
+  processField<T>(
+    resultKey: keyof AquaValues,
+    contractKey: keyof ContractData,
+    config: FieldConfig,
+    result: Partial<AquaValues>
+  ): void {
+    const contractValue = this.contractData[contractKey];
+    if (contractValue === undefined) return;
+
+    let normalizedValue: T;
+
+    // Special handling for stable pool fields when all are null
+    if (this.allStableFieldsAreNull && this.isStablePoolField(contractKey)) {
+      normalizedValue = undefined as T;
+    } else {
+      const normalizer = NormalizerFactory.getNormalizer<T>(config.type);
+      normalizedValue = normalizer.normalize(contractValue);
+    }
+
+    (result as any)[resultKey] = normalizedValue;
+
+    // Log if value exists and is loggable
+    if (this.shouldLog(normalizedValue, config)) {
+      const logName = config.logName || String(contractKey);
+      this.logFieldValue(logName, normalizedValue);
+    }
+  }
+
+  private isStablePoolField(key: keyof ContractData): boolean {
+    const stableFields: (keyof ContractData)[] = [
+      'tokenC', 'reserveC', 'futureA', 'futureATime', 
+      'initialA', 'initialATime', 'precisionMulA', 
+      'precisionMulB', 'precisionMulC'
+    ];
+    return stableFields.includes(key);
+  }
+
+  private shouldLog(value: any, config: FieldConfig): boolean {
+    return value !== undefined && value !== null && Boolean(config.logName);
+  }
+
+  private logFieldValue(logName: string, value: any): void {
+    const displayValue = typeof value === 'bigint' ? value.toString() : value;
+    this.logger.debug(`[AQUA] → ${logName} from contract: ${displayValue}`);
+  }
+}
+
+// Main extractor class that orchestrates the extraction process
+class AquaValuesExtractor {
+  private static readonly STABLE_POOL_FIELDS: (keyof ContractData)[] = [
+    'tokenC', 'reserveC', 'futureA', 'futureATime', 
+    'initialA', 'initialATime', 'precisionMulA', 
+    'precisionMulB', 'precisionMulC'
+  ];
+
+  private static readonly FIELD_CONFIGS: Record<string, FieldConfig> = {
+    tokenA: { type: FieldType.STRING, logName: 'TokenA' },
+    tokenB: { type: FieldType.STRING, logName: 'TokenB' },
+    reserveA: { type: FieldType.RESERVE_BIGINT, logName: 'ReserveA' },
+    reserveB: { type: FieldType.RESERVE_BIGINT, logName: 'ReserveB' },
+    fee: { type: FieldType.REGULAR_BIGINT, logName: 'Fee' },
+    tokenC: { type: FieldType.OPTIONAL_STRING, logName: 'TokenC' },
+    reserveC: { type: FieldType.OPTIONAL_BIGINT, logName: 'ReserveC' },
+    futureA: { type: FieldType.OPTIONAL_BIGINT, logName: 'FutureA' },
+    futureATime: { type: FieldType.OPTIONAL_BIGINT, logName: 'FutureATime' },
+    initialA: { type: FieldType.REGULAR_BIGINT, logName: 'InitialA' },
+    initialATime: { type: FieldType.OPTIONAL_BIGINT, logName: 'InitialATime' },
+    precisionMulA: { type: FieldType.OPTIONAL_BIGINT, logName: 'PrecisionMulA' },
+    precisionMulB: { type: FieldType.OPTIONAL_BIGINT, logName: 'PrecisionMulB' },
+    precisionMulC: { type: FieldType.OPTIONAL_BIGINT, logName: 'PrecisionMulC' }
+  };
+
+  constructor(private logger: any) {}
+
+  private createInitialResult(): Partial<AquaValues> {
+    return {
+      address: "",
+      tokenA: "",
+      tokenB: "",
+      tokenC: undefined,
+      reserveA: undefined,
+      reserveB: undefined,
+      reserveC: undefined,
+      fee: undefined,
+      futureA: undefined,
+      futureATime: undefined,
+      initialA: undefined,
+      initialATime: undefined,
+      precisionMulA: undefined,
+      precisionMulB: undefined,
+      precisionMulC: undefined,
+    };
+  }
+
+  private extractEventAddress(event: any): string {
+    try {
+      this.logger.debug(`txHash: ${event.txHash.toString()}`);
+      return event.contractId.toString();
+    } catch {
+      return "";
+    }
+  }
+
+  private checkAllStableFieldsAreNull(contractData: ContractData): boolean {
+    const definedStableFields = AquaValuesExtractor.STABLE_POOL_FIELDS
+      .filter(field => contractData[field] !== undefined);
+    
+    return definedStableFields.length > 0 && 
+           definedStableFields.every(field => contractData[field] === null);
+  }
+
+  private processAllFields(
+    contractData: ContractData, 
+    result: Partial<AquaValues>, 
+    allStableFieldsAreNull: boolean
+  ): void {
+    const processor = new FieldProcessor(this.logger, contractData, allStableFieldsAreNull);
+
+    // Process each field using configuration
+    Object.entries(AquaValuesExtractor.FIELD_CONFIGS).forEach(([key, config]) => {
+      processor.processField(
+        key as keyof AquaValues,
+        key as keyof ContractData,
+        config,
+        result
+      );
+    });
+  }
+
+  private applyDefaultValues(contractData: ContractData, result: Partial<AquaValues>): void {
+    // Apply default values only for empty contract data
+    if (Object.keys(contractData).length === 0) {
+      this.logger.debug(`⚠️ No reserve data found for contract ${result.address}, using default values`);
+      result.reserveA = BigInt(0);
+      result.reserveB = BigInt(0);
+    }
+  }
+
+  async extract(event: any): Promise<AquaValues> {
+    const result = this.createInitialResult();
+
+    try {
+      // Extract basic event information
+      result.address = this.extractEventAddress(event);
+
+      if (!result.address) {
+        return result as AquaValues;
+      }
+
+      // Get contract data
+      this.logger.debug(`🔍 Fetching contract data for ${result.address}...`);
+      const contractData = getTransactionData(event, result.address);
+
+      // Analyze stable pool field state
+      const allStableFieldsAreNull = this.checkAllStableFieldsAreNull(contractData);
+
+      // Process all fields
+      this.processAllFields(contractData, result, allStableFieldsAreNull);
+
+      // Apply default values if needed
+      this.applyDefaultValues(contractData, result);
+
+      return result as AquaValues;
+    } catch (error) {
+      this.logger.error(`[AQUA] ❌ Error extracting Aqua values: ${error}`);
+      return result as AquaValues;
+    }
+  }
+}
+
+// Factory topic extractor class
+class FactoryTopicExtractor {
+  constructor(private logger: any) {}
+
+  async extract(event: SorobanEvent): Promise<string> {
+    let factoryAddress: string;
+
+    try {
+      if (event.topic[3]) {
+        if (event.topic[3].address().switch().name === "scAddressTypeContract") {
+          const contractIdBuffer = event.topic[3].address().contractId();
+          factoryAddress = StrKey.encodeContract(contractIdBuffer);
+        }
+      }
+    } catch (error) {
+      this.logger.error(`Error getting factory address: ${error}`);
+    }
+
+    return factoryAddress;
+  }
+}
+
+// Public API functions (maintaining backward compatibility)
+export async function extractAquaValues(event: any): Promise<AquaValues> {
+  const extractor = new AquaValuesExtractor(logger);
+  return extractor.extract(event);
+}
+
+export async function getFactoryTopic(event: any): Promise<string> {
+  const extractor = new FactoryTopicExtractor(logger);
+  return extractor.extract(event);
 }
