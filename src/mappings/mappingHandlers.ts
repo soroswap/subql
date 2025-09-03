@@ -8,6 +8,7 @@ import { aquaEventHandler, aquaAddPoolHandler } from "../aqua";
 import { getFactoryTopic } from "../aqua/helpers/events";
 import { getAquaFactory, NETWORK } from "../constants";
 import * as DefindexHandler from "../defindex"; // TEMP: DEFINDEX EVENTS
+import { initializeDeFindexDB } from "../defindex/initialize"; // TEMP: DEFINDEX INIT
 
 // SOROSWAP SYNC EVENTS
 export async function handleSoroswapEventSync(event: SorobanEvent): Promise<void> {
@@ -56,11 +57,13 @@ export async function handleEventAddPoolAqua(event: SorobanEvent): Promise<void>
 // TEMP: DEFINDEX EVENTS
 export async function handleDefindexDepositEvent(event: SorobanEvent): Promise<void> {
   logger.info(`[DEFINDEX] 🔁 ${String(event.topic[0]?.value()).toUpperCase()} ${String(event.topic[1]?.value()).toUpperCase()} Event received`);
+  await initializeDeFindexDB(event.contractId.toString());
   return await DefindexHandler.defindexEventHandler(event);
 }
 
 export async function handleDefindexWithdrawEvent(event: SorobanEvent): Promise<void> {
   logger.info(`[DEFINDEX] 🔁 ${String(event.topic[0]?.value()).toUpperCase()} ${String(event.topic[1]?.value()).toUpperCase()} Event received`);
+  await initializeDeFindexDB(event.contractId.toString());
   return await DefindexHandler.defindexEventHandler(event);
 }
 // END TEMP: DEFINDEX EVENTS

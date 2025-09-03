@@ -74,59 +74,102 @@ async function getVaultTotalManagedFunds(vaultAddress: string): Promise<any> {
   }
 }
 
-export async function fetchDeFindexEntries(): Promise<void> {
-  let amounts: bigint[] = [];
-  let from: string = "";
-  let dfTokens: bigint = BigInt(0);
-  let totalManagedFundsBefore: {
-    asset: string;
-    idle_amount: bigint;
-    invested_amount: bigint;
-    strategy_allocations: {
-      amount: bigint;
-      paused: boolean;
-      strategy_address: string;
-    }[];
-    total_amount: bigint;
-  };
-  let totalSupplyBefore: bigint = BigInt(0);
+async function getVaultTotalSupply(vaultAddress: string): Promise<string> {
+  try {
+    const result = await retry(async () => {
+      return await invokeCustomContract(
+        toolkit,
+        vaultAddress,
+        "total_supply",
+        [],
+        true
+      );
+    });
+    const totalSupply = scValToNative(result.result.retval);
+    console.log(`🚀 | getVaultTotalSupply | ${vaultAddress} | totalSupply:`, totalSupply);
+    return totalSupply.toString();
+  } catch (error) {
+    console.error(`❌ Error getting total supply for ${vaultAddress}:`, error);
+    return "0";
+  }
+}
 
-  const failedPairs: string[] = [];
+export async function fetchDeFindexEntries(): Promise<void> {
+  const failedVaults: string[] = [];
   const totalVaults = await getTotalVaults();
-  console.log(`📊 Total pairs found: ${totalVaults}`);
+  console.log(`📊 Total vaults found: ${totalVaults}`);
 
   const vaultsInfo: {
-    asset: string
-    idle_amount: bigint
-    invested_amount: bigint
-    strategy_allocations: 
-      {
-        amount: bigint,
-        paused: boolean,
-        strategy_address: string
-      }[]
-    total_amount: bigint
+    ledger: number;
+    address: string;
+    totalSupply: string;
+    totalManagedFunds: {
+      asset: string;
+      idle_amount: string;
+      invested_amount: string;
+      strategy_allocations: {
+        amount: string;
+        paused: boolean;
+        strategy_address: string;
+      }[];
+      total_amount: string;
+    }[];
   }[] = [];
 
   try {
-    console.log("🚀 Getting pairs information...");
+    console.log("🚀 Getting vaults information...");
+    const latestLedger = (await toolkit.rpc.getLatestLedger()).sequence
 
     const pLimit = await getPLimit();
     const limit = pLimit(10); // Reduced concurrency for API limit
     const tasks = Array.from({ length: totalVaults }, (_, i) =>
       limit(async () => {
         try {
-          console.log(`📊 Processing pair ${i + 1}/${totalVaults}`);
+          console.log(`📊 Processing vault ${i + 1}/${totalVaults}`);
 
           const vaultAddress = await retry(() => getVault(i));
           const totalManagedFunds = await retry(() => getVaultTotalManagedFunds(vaultAddress));
 
-          vaultsInfo.push(totalManagedFunds);
+          // Only add vaults with non-zero balances
+          if (totalManagedFunds && totalManagedFunds.length > 0) {
+            const hasBalance = totalManagedFunds.some((fund: any) => 
+              fund.total_amount && BigInt(fund.total_amount) > 0
+            );
+            
+            if (hasBalance) {
+              // Get the total supply for this vault
+              const totalSupply = await retry(() => getVaultTotalSupply(vaultAddress));
+              
+              // Convert bigints to strings for JSON serialization
+              const serializedFunds = totalManagedFunds.map((fund: any) => ({
+                asset: fund.asset,
+                idle_amount: fund.idle_amount.toString(),
+                invested_amount: fund.invested_amount.toString(),
+                strategy_allocations: fund.strategy_allocations.map((alloc: any) => ({
+                  amount: alloc.amount.toString(),
+                  paused: alloc.paused,
+                  strategy_address: alloc.strategy_address,
+                })),
+                total_amount: fund.total_amount.toString(),
+              }));
 
-          console.log(`✅ Information obtained for pair: ${vaultAddress}`);
+              vaultsInfo.push({
+                ledger: latestLedger,
+                address: vaultAddress,
+                totalSupply: totalSupply,
+                totalManagedFunds: serializedFunds,
+              });
+
+              console.log(`✅ Information obtained for vault: ${vaultAddress} (Supply: ${totalSupply})`);
+            } else {
+              console.log(`⏩ Skipping vault with zero balance: ${vaultAddress}`);
+            }
+          } else {
+            console.log(`⏩ Skipping vault with no funds data: ${vaultAddress}`);
+          }
         } catch (error) {
-          console.error(`❌ Error processing pair ${i}:`, error);
-          failedPairs.push(`Pair index ${i}`);
+          console.error(`❌ Error processing vault ${i}:`, error);
+          failedVaults.push(`Vault index ${i}`);
           return;
         }
       })
@@ -134,50 +177,59 @@ export async function fetchDeFindexEntries(): Promise<void> {
 
     await Promise.all(tasks);
 
-    console.log(vaultsInfo)
+    console.log(`\n📊 Valid vaults found: ${vaultsInfo.length}`);
+    console.log(JSON.stringify(vaultsInfo, null, 2));
 
     // Generate file content
-//     const fileContent = `
-// // This file is generated automatically by scripts/soroswap/pairsTokensMaker.ts
-// // Do not modify manually
+    const fileContent = `// This file is generated automatically by scripts/defindex/vaults.ts
+// Do not modify manually
 
-// export interface PairTokenReserves {
-//     address: string;
-//     token_a: string;
-//     token_b: string;
-//     reserve_a: string;
-//     reserve_b: string;
-// }
+export interface VaultReserves {
+  ledger: number;
+  address: string;
+  totalSupply: string;
+  totalManagedFunds: {
+    asset: string;
+    idle_amount: string;
+    invested_amount: string;
+    strategy_allocations: {
+      amount: string;
+      paused: boolean;
+      strategy_address: string;
+    }[];
+    total_amount: string;
+  }[];
+}
 
-// export const soroswapPairsGeneratedDate = "${new Date().toISOString()}";
+export const defindexVaultsGeneratedDate = "${new Date().toISOString()}";
 
-// export const pairTokenReservesList: PairTokenReserves[] = ${JSON.stringify(
-//       vaultsInfo,
-//       null,
-//       2
-//     )};
-// `;
-//     // Write file
-//     const filePath = path.join(
-//       __dirname,
-//       "../../src/soroswap/pairReservesData.ts"
-//     );
-//     fs.writeFileSync(filePath, fileContent);
-    console.log(`✅ pairReservesData.ts file generated successfully`);
+export const vaultReservesList: VaultReserves[] = ${JSON.stringify(
+      vaultsInfo,
+      null,
+      2
+    )};
+`;
+    // Write file
+    const filePath = path.join(
+      __dirname,
+      "../../src/defindex/vaultReservesData.ts"
+    );
+    fs.writeFileSync(filePath, fileContent);
+    console.log(`✅ vaultReservesData.ts file generated successfully`);
   } catch (error) {
     console.error("❌ General error:", error);
     throw error;
   } finally {
     console.log("\n📊 Execution summary:");
-    console.log(`✅ Pairs processed successfully: ${vaultsInfo.length}`);
-    if (failedPairs.length > 0) {
-      console.log(`❌ Pairs with errors (${failedPairs.length}):`);
-      failedPairs.forEach((pair) => console.log(`   - ${pair}`));
+    console.log(`✅ Vaults processed successfully: ${vaultsInfo.length}`);
+    if (failedVaults.length > 0) {
+      console.log(`❌ Vaults with errors (${failedVaults.length}):`);
+      failedVaults.forEach((vault) => console.log(`   - ${vault}`));
     }
   }
 }
 
-const replacer = (key: string, value: any) => {
+const replacer = (_key: string, value: any) => {
   if (typeof value === "bigint") {
     return value.toString();
   }

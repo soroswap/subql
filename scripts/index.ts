@@ -27,27 +27,27 @@ async function main() {
     console.error("❌ Error generating Defindex Entries:", error);
   }
 
-  // // SOROSWAP
-  // try {
-  //   await generatePairTokenReservesList();
-  //   await getLatestRouterLedger();
-  // } catch (error) {
-  //   console.error("❌ Error generating Soroswap pairs:", error);
-  // }
+  // SOROSWAP
+  try {
+    await generatePairTokenReservesList();
+    await getLatestRouterLedger();
+  } catch (error) {
+    console.error("❌ Error generating Soroswap pairs:", error);
+  }
 
-  // // PHOENIX
-  // try {
-  //   await getPhoenixPreStart();
-  // } catch (error) {
-  //   console.error("❌ Error generating Phoenix pairs:", error);
-  // }
+  // PHOENIX
+  try {
+    await getPhoenixPreStart();
+  } catch (error) {
+    console.error("❌ Error generating Phoenix pairs:", error);
+  }
 
-  // // AQUA
-  // try {
-  //   await getAquaPreStart();
-  // } catch (error) {
-  //   console.error("❌ Error generating Aqua pairs:", error);
-  // }
+  // AQUA
+  try {
+    await getAquaPreStart();
+  } catch (error) {
+    console.error("❌ Error generating Aqua pairs:", error);
+  }
 
   process.exit(1);
 }
