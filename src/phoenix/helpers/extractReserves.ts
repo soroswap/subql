@@ -8,7 +8,7 @@ export const extractReservesFromPhoenixEvent = (event: SorobanEvent) => {
   const resultMetaXdrString = event.transaction.result_meta_xdr;
   const txMeta = xdr.TransactionMeta.fromXDR(resultMetaXdrString, "base64");
 
-  const txOperations = txMeta.v3().operations()[0].changes();
+  const txOperations = txMeta.v4().operations()[0].changes();
 
   const filteredOperations = txOperations.filter((operation) => {
     const switchName = operation?.["_switch"]?.name;
