@@ -3,6 +3,7 @@ import { generatePairTokenReservesList } from "./soroswap/pairsTokensMaker";
 import { getLatestRouterLedger } from "./soroswap/latestLedger";
 import { getPhoenixPreStart } from "./phoenix/pairs";
 import { getAquaPreStart } from "./aqua/aquaPoolsTokensMaker";
+import { fetchDeFindexEntries } from "./defindex/vaults";
 config();
 
 export const { SOROBAN_ENDPOINT, SECRET_KEY_HELPER, NETWORK } = process.env;
@@ -19,27 +20,34 @@ function validateEnvVariables() {
 async function main() {
   validateEnvVariables();
 
-  // SOROSWAP
+  // DEFINDEX
   try {
-    await generatePairTokenReservesList();
-    await getLatestRouterLedger();
+    await fetchDeFindexEntries();
   } catch (error) {
-    console.error("❌ Error generating Soroswap pairs:", error);
+    console.error("❌ Error generating Defindex Entries:", error);
   }
 
-  // PHOENIX
-  try {
-    await getPhoenixPreStart();
-  } catch (error) {
-    console.error("❌ Error generating Phoenix pairs:", error);
-  }
+  // // SOROSWAP
+  // try {
+  //   await generatePairTokenReservesList();
+  //   await getLatestRouterLedger();
+  // } catch (error) {
+  //   console.error("❌ Error generating Soroswap pairs:", error);
+  // }
 
-  // AQUA
-  try {
-    await getAquaPreStart();
-  } catch (error) {
-    console.error("❌ Error generating Aqua pairs:", error);
-  }
+  // // PHOENIX
+  // try {
+  //   await getPhoenixPreStart();
+  // } catch (error) {
+  //   console.error("❌ Error generating Phoenix pairs:", error);
+  // }
+
+  // // AQUA
+  // try {
+  //   await getAquaPreStart();
+  // } catch (error) {
+  //   console.error("❌ Error generating Aqua pairs:", error);
+  // }
 
   process.exit(1);
 }
