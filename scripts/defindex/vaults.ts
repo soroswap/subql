@@ -113,7 +113,7 @@ export async function fetchDeFindexEntries(): Promise<void> {
         strategy_address: string;
       }[];
       total_amount: string;
-    }[];
+    };
   }[] = [];
 
   try {
@@ -128,30 +128,33 @@ export async function fetchDeFindexEntries(): Promise<void> {
           console.log(`📊 Processing vault ${i + 1}/${totalVaults}`);
 
           const vaultAddress = await retry(() => getVault(i));
-          const totalManagedFunds = await retry(() => getVaultTotalManagedFunds(vaultAddress));
+          const totalManagedFundsResponse = await retry(() => getVaultTotalManagedFunds(vaultAddress));
+
+          // Extract the first element if it's an array, otherwise use as-is
+          const totalManagedFunds = Array.isArray(totalManagedFundsResponse) 
+            ? totalManagedFundsResponse[0] 
+            : totalManagedFundsResponse;
 
           // Only add vaults with non-zero balances
-          if (totalManagedFunds && totalManagedFunds.length > 0) {
-            const hasBalance = totalManagedFunds.some((fund: any) => 
-              fund.total_amount && BigInt(fund.total_amount) > 0
-            );
+          if (totalManagedFunds) {
+            const hasBalance = totalManagedFunds.total_amount && BigInt(totalManagedFunds.total_amount) > 0;
             
             if (hasBalance) {
               // Get the total supply for this vault
               const totalSupply = await retry(() => getVaultTotalSupply(vaultAddress));
               
               // Convert bigints to strings for JSON serialization
-              const serializedFunds = totalManagedFunds.map((fund: any) => ({
-                asset: fund.asset,
-                idle_amount: fund.idle_amount.toString(),
-                invested_amount: fund.invested_amount.toString(),
-                strategy_allocations: fund.strategy_allocations.map((alloc: any) => ({
+              const serializedFunds = {
+                asset: totalManagedFunds.asset,
+                idle_amount: totalManagedFunds.idle_amount.toString(),
+                invested_amount: totalManagedFunds.invested_amount.toString(),
+                strategy_allocations: totalManagedFunds.strategy_allocations.map((alloc: any) => ({
                   amount: alloc.amount.toString(),
                   paused: alloc.paused,
                   strategy_address: alloc.strategy_address,
                 })),
-                total_amount: fund.total_amount.toString(),
-              }));
+                total_amount: totalManagedFunds.total_amount.toString(),
+              };
 
               vaultsInfo.push({
                 ledger: latestLedger,
@@ -198,7 +201,7 @@ export interface VaultReserves {
       strategy_address: string;
     }[];
     total_amount: string;
-  }[];
+  };
 }
 
 export const defindexVaultsGeneratedDate = "${new Date().toISOString()}";
