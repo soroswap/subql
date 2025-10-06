@@ -92,7 +92,7 @@ export async function generatePairTokenReservesList(): Promise<void> {
     console.log("🚀 Getting pairs information...");
 
     const pLimit = await getPLimit();
-    const limit = pLimit(10); // Reduced concurrency for API limit
+    const limit = pLimit(6); // Reduced concurrency for API limit
     const tasks = Array.from({ length: totalPairs }, (_, i) =>
       limit(async () => {
         try {
