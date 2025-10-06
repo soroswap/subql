@@ -184,6 +184,9 @@ export async function fetchDeFindexEntries(): Promise<void> {
     console.log(JSON.stringify(vaultsInfo, null, 2));
 
     // Generate file content
+    // Use a timestamp 1 day in the past to prevent negative APY calculations after indexer resets
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
     const fileContent = `// This file is generated automatically by scripts/defindex/vaults.ts
 // Do not modify manually
 
@@ -204,7 +207,7 @@ export interface VaultReserves {
   };
 }
 
-export const defindexVaultsGeneratedDate = "${new Date().toISOString()}";
+export const defindexVaultsGeneratedDate = "${oneDayAgo.toISOString()}";
 
 export const vaultReservesList: VaultReserves[] = ${JSON.stringify(
       vaultsInfo,
