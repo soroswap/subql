@@ -342,7 +342,7 @@ export async function getAquaPreStart(): Promise<void> {
     console.log(`📊 Total of sets of tokens: ${totalSets}`);
 
     const pLimit = await getPLimit();
-    const limit = pLimit(6); // Adjust concurrency level
+    const limit = pLimit(4); // Adjust concurrency level
     const tasks = Array.from({ length: totalSets }, (_, i) =>
       limit(async () => {
         try {
